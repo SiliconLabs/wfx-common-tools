@@ -37,6 +37,10 @@ Num. of frames: 73, PER (x10e4): 1780, Throughput: 63Kbps/s
  MCS7        0        0        0        0        0
 ```
 
+*The wfx-linux-driver used on Linux platforms already performs this formatting (inside wfx_rx_stats_show()), 
+ and copies it to `/sys/kernel/debug/ieee80211/phy*/wfx/rx_stats`, so the wfx_test_agent only needs to echo
+ this content*
+
 Others are **only useful to log test conditions** ('nice to have'):
 
 * `read_agent_version` (returns '1.0.0' at the time os writing)
