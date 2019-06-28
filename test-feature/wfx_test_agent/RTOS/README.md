@@ -1,9 +1,9 @@
-# WFX Test Agent (Bare Metal)
+# WFX Test Agent (RTOS)
 *wfx_test_agent* is an executable which needs to be available on the DUT to allow RF Testing using
  Python3 scripts provided at https://github.com/SiliconLabs/wfx-linux-tools/tree/master/test-feature
 
 ## WXF Test Agent installation
-The Bare Metal `wfx_test_agent` is provided for a given MCU.
+The RTOS `wfx_test_agent` is provided for a STM32 MCU.
 
 * Compile the sources as an executable named `wfx_test_agent`
 * If required, adapt the code to support the features listed below in your setup.

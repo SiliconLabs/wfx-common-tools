@@ -1,10 +1,16 @@
-# WFX Test Agent (Linux)
+# WFX Test Agent (Bare Metal)
 *wfx_test_agent* is an executable which needs to be available on the DUT to allow RF Testing using
  Python3 scripts provided at https://github.com/SiliconLabs/wfx-linux-tools/tree/master/test-feature
 
+## WXF Test Agent installation
+The Bare Metal `wfx_test_agent` is provided for a given MCU.
+
+* Compile the sources as an executable named `wfx_test_agent`
+* If required, adapt the code to support the features listed below in your setup.
+
 ## WXF Test Agent testing
 *The wfx_test_agent can be tested & validated stand-alone before being used for RF Testing:*
-* On Linux platforms, call `wfx_test_agent <option>` to test all options
+* On platforms with SSH access, connect to the DUT and call `wfx_test_agent <option>` to test all options
 * On platforms accessible via UART, open a terminal and call `wfx_test_agent <option>` to test all options
 
 ## WFX Test Agent features/options
