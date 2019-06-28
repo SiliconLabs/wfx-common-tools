@@ -1,0 +1,183 @@
+/*
+ * These definitions come from firmware 2.3.0 headers
+ */
+#ifndef DEFINITIONS_2_3_0_IN
+#define DEFINITIONS_2_3_0_IN
+
+/*
+ * Nodes declarations
+ */
+#define HEADER              a
+#define     VERSION_MAJOR           a
+#define     VERSION_MINOR           b
+#define PROG_PINS_CFG       b
+#define     GPIO_FEM_1              a
+#define     GPIO_FEM_2              b
+#define     GPIO_FEM_3              c
+#define     GPIO_FEM_4              d
+#define     GPIO_FEM_5              e
+#define     GPIO_FEM_6              f
+#define     GPIO_PDET               g
+#define     GPIO_PTA_TX_CONF        h
+#define     GPIO_PTA_RF_ACT         i
+#define     GPIO_PTA_STATUS         j
+#define     GPIO_PTA_FREQ           k
+#define     GPIO_WUP                l
+#define     GPIO_WIRQ               m
+#define     RESERVE2                n
+#define         SLEW_RATE               a
+#define         PULL_UP_DOWN            b
+#define         SLEEP_CFG               c
+#define         PIN_MODE                d
+#define         GPIO_ID                 e
+#define HIF_PINS_CFG        c
+#define     SDIO_CLK_SPI_CLK        a
+#define     SDIO_CMD_SPI_MOSI       b
+#define     SDIO_D0_SPI_MISO        c
+#define     SDIO_D1_SPI_WIRQ        d
+#define     SDIO_D2_HIF_SEL         e
+#define     SDIO_D3_SPI_CSN         f
+#define HF_CLK                  e
+#define     XTAL_CFG                a
+#define         CTUNE_FIX             a
+#define         CTUNE_XI              b
+#define         CTUNE_XO              c
+#define     XTAL_SHARED             b
+#define     XTAL_TEMP_COMP          c
+#define FEM_CFG                 f
+#define     FEM_CTRL_PINS_MATRIX    a
+#define         NO_PTA                  a
+#define         COEX_EXCLUSIVE          b
+#define         WLAN_EXCLUSIVE          c
+#define         COEX_WL_COMBINED        d
+#define     FEM_TIMINGS             b
+#define         TX_EN_DELAY             a
+#define         TX_DIS_DELAY            b
+#define         PA_EN_DELAY             c
+#define         PA_DIS_DELAY            d
+#define         RX_EN_DELAY             e
+#define         RX_DIS_DELAY            f
+#define RF_POWER_CFG       h
+#define     RF_PORT                 e
+#define     MAX_OUTPUT_POWER_QDBM   a
+#define     FRONT_END_LOSS_CORRECTION_QDB b
+#define     BACKOFF_QDB             c
+#define         CHANNEL_NUMBER          a
+#define         BACKOFF_VAL             b
+#define     RSSI_CORRECTION         d
+#define TEST_FEATURE_CFG    i
+#define     TEST_CHANNEL_FREQ       a
+#define     TEST_MODE               b
+#define     CFG_TX_CW               c
+#define         CW_MODE                 a
+#define         FREQ1                   b
+#define         FREQ2                   c
+#define         MAX_OUTPUT_POWER        d
+#define     CFG_TX_PACKET           d
+#define         FRAME_SIZE_BYTE         a
+#define         IFS_US                  b
+#define         HT_PARAM                c
+#define         RATE                    d
+#define         NB_FRAME                e
+#define         REG_MODE                f
+#define     RX                      e
+#define     TEST_IND                f
+#define RF_ANTENNA_SEL_DIV_CFG j
+#define     RF_PORTS                a
+#define     DIVERSITY               b
+#define     EXT_SWITCH_CONTROL      c
+#define         NB_ANTENNA              a
+#define         NB_GPIO                 b
+#define         GPIO_ID_1               c
+#define         GPIO_ID_2               d
+#define         GPIO_ID_3               e
+#define PTA_CFG             k
+#define     PTA_MODE                a
+#define     SETTINGS                b
+#define     PIN_INVERT              c
+#define     TX_CONF_TIMING          d
+#define     STATUS_TIMING           e
+#define     PRIORITY                f
+
+/*
+ * Attribute values
+ * These value should more or less follow output of
+ *   sed -ne "s/[\t ]*PDS_\([A-Z0-9_]*\)[\t ]*=[\t ]*'\?\([0-9A-Z_]*\)'\?,\?/#define \1 \2/p" export/pds_parser_defs.h | tr "[A-Z]" "[a-z]"
+ */
+
+
+// Generic values
+#define disabled 0
+#define enabled  1
+#define no       0
+#define yes      1
+#define off      0
+#define on       1
+// PROG_PINS_CFG.*.PULL_UP_DOWN
+// PROG_PINS_CFG.*.SLEEP_CFG
+#define none  0
+#define down  1
+#define up    3
+#define maintain   4
+// PROG_PINS_CFG.*.MODE
+#define tri      0
+#define func     1
+#define gpio     2
+// RF_POWER_CFG.RF_PORT
+#define RF_PORT_BOTH 0
+#define RF_PORT_1  1
+#define RF_PORT_2  2
+// RF_ANTENNA_SEL_DIV_CFG.RF_PORTS
+#define TX1_RX1   0
+#define TX2_RX2   1
+#define TX2_RX1   2
+#define TX1_RX2   3
+#define TX12_RX12 4
+// DRF_ANTENNA_SEL_DIV_CFG.DIVERSITY
+#define OFF      0
+#define INTERNAL 1
+#define EXTERNAL 2
+// TEST_CFG_MSG.TEST_FEATURE_CFG.TEST_MODE
+#define tx_cw     0
+#define tx_packet 1
+#define rx        2
+// TEST_CFG_MSG.TEST_FEATURE_CFG.CFG_TX_CW.CW_MODE
+#define single    0
+#define dual      1
+// TEST_CFG_MSG.TEST_FEATURE_CFG.CFG_TX_PACKET.HT_PARAM
+#define MM        0
+#define GF        1
+// Rate Selection 
+#define B_1Mbps   0
+#define B_2Mbps   1
+#define B_5_5Mbps 2
+#define B_11Mbps  3
+#define G_6Mbps   6
+#define G_9Mbps   7
+#define G_12Mbps  8
+#define G_18Mbps  9
+#define G_24Mbps  10
+#define G_36Mbps  11
+#define G_48Mbps  12
+#define G_54Mbps  13
+#define N_MCS0    14
+#define N_MCS1    15
+#define N_MCS2    16
+#define N_MCS3    17
+#define N_MCS4    18
+#define N_MCS5    19
+#define N_MCS6    20
+#define N_MCS7    21
+// TEST_CFG_MSG.TEST_FEATURE_CFG.CFG_TX_PACKET.REG_MODE
+#define CERTIFIED_All          0
+#define CERTIFIED_FCC          1
+#define CERTIFIED_ETSI         2
+#define CERTIFIED_JAPAN        3
+#define CERTIFIED_Unrestricted 4
+// PTA_CFG.PTA_MODE
+#define EPTA_MODE_NO_BT             0
+#define EPTA_MODE_PTA_1W_WL_MASTER  1
+#define EPTA_MODE_PTA_1W_BT_MASTER  2
+#define EPTA_MODE_PTA_2W            3
+#define EPTA_MODE_PTA_3W            4
+#endif

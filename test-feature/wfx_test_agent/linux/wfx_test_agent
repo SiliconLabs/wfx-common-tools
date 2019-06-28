@@ -1,0 +1,60 @@
+#!/bin/bash
+# Copyright (c) 2018, Silicon Laboratories
+# See license terms contained in COPYING file
+
+shopt -s expand_aliases
+alias run_as_root='[ $(id -u) = 0 ] || exec sudo $0 "$@"'
+
+run_as_root
+
+USAGE="Usage: $(basename $0) OPTION
+
+Rf Tests
+
+Options:
+  --help                display this message
+  write_test_data       write test data to debugfs
+  read_rx_stats         read rx_stats from debugfs
+  read_fw_version       return current firmware version
+  read_driver_version   return current driver version
+"
+
+case "$1" in
+    --help)
+        echo "$USAGE"
+        exit 0
+        ;;
+    read_agent_version)
+        echo "1.0.0"
+        exit 0
+        ;;
+    write_test_data)
+        test_data_input=$(ls /sys/kernel/debug/ieee80211/phy*/wfx/send_pds)
+        echo ${2} > ${test_data_input}
+        echo "'${2}' sent to ${test_data_input}"
+        exit 0
+        ;;
+    read_rx_stats)
+        rx_stats_output='/sys/kernel/debug/ieee80211/phy*/wfx/rx_stats'
+        echo "$(cat ${rx_stats_output})"
+        exit 0
+        ;;
+    read_fw_version)
+        echo "$(sed -nre 's/Firmware:.* WFM(.*)/\1/p' /sys/kernel/debug/ieee80211/phy*/wfx/status | xargs | tr ' ' .)"
+        exit 0
+        ;;
+    read_driver_version)
+        echo "$(modinfo wfx | grep ^version: | cut -d _ -f 2 )"
+        exit 0
+        ;;
+    log_message)
+        echo "${2}" >> /dev/kmsg
+        echo "Done"
+        exit 0
+        ;;
+    *)
+        echo "ERROR: unknown $(basename $0) option $1" >&2
+        echo "$USAGE" >&2
+        exit 1
+        ;;
+esac
