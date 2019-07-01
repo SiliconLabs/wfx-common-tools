@@ -355,9 +355,9 @@ class WfxTestDut(WfxTestTarget):
                 else:
                     return_val = 1
                 self.rx_res['global']['last_us'] = timestamp
-                self.rx_res['global']['deltaT'] = (timestamp - self.rx_res['global']['start_us']) % pow(2, 31)
                 if self.rx_res['global']['loops'] == 0:
                     self.rx_res['global']['start_us'] = (timestamp - 1000000) % pow(2, 31)
+                self.rx_res['global']['deltaT'] = (timestamp - self.rx_res['global']['start_us']) % pow(2, 31)
                 self.rx_res['global']['loops'] += 1
             cumulated = re_fr_per_th.match(line)
             if cumulated is not None and int(cumulated.group(1)) > 0:
