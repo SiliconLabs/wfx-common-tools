@@ -263,17 +263,18 @@ class WfxTestDut(WfxTestTarget):
         start = time.time()
         self.__rx_clear()
         nb_pkt = nb_same_timestamp = 0
+        test_ind = int(self.test_ind_period().split()[1])
         if mode == 'endless':
             self.rx_stop()
             if self.rx_job is not None:
                 self.rx_job.stop()
-            loop_time = int(self.test_ind_period().split()[1])
             self.rx_job = Job(loop_time, self.__rx_stats)
             self.rx_start()
             # Waiting for 110% of TEST_IND to read the first stats.
             #  2 goals:
             #   . Making sure we don't attempt to read the data while it's written
             #   . Making sure the first read corresponds to our test conditions
+            loop_time = test_ind
             time.sleep((loop_time * 1.1) / 1000)
             self.rx_job.start()
             return "Endless rx loop started with a period of " + str(loop_time) + " ms. Use " + \
@@ -281,6 +282,7 @@ class WfxTestDut(WfxTestTarget):
                    "'rx_kill()' to stop Rx monitoring, " + \
                    "'rx_stop()' to stop Rx entirely"
         mode = 'global' if mode not in self.rx_modulations else mode
+        time.sleep((test_ind * 1.1) / 1000)
         while nb_pkt < frames:
             timestamp_changed = self.__rx_stats()
             elapsed = int(time.time() - start)
