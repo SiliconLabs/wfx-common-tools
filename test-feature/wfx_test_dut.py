@@ -259,8 +259,9 @@ class WfxTestDut(WfxTestTarget):
             res.append(str.format("%s %5s  " % (key, str(self.rx_res[mode][key]))))
         return ''.join(res).rstrip()
 
-    def rx_receive(self, mode='global', frames=1000, timeout_s=0, sleep_ms=1000):
+    def rx_receive(self, mode='global', frames=1000, timeout_s=0, sleep_ms=None):
         start = time.time()
+        self.link.trace = False
         self.__rx_clear()
         nb_pkt = nb_same_timestamp = 0
         test_ind = int(self.test_ind_period().split()[1])
@@ -268,7 +269,7 @@ class WfxTestDut(WfxTestTarget):
             self.rx_stop()
             if self.rx_job is not None:
                 self.rx_job.stop()
-            self.rx_job = Job(loop_time, self.__rx_stats)
+            self.rx_job = Job(test_ind, self.__rx_stats)
             self.rx_start()
             # Waiting for 110% of TEST_IND to read the first stats.
             #  2 goals:
@@ -283,12 +284,17 @@ class WfxTestDut(WfxTestTarget):
                    "'rx_stop()' to stop Rx entirely"
         mode = 'global' if mode not in self.rx_modulations else mode
         time.sleep((test_ind * 1.1) / 1000)
+        origin = time.time()
+        if sleep_ms is None:
+            sleep_ms = test_ind
         while nb_pkt < frames:
+            before = time.time()
             timestamp_changed = self.__rx_stats()
             elapsed = int(time.time() - start)
             if timestamp_changed != 0:
                 nb_same_timestamp = 0
-                print(str.format(' >>> rx_receive:   mode %s %s   (%5.2f s)' % (mode, self.rx_logs(mode), elapsed)))
+                print(str.format('%s >>> rx_receive:   mode %s %s   (%5.2f s)' %
+                                 (time_stamp(time.time()), mode, self.rx_logs(mode), elapsed)))
                 nb_pkt = self.rx_res[mode]['frames']
             else:
                 nb_same_timestamp += 1
@@ -298,11 +304,16 @@ class WfxTestDut(WfxTestTarget):
                     print('\n', msg, '\n')
                     break
             if elapsed > timeout_s > 0:
-                msg = str.format(' Warning: Rx stats timeout after %5.2f seconds!', (str(elapsed)))
+                msg = str.format(' Warning: Rx stats timeout after %5.2f seconds!' % elapsed)
                 add_pds_warning(msg)
                 print('\n', msg, '\n')
                 break
-            time.sleep(sleep_ms / 1000)
+            time_from_origin = before - origin
+            loops = int((time_from_origin*1000/sleep_ms) + 0.5)
+            next_loop = origin + ((loops+1)*sleep_ms/1000)
+            after = time.time()
+            sleep_this_time = int((next_loop - after)*1000)
+            time.sleep(sleep_this_time/1000)
         return self.rx_logs(mode)
 
     def test_conditions(self):
@@ -385,14 +396,13 @@ class WfxTestDut(WfxTestTarget):
         return return_val
 
 
-
 if __name__ == '__main__':
 
     print(uarts())
 
     # dut = WfxTestDut('Local')
     dut = WfxTestDut('Pi_186', host='10.5.124.186', user='pi', port=22, password='default_password')
-    #dut = WfxTestDut('Serial', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1)
+    # dut = WfxTestDut('Serial', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1)
 
     dut.link.trace = True
 
