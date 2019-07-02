@@ -259,19 +259,16 @@ class WfxTestDut(WfxTestTarget):
             res.append(str.format("%s %5s  " % (key, str(self.rx_res[mode][key]))))
         return ''.join(res).rstrip()
 
-    def rx_receive(self, mode='global', frames=1000, timeout_s=0, sleep_ms=None):
+    def rx_receive(self, mode='global', frames=1000, timeout_s=0, sleep_ms=1000):
         start = time.time()
-        loop_time = int(self.test_ind_period().split()[1])
         self.__rx_clear()
         nb_pkt = nb_same_timestamp = 0
         if mode == 'endless':
             self.rx_stop()
             if self.rx_job is not None:
                 self.rx_job.stop()
+            loop_time = int(self.test_ind_period().split()[1])
             self.rx_job = Job(loop_time, self.__rx_stats)
-            if sleep_ms is not None:
-                loop_time = sleep_ms
-                self.test_ind_period(loop_time)
             self.rx_start()
             time.sleep((loop_time / 2) / 1000)
             self.rx_job.start()
@@ -299,7 +296,7 @@ class WfxTestDut(WfxTestTarget):
                 add_pds_warning(msg)
                 print('\n', msg, '\n')
                 break
-            time.sleep(loop_time / 1000)
+            time.sleep(sleep_ms / 1000)
         return self.rx_logs(mode)
 
     def test_conditions(self):
