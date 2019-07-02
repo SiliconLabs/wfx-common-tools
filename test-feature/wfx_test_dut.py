@@ -270,7 +270,11 @@ class WfxTestDut(WfxTestTarget):
             loop_time = int(self.test_ind_period().split()[1])
             self.rx_job = Job(loop_time, self.__rx_stats)
             self.rx_start()
-            time.sleep((loop_time / 2) / 1000)
+            # Waiting for 110% of TEST_IND to read the first stats.
+            #  2 goals:
+            #   . Making sure we don't attempt to read the data while it's written
+            #   . Making sure the first read corresponds to our test conditions
+            time.sleep((loop_time * 1.1) / 1000)
             self.rx_job.start()
             return "Endless rx loop started with a period of " + str(loop_time) + " ms. Use " + \
                    "'rx_logs()' to monitor Rx, " + \
