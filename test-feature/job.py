@@ -40,7 +40,7 @@ class Job(Thread):
             self.before = time.time()
             self.execute(*self.args, **self.kwargs)
             time_from_origin = self.before - self.origin
-            loops = int(time_from_origin*1000/self.required_interval_ms)
+            loops = int((time_from_origin*1000/self.required_interval_ms) + 0.5)
             self.next = self.origin + ((loops+1)*self.required_interval_ms/1000)
             self.after = time.time()
             self.interval = timedelta(milliseconds=(self.next - self.after)*1000)
