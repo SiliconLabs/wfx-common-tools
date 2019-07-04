@@ -96,11 +96,11 @@ class WfxTestDut(WfxTestTarget):
         else:
             return self.wfx_set_dict({"MAX_OUTPUT_POWER": int(4 * dbm)}, send_data=1)
 
-    def tone_start(self, freq=None):
-        if freq is None:
-            freq = self.wfx_get_list({"FREQ1"}, mode='quiet')
-        # CW Mode: generate CW @ (freq+1)*312.5Khz
-        return self.wfx_set_dict({"TEST_MODE": "tx_cw", "CW_MODE": "single", "FREQ1": freq}, send_data=1)
+    def tone_start(self, offset=None):
+        if offset is None:
+            offset = self.wfx_get_list({"FREQ1"}, mode='quiet')
+        # CW Mode: generate CW @ offset*312.5Khz
+        return self.wfx_set_dict({"TEST_MODE": "tx_cw", "CW_MODE": "single", "FREQ1": offset}, send_data=1)
 
     def tone_stop(self):
         return self.tx_stop()
