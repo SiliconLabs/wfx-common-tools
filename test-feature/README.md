@@ -24,12 +24,14 @@ deals with encryption required by SSH (paramiko installation is the longest one)
 apt-get update
 apt-get install libffi-dev python3-pip
 apt-get install libssl-dev
-pip3 install -U pip
-pip3 install -U setuptools
-pip3 install -U pynacl
-pip3 install -U paramiko ipython==6
-pip3 install -U ifaddr
-pip3 install -U pyserial
+pip3 install pip==19.1
+pip3 install setuptools==41.0.1
+pip3 install pynacl
+pip3 install pygments==2.3.1
+pip3 install paramiko==2.4.2
+pip3 install ipython==6
+pip3 install ifaddr==0.1.6
+pip3 install pyserial==2.6
 ```
 ## [Installing/updating the WFX Test tool](#installing)
 

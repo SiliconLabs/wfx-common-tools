@@ -38,6 +38,6 @@ Num. of frames: 73, PER (x10e4): 1780, Throughput: 63Kbps/s
 
 Others are **only useful to log test conditions** ('nice to have'):
 
-* `read_agent_version` (returns '1.0.0' at the time os writing)
-* `read_driver_version` (returns '2.0.3' at the time os writing)
-* `read_fw_version` (returns '2.2.1' at the time os writing)
+* `read_agent_version` (returns '1.0.0' at the time of writing)
+* `read_driver_version` (returns '2.0.3' at the time of writing)
+* `read_fw_version` (returns '2.2.1' at the time of writing)
