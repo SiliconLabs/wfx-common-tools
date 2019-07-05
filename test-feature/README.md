@@ -412,6 +412,15 @@ _Nb: the above is only possible if using `dut = WfxTestDut(...)`._
 
 ## Advanced features
 
+### Traces
+**Tracing test data settings**
+
+use `dut.trace = True` to trace all changes to test data items
+
+**Tracing dut communication link**
+
+use `dut.link.trace = True` to trace all communication with the wfx_test-agent
+
 ### Accessing a test parameter if it's not managed by a test function
 
 All parameters (even those not managed by test functions) listed in the 
