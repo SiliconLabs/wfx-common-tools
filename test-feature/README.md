@@ -55,8 +55,13 @@ the agent corresponding to your platform
 * The Linux agent is directly usable on Linux platforms
 	* make sure it has execution rights and is in the path (create a link as /usr/local/bin/wfx_test_agent)
 	```
-	chmod a+x   /home/pi/siliconlabs/wfx-linux-tools-internal/test/public/wfx_test_agent
-	sudo ln -sf /home/pi/siliconlabs/wfx-linux-tools-internal/test/public/wfx_test_agent /usr/local/bin/wfx_test_agent`
+	chmod a+x   /home/pi/siliconlabs/wfx-linux-tools/test-feature/wfx_test_agent
+	sudo ln -sf /home/pi/siliconlabs/wfx-linux-tools/test-feature/wfx_test_agent /usr/local/bin/wfx_test_agent`
+	```
+	TEMPORARY information (until the repository https://github.com/SiliconLabs/wfx-common-tools is made public):
+	```
+	chmod a+x   /home/pi/siliconlabs/wfx-common-tools/test-feature/wfx_test_agent/linux/wfx_test_agent
+	sudo ln -sf /home/pi/siliconlabs/wfx-common-tools/test-feature/wfx_test_agent/linux/wfx_test_agent /usr/local/bin/wfx_test_agent`
 	```
 	
 * The RTOS and Bare Metal agents need to be adapted and be compiled for your platform
