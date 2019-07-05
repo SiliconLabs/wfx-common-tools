@@ -261,7 +261,6 @@ class WfxTestDut(WfxTestTarget):
 
     def rx_receive(self, mode='global', frames=1000, timeout_s=0, sleep_ms=None):
         start = time.time()
-        self.link.trace = False
         self.__rx_clear()
         nb_pkt = nb_same_timestamp = 0
         test_ind = int(self.test_ind_period().split()[1])
