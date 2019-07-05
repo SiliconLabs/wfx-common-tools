@@ -83,7 +83,7 @@ class AbstractConnection(object):
     link = None
     connection = None
     nickname = ''
-    trace = True
+    trace = False
 
     def configure(self, *args, **kwargs):
         raise NotImplementedError()
