@@ -123,9 +123,9 @@ class WfxTestTarget(object):
             res += parameter + '  '
             res += str(self.test_data.set(parameter, value)) + '     '
             parameters.append(parameter)
-        self._prepare_and__send_test_data(parameters, send_data)
         if self.trace:
             print(str.format("%-8s SET|  " % self.nickname), res.strip())
+        self._prepare_and__send_test_data(parameters, send_data)
         return res.strip()
 
     def wfx_get_list(self, param_list, mode='verbose'):
