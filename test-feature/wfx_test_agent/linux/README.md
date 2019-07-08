@@ -9,10 +9,34 @@ The Linux `wfx_test_agent` is a bash script with execution permission which shou
 * Create a link from `/usr/local/bin/wfx_test_agent` to the script
 * Make sure it has execution rights
 
+## Executing commands on the DUT
+Executing commands on the DUT is possible using the dut.run(cmd) syntax
+
+An example is calling the wfx_test_agent:
+```
+dut.run('wfx_test_agent read_agent_version')
+```
+Any other DUT command can also be called in a similar way. 
+For instance, the following would work on a Linux DUT
+```
+dut.run('uname -r')
+```
+
 ## WXF Test Agent testing
+### Direct testing
 *The wfx_test_agent can be tested & validated stand-alone before being used for RF Testing:*
 * On Linux platforms, call `wfx_test_agent <option>` to test all options
 * On platforms accessible via UART, open a terminal and call `wfx_test_agent <option>` to test all options
+
+
+### Testing from Python3
+```
+dut.run('wfx_test_agent write_test_data {}')
+dut.run('wfx_test_agent read_rx_stats')
+dut.run('wfx_test_agent read_agent_version')
+dut.run('wfx_test_agent read_fw_version')
+dut.run('wfx_test_agent read_driver_version')
+```
 
 ## WFX Test Agent features/options
 Some DUT wfx_test_agent features are **mandatory for RF Testing**:

@@ -70,6 +70,19 @@ the agent corresponding to your platform
 * On Linux platforms, call `wfx_test_agent <option>` to test all options
 * On platforms accessible via UART, open a terminal and call `wfx_test_agent <option>` to test all options
 
+### Executing commands on the DUT
+Executing commands on the DUT is possible using the dut.run(cmd) syntax
+
+An example is calling the wfx_test_agent:
+```
+dut.run('wfx_test_agent read_agent_version')
+```
+Any other DUT command can also be called in a similar way. 
+For instance, the following would work on a Linux DUT
+```
+dut.run('uname -r')
+```
+
 ### [DUT wfx_test_agent options/features](#agent-features)
 Some DUT wfx_test_agent features are mandatory for RF Testing:
 
