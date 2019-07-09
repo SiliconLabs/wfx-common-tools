@@ -139,16 +139,18 @@ python3
 ```
 * SSH DUT connection
 ```
->>>  dut = WfxTestDut('Pi_186', host='10.5.124.186', user='pi', port=22, password='')
+>>>  dut = WfxTestDut('Pi_186', host='10.5.124.186', user='root', port=22)
 ```
 
-_NB: for SSH connection: user, port and password values are optional, values used above are the default values_
+_NB: for SSH connection: user, port and password values are optional, values used above are the default values
+ (The user account needs to have root privileges)_
 
 * UART DUT connection
 ```
 >>>  dut = WfxTestDut('Serial', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1)
 ```
-_NB: for UART connection: baudrate, bytesize, parity and stopbits values are optional, values used above are the default values_
+_NB: for UART connection: baudrate, bytesize, parity and stopbits values are optional, 
+ values used above are the default values_
 
 ### Tx (modulated)
 ```
@@ -386,6 +388,9 @@ These are the functions which are primarily used by users to test the product.
  the required number of frames(default 1000). When mode == `endless`, run continuously
 * `rx_start()`                       : start Rx test in the DUT
 * `rx_stop()`                        : stop Rx test in the DUT and Python3 polling thread
+* `read_agent_version()`             : returns Agent version
+* `read_driver_version()`            : returns driver version
+* `read_fw_version()`                : returns FW version
 * `test_conditions()`                : returns DUT/Driver/FW/Tools/Agent versions and DUT connection info
 * `test_ind_period()`                : set the delay between indication messages in Tx and Rx_stats in Rx
 * `tone_freq(offset=None)`           : set CW tone offset at 312.5kHz*offset([-31,31], default 0)
@@ -653,8 +658,8 @@ Python 3.4.2 (default, Oct 19 2014, 13:31:11)
 [GCC 4.9.1] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> from wfx_test_dut import *
->>> dut = WfxTestDut('SSH', host='10.5.124.186', user='pi', password='default_password', port=22)
-SSH: Configuring a SSH connection to host 10.5.124.186 for user pi
+>>> dut = WfxTestDut('SSH', host='10.5.124.186', user='root', port=22)
+SSH: Configuring a SSH connection to host 10.5.124.186 for user root
 /usr/local/lib/python3.4/dist-packages/cryptography/hazmat/bindings/openssl/binding.py:163: CryptographyDeprecationWarning: OpenSSL version 1.0.1 is no longer supported by the OpenSSL project, please upgrade. A future version of cryptography will drop support for it.
   utils.CryptographyDeprecationWarning
 /usr/local/lib/python3.4/dist-packages/paramiko/kex_ecdh_nist.py:39: CryptographyDeprecationWarning: encode_point has been deprecated on EllipticCurvePublicNumbers and will be removed in a future version. Please use EllipticCurvePublicKey.public_bytes to obtain both compressed and uncompressed point encoding.
@@ -667,7 +672,7 @@ SSH: Configuring a SSH connection to host 10.5.124.186 for user pi
 *Disregard the **CryptographyDeprecationWarning** above, since it's related to paramiko dependencies,
  and dealing with these it out of our scope (as long as it still works)* 
 ```
-INFO:root:SSH           I'm connected to 10.5.124.186:22 as pi
+INFO:root:SSH           I'm connected to 10.5.124.186:22 as root
 ```
 *Good news: The rest is strictly identical to the **Direct on Raspberry PI (without SSH)** case!*
 
@@ -738,15 +743,15 @@ UART COM21/115200/8/N/1 agent_reply: Unknown command
 ```
 *An uart DUT has just been configured...*
 ```
->>> ssh_dut = WfxTestDut('SSH', host='10.5.124.186', user='pi', password='default_password', port=22)
-SSH: Configuring a SSH connection to host 10.5.124.186 for user pi
+>>> ssh_dut = WfxTestDut('SSH', host='10.5.124.186', user='root', port=22)
+SSH: Configuring a SSH connection to host 10.5.124.186 for user root
 C:\Program Files (x86)\Python37-32\lib\site-packages\paramiko\kex_ecdh_nist.py:39: CryptographyDeprecationWarning: encode_point has been deprecated on EllipticCurvePublicNumbers and will be removed in a future version. Please use EllipticCurvePublicKey.public_bytes to obtain both compressed and uncompressed point encoding.
   m.add_string(self.Q_C.public_numbers().encode_point())
 C:\Program Files (x86)\Python37-32\lib\site-packages\paramiko\kex_ecdh_nist.py:96: CryptographyDeprecationWarning: Support for unsafe construction of public numbers from encoded data will be removed in a future version. Please use EllipticCurvePublicKey.from_encoded_point
   self.curve, Q_S_bytes
 C:\Program Files (x86)\Python37-32\lib\site-packages\paramiko\kex_ecdh_nist.py:111: CryptographyDeprecationWarning: encode_point has been deprecated on EllipticCurvePublicNumbers and will be removed in a future version. Please use EllipticCurvePublicKey.public_bytes to obtain both compressed and uncompressed point encoding.
   hm.add_string(self.Q_C.public_numbers().encode_point())
-INFO:root:SSH           I'm connected to 10.5.124.186:22 as pi
+INFO:root:SSH           I'm connected to 10.5.124.186:22 as root
 SSH      S>>|  wfx_test_agent read_fw_version
 <<S      SSH|  2.2.1
 SSH: fw_version retrieved from HW (2.2.1)
