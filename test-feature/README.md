@@ -111,6 +111,19 @@ Others are only useful to log test conditions:
 * `read_agent_version` (returns '1.0.0' at the time os writing)
 * `read_driver_version` (returns '2.0.3' at the time os writing)
 * `read_fw_version` (returns '2.2.1' at the time os writing)
+## DUT with SSH connection
+The wfx_test_agent needs to be executed with root privileges over SSH.
+
+To achieve this on platforms the root user can be accessed using a password, use the root account to connect the DUT.
+
+The Raspberry Pi does not allow a root user to be accessed using a password, so the necessary steps are required (once):
+
+* Copying the server's public key to the 'pi' user's account
+* Logging as user 'pi'
+* As user Pi, use 'sudo' to copy the public key from the 'pi' user's account to the root user account.
+
+Following this, access to Raspberry PIs with root privileges will be possible using user='root, host = '<pi_address>'
+when connecting the DUT (with no password)
 
 ## [Typical Use Case](#typical-use-case)
 
