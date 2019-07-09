@@ -2,10 +2,10 @@
 # Copyright (c) 2018, Silicon Laboratories
 # See license terms contained in COPYING file
 
-shopt -s expand_aliases
-alias run_as_root='[ $(id -u) = 0 ] || exec sudo $0 "$@"'
-
-run_as_root
+if [ $(id -u) != 0 ]; then
+    echo "ERROR: please run this script as root (running 'sudo $(basename $0)' should work)" >&2
+    exit 1
+fi
 
 USAGE="Usage: $(basename $0) OPTION
 
