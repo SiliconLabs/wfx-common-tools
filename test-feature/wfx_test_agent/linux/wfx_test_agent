@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2018, Silicon Laboratories
+# Copyright (c) 2019, Silicon Laboratories
 # See license terms contained in COPYING file
 
 if [ $(id -u) != 0 ]; then
