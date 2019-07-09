@@ -315,14 +315,23 @@ class WfxTestDut(WfxTestTarget):
             time.sleep(sleep_this_time/1000)
         return self.rx_logs(mode)
 
+    def read_agent_version(self):
+        return self.run('wfx_test_agent read_agent_version').strip()
+
+    def read_driver_version(self):
+        return self.run('wfx_test_agent read_driver_version').strip()
+
+    def read_fw_version(self):
+        return self.run('wfx_test_agent read_fw_version').strip()
+
     def test_conditions(self):
-        agt = self.run('wfx_test_agent read_agent_version')
+        agt = self.read_agent_version()
         if 'ERROR' in agt or agt == '':
             agt = "unknown"
-        fw = self.run('wfx_test_agent read_fw_version')
+        fw = self.read_fw_version()
         if 'ERROR' in fw or fw == '':
             fw = "unknown"
-        drv = self.run('wfx_test_agent read_driver_version')
+        drv = self.read_driver_version()
         if 'ERROR' in drv or drv == '':
             drv = "unknown"
         return str.format("Test conditions: DUT %s / Driver %s / FW %s / Tools %s / Agent %s / %s" %
