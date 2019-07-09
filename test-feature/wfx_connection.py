@@ -20,7 +20,7 @@ logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 class SshTarget(paramiko.client.SSHClient):
 
-    def __init__(self, host, name=None, wait=False, user="pi", port=22, password="default_password"):
+    def __init__(self, host, name=None, wait=False, user="root", port=22, password=""):
         super().__init__()
         self.user = user
         self.host = host
@@ -32,8 +32,9 @@ class SshTarget(paramiko.client.SSHClient):
         self.stderr = None
         self.result = None
         self.error = None
-        if len(self.name) > 6:
-            self.name = "…" + self.name[-5:]
+        self.local_trace = False
+        if len(self.name) > 10:
+            self.name = "…" + self.name[-9:]
         self.__connect(wait)
 
     def __connect(self, wait=False):
@@ -61,10 +62,29 @@ class SshTarget(paramiko.client.SSHClient):
                     logging.info("%-13s %s" % (cmd_name, "boot nearly finished"))
                     err = paramiko.ssh_exception.NoValidConnectionsError
             except paramiko.ssh_exception.SSHException:
-                pass
+                self.__send_key(self.password)
+                return self.__connect()
             now = time.time()
         logging.info("%-13s I can't connect to %s:%d as %s" % (cmd_name, self.host, self.port, self.user))
         raise Exception("%s: Cannot connect over SSH to %s:%d as %s" % (cmd_name, self.host, self.port, self.user))
+
+    def __send_key(self, original_pwd):
+        # This is very specific to the Raspberry PI, where SSH using a password for root is not possible.
+        # Therefore we try to log using the 'pi' account to add our public key and copy it to the root account
+        a = paramiko.Agent()
+        ks = a.get_keys()
+        k = ks[0].get_base64()
+        for pwd in {'default_password', original_pwd}:
+            if pwd is not None:
+                print("Trying to add the tester public key to /root/.ssh/authorized_keys using \'" + pwd + "\'")
+                try:
+                    tmp_dut = SshTarget(self.host, name='tmp_dut', port=self.port, user='pi', password=pwd)
+                    print(type(tmp_dut))
+                    tmp_dut.write('sudo mkdir -p /root/.ssh')
+                    tmp_dut.write('echo ' + 'ssh-rsa ' + str(k) + '> ~/.ssh/authorized_keys2')
+                    tmp_dut.write('sudo tee -a /root/.ssh/authorized_keys < ~/.ssh/authorized_keys2')
+                except paramiko.ssh_exception.SSHException:
+                    pass
 
     def write(self, text):
         if self is not None:
