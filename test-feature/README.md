@@ -20,6 +20,10 @@ The architecture is now a Test Server/DUT configuration:
 ## [Installing the necessary resources](#installing-the-necessary-resources)
 Python3 resources for SSH and UART need to be installed, including the paramiko package which 
 deals with encryption required by SSH (paramiko installation is the longest one).
+### Installing Python3 on Windows
+* Download Python3 from https://www.python.org/downloads/windows/ for your platform
+* In the first installation window, tick 'Add Python 3.x to PATH' (otherwise you will need to add it to your PATH later)
+
 ```
 apt-get update
 apt-get install libffi-dev python3-pip
