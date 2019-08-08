@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install necessary resources from paramiko (Python SSH access)
-#  including scp (to copy files) and fs.sshfs (to allow remote access to files)
+#  including scp (to copy files) and fs.sshfs (to allow remote access to files under Linux)
 set -euo pipefail
 
 set -x
