@@ -13,6 +13,7 @@
 # Use wfx_pta_data to prepare PTA bytes from input parameters
 #  then send them to the target
 #
+#
 
 from __future__ import print_function
 
@@ -26,6 +27,10 @@ sys.path.append('../connection')
 from wfx_connection import *
 from wfx_pta_data import *
 
+HI_STATUS_SUCCESS = '0'
+HI_STATUS_FAILURE = '1'
+HI_INVALID_PARAMETER = '2'
+HI_ERROR_UNSUPPORTED_MSG_ID = '4'
 
 class WfxPtaTarget(object):
 
@@ -59,6 +64,7 @@ class WfxPtaTarget(object):
 
     def write(self, text):
         if self.link is not None:
+            #self.link.write(text.encode('ascii'))
             self.link.write(text)
 
     def read(self):
@@ -83,25 +89,39 @@ class WfxPtaTarget(object):
         self.pta_data = pta.data()
 
     def settings(self, options, mode='quiet'):
-        self._prepare_pta_data('settings ' + options, mode)
-        if self.pta_data is not None:
-            return self.link.run('wfx_hif send_msg ' + self.pta_data)
-        else:
-            return "Error applying settings '" + options + "'"
+        return self.send_pta('settings', options, mode)
 
     def priority(self, options, mode='quiet'):
-        self._prepare_pta_data('priority ' + options, mode)
-        if self.pta_data is not None:
-            return self.link.run('wfx_hif send_msg ' + self.pta_data)
-        else:
-            return "Error applying priority '" + options + "'"
+        return self.send_pta('priority', options, mode)
 
     def state(self, options, mode='quiet'):
-        self._prepare_pta_data('state ' + options, mode)
+        return self.send_pta('state', options, mode)
+
+    def send_pta(self, command, options, mode='quiet'):
+        self._prepare_pta_data(command + ' ' + options, mode)
         if self.pta_data is not None:
-            return self.link.run('wfx_hif send_msg ' + self.pta_data)
+            send_result = self.link.run(r'wfx_exec wfx_hif_send_msg "' + self.pta_data + r'"')
+            if send_result == HI_STATUS_SUCCESS:
+                return 'HI_STATUS_SUCCESS'
+            else:
+                if send_result == HI_STATUS_FAILURE:
+                    return 'HI_STATUS_FAILURE'
+                elif send_result == HI_INVALID_PARAMETER:
+                    return 'HI_INVALID_PARAMETER'
+                elif send_result == HI_ERROR_UNSUPPORTED_MSG_ID:
+                    return 'HI_ERROR_UNSUPPORTED_MSG_ID'
+                else:
+                    return 'unknown_error_sending PTA data: ' + str(send_result) + ' (' + str(type(send_result)) + ')'
         else:
-            return "Error applying state '" + options + "'"
+            return "Error applying " + command + " '" + options + "'"
+
+    def selftest(self, mode='verbose'):
+        stored_trace = self.link.trace
+        self.link.trace = True
+        print('settings result: ' + self.settings('--Config 3W_NOT_COMBINED_BLE', mode=mode))
+        print('priority result: ' + self.priority('--PriorityMode BALANCED', mode=mode))
+        print('state    result: ' + self.state('--State OFF', mode=mode))
+        self.link.trace = stored_trace
 
 
 if __name__ == '__main__':
