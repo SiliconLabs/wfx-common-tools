@@ -121,7 +121,7 @@ class WfxPtaData(object):
 
     state_parameters = [
         #  Parameter, type, bytes,  choices, default, help
-        ('State', str, 1, ['ON', 'OFF'], 'OFF', """
+        ('State', str, 4, ['ON', 'OFF'], 'OFF', """
             PTA state on/off""")
     ]
 
@@ -305,10 +305,10 @@ class WfxPtaData(object):
                 if _name != 'Config':
                     self.print_if_verbose(str.format("%-30s %-10s " % (_name, self.g_settings.__dict__[_name])), end='')
                     if _bytes == 1:
-                        payload.append(str.format("\\x%02x" % int(self.g_settings.__dict__[_name] & 0xFF)))
+                        payload.append(str.format(r"\x%02x" % int(self.g_settings.__dict__[_name] & 0xFF)))
                     if _bytes == 2:
-                        payload.append(str.format("\\x%02x" % int(self.g_settings.__dict__[_name] & 0x00FF)))
-                        payload.append(str.format("\\x%02x" % int(self.g_settings.__dict__[_name] & 0xFF00)))
+                        payload.append(str.format(r"\x%02x" % int(self.g_settings.__dict__[_name] & 0x00FF)))
+                        payload.append(str.format(r"\x%02x" % int(self.g_settings.__dict__[_name] & 0xFF00)))
                     self.print_if_verbose(''.join(payload[(nb_bytes-4):]))
                     nb_bytes += _bytes
         if self.g_settings.pta_cmd == 'priority':
@@ -317,10 +317,10 @@ class WfxPtaData(object):
                 _name, _type, _bytes, _choices, _default, _help = item
                 self.print_if_verbose(str.format("%-30s %-10s " % (_name, self.g_settings.__dict__[_name])), end='')
                 p = int(self.g_settings.__dict__[_name])
-                payload.append(str.format("\\x%02x" % ((p & 0x000000FF) >> 0)))
-                payload.append(str.format("\\x%02x" % ((p & 0x0000FF00) >> 8)))
-                payload.append(str.format("\\x%02x" % ((p & 0x00FF0000) >> 16)))
-                payload.append(str.format("\\x%02x" % ((p & 0xFF000000) >> 24)))
+                payload.append(str.format(r"\x%02x" % ((p & 0x000000FF) >> 0)))
+                payload.append(str.format(r"\x%02x" % ((p & 0x0000FF00) >> 8)))
+                payload.append(str.format(r"\x%02x" % ((p & 0x00FF0000) >> 16)))
+                payload.append(str.format(r"\x%02x" % ((p & 0xFF000000) >> 24)))
                 self.print_if_verbose(''.join(payload[(nb_bytes - 4):]))
                 nb_bytes += _bytes
         if self.g_settings.pta_cmd == 'state':
@@ -329,18 +329,18 @@ class WfxPtaData(object):
                 _name, _type, _bytes, _choices, _default, _help = item
                 self.print_if_verbose(str.format("%-30s %-10s " % (_name, self.g_settings.__dict__[_name])), end='')
                 p = int(self.g_settings.__dict__[_name])
-                payload.append(str.format("\\x%02x" % ((p & 0x000000FF) >> 0)))
-                payload.append(str.format("\\x%02x" % ((p & 0x0000FF00) >> 8)))
-                payload.append(str.format("\\x%02x" % ((p & 0x00FF0000) >> 16)))
-                payload.append(str.format("\\x%02x" % ((p & 0xFF000000) >> 24)))
+                payload.append(str.format(r"\x%02x" % ((p & 0x000000FF) >> 0)))
+                payload.append(str.format(r"\x%02x" % ((p & 0x0000FF00) >> 8)))
+                payload.append(str.format(r"\x%02x" % ((p & 0x00FF0000) >> 16)))
+                payload.append(str.format(r"\x%02x" % ((p & 0xFF000000) >> 24)))
                 self.print_if_verbose(''.join(payload[(nb_bytes-4):]))
                 nb_bytes += _bytes
-        header.append(str.format("\\x%02x" % int(nb_bytes & 0x00FF)))
-        header.append(str.format("\\x%02x" % int(nb_bytes & 0xFF00)))
-        header.append(str.format("\\x%02x" % int(cmd_id & 0x00FF)))
-        header.append(str.format("\\x%02x" % int(cmd_id & 0xFF00)))
-        # self.print_if_verbose('' + ''.join(header + payload))
-        return ''.join(header + payload)
+        header.append(str.format(r"\x%02x" % int(nb_bytes & 0x00FF)))
+        header.append(str.format(r"\x%02x" % int(nb_bytes & 0xFF00)))
+        header.append(str.format(r"\x%02x" % int(cmd_id & 0x00FF)))
+        header.append(str.format(r"\x%02x" % int(cmd_id & 0xFF00)))
+        data_bytes = r''.join(header + payload)
+        return data_bytes
 
 
 if __name__ == '__main__':
