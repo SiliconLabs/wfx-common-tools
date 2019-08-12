@@ -213,7 +213,6 @@ class WfxPtaData(object):
             self.g_settings.GrantValidTime = 40
             self.g_settings.FemControlTime = 40
             self.g_settings.FirstSlotTime = 40
-            self.g_settings.PeriodicTxRxSamplingTime = 1
 
         if config == '3W_NOT_COMBINED_ZIGBEE':
             self.print_if_verbose('Configuring for %s' % config)
@@ -230,8 +229,6 @@ class WfxPtaData(object):
             self.g_settings.CoexType = self.HI_COEX_TYPE_BLE
             self.g_settings.SimultaneousRxAccesses = self.HI_PTA_TRUE
             self.g_settings.PrioritySamplingTime = 10
-            self.g_settings.GrantValidTime = 72
-            self.g_settings.FemControlTime = 140
 
         if config == '3W_NOT_COMBINED_BLE':
             self.print_if_verbose('Configuring for %s' % config)
@@ -239,8 +236,6 @@ class WfxPtaData(object):
             self.g_settings.CoexType = self.HI_COEX_TYPE_BLE
             self.g_settings.SimultaneousRxAccesses = self.HI_PTA_FALSE
             self.g_settings.PrioritySamplingTime = 10
-            self.g_settings.GrantValidTime = 72
-            self.g_settings.FemControlTime = 140
 
     @staticmethod
     def priority_setup(self, options):
