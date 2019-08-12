@@ -17,56 +17,29 @@ The architecture is now a Test Server/DUT configuration:
 	* `read_driver_version` (optional, used for logging test conditions)
 	* `read_fw_version` (optional, used for logging test conditions)
 
-## [Installing the necessary resources](#installing-the-necessary-resources)
-Python3 resources for SSH and UART need to be installed, including the paramiko package which 
-deals with encryption required by SSH (paramiko installation is the longest one).
-### Installing Python3 and resources on Windows
-* Download Python3 from https://www.python.org/downloads/windows/ for your platform
-* In the first installation window, tick 'Add Python 3.x to PATH' (otherwise you will need to add it to your PATH later)
-  * To check proper Python3 installation, open a terminal window and type 'python'. This should give you the Python `>>>` prompt
- with details on the version. use `quit()` to stop Python3
-* Installing Python3 will also have pip and pip3 installed. However, it is required to upgrade to their latest versions using
- `python -m pip install --upgrade pip`
-* Install paramiko (for SSH support), ifaddr (to be able to list available networks) and pyserial (to connect to UARTS) 
-```
-pip3 install paramiko
-pip3 install ifaddr
-pip3 install pyserial
-````
+### Prerequisites
+First install the  **WXF connection layer**
+The connection layer is the same as the one used for WFX RF testing, allowing connection in the following modes:
+* Local
+* SSH
+* UART
 
-### Installing Python3 and resources on Linux 
-```
-apt-get update
-apt-get install libffi-dev python3-pip
-apt-get install libssl-dev
-pip3 install pip==19.1
-pip3 install setuptools==41.0.1
-pip3 install pynacl
-pip3 install pygments==2.3.1
-pip3 install paramiko==2.4.2
-pip3 install ipython==6
-pip3 install ifaddr==0.1.6
-pip3 install pyserial==2.6
-```
-## [Installing/updating the WFX Test tool](#installing)
+The connection layer is available in 
+https://github.com/SiliconLabs/wfx-common-tools/tree/master/connection
+(a subfolder of `wfx-common-tools`, so from the PTA scripts perspective they are under `../connection`)
 
-#### [Test Server Installation](#server-installation)
-```
-cd ~/siliconlabs/
-git clone https://github.com/SiliconLabs/wfx-common-tools.git
-```
+Refer to 
+https://github.com/SiliconLabs/wfx-common-tools/blob/master/connection/README.md
+ for details on the connection layer and its installation.
 
-#### [Test Server Update](#server-update)
-```
-cd ~/siliconlabs/wfx-common-tools/test-feature
-git fetch
-git checkout origin/master
-```
+### DUT wfx_test_agent installation
+The **wfx test agent** needs to be installed on the **DUT**
 
-### [DUT wfx_test_agent](#wfx-test-agent)
-Download from 
+* Installation differs depending on the platform
+* Download from 
 https://github.com/SiliconLabs/wfx-common-tools/blob/master/test-feature/wfx_test_agent
 the agent corresponding to your platform
+#### Linux wfx test agent
 * The Linux agent is directly usable on Linux platforms
 	* make sure it has execution rights and is in the path (create a link as /usr/local/bin/wfx_test_agent)
 	```
@@ -79,16 +52,19 @@ the agent corresponding to your platform
 	sudo ln -sf /home/pi/siliconlabs/wfx-common-tools/test-feature/wfx_test_agent/linux/wfx_test_agent /usr/local/bin/wfx_test_agent
 	```
 	
+### RTOS/Bare Metal wfx_test_agent
 * The RTOS and Bare Metal agents need to be adapted and be compiled for your platform
 
+### wfx_test_agent validation
 *The wfx_test_agent can be tested & validated stand-alone before being used for RF Testing:*
 * On Linux platforms, call `wfx_test_agent <option>` to test all options
+* On platforms accessible via SSH, open a SSH session and call `wfx_test_agent <option>` to test all options
 * On platforms accessible via UART, open a terminal and call `wfx_test_agent <option>` to test all options
 
 ### Executing commands on the DUT
 Executing commands on the DUT is possible using the dut.run(cmd) syntax
 
-An example is calling the wfx_test_agent:
+An example is checking the wfx_test_agent version:
 ```
 dut.run('wfx_test_agent read_agent_version')
 ```
