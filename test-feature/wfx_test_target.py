@@ -4,6 +4,9 @@
 """
 
 import re
+import sys
+sys.path.append('../connection')
+
 from pds_compress import compress_string
 from wfx_connection import *
 from wfx_pds_tree import *
