@@ -9,13 +9,38 @@ import sys
 import time
 import socket
 import logging
-import serial
-import ifaddr
-import paramiko
-
 
 logging.basicConfig(level=logging.INFO)
-logging.getLogger("paramiko").setLevel(logging.WARNING)
+
+try:
+    import serial
+except ImportError:
+    loaded_serial = False
+    print("'serial'     is not installed. UART connection impossible")
+else:
+    loaded_serial = True
+    logging.getLogger("serial").setLevel(logging.WARNING)
+print('loaded_serial     ' + str(loaded_serial))
+
+try:
+    import paramiko
+except ImportError:
+    loaded_paramiko = False
+    print("'paramiko'   is not installed. SSH connection impossible")
+else:
+    loaded_paramiko = True
+    logging.getLogger("paramiko").setLevel(logging.WARNING)
+print('loaded_paramiko   ' + str(loaded_paramiko))
+
+try:
+    import telnetlib
+except ImportError:
+    loaded_telnetlib = False
+    print("'telnetlib'  is not installed. TELNET connection impossible")
+else:
+    loaded_telnetlib = True
+    logging.getLogger("telnetlib").setLevel(logging.WARNING)
+print('loaded_telnetlib  ' + str(loaded_telnetlib))
 
 
 class SshTarget(paramiko.client.SSHClient):
@@ -182,6 +207,48 @@ class Uart(AbstractConnection):
         return self.read()
 
 
+class Telnet(AbstractConnection):
+
+    def __init__(self, name=None, user="pi", host="10.5.124.249", password=None):
+        self.nickname = name if name else 'telnet'
+        self.conn = 'TELNET ' + user + '@' + host
+        super().__init__()
+        if host:
+            self.configure(user=user, host=host, password=password)
+
+    def configure(self, user="pi", host="10.5.124.249", password=None):
+        self.link = telnetlib.Telnet(user)
+        self.link.read_until("login: ")
+        self.link.write(user + "\n")
+        if password:
+            self.link.read_until("Password: ")
+            self.link.write(password + "\n")
+
+    def write(self, text):
+        if self.link is not None:
+            if self.trace:
+                for line in text.strip().split('\n'):
+                    print(str.format("%-8s S>>|  " % self.nickname), end='')
+                    print(line)
+            self.link.write(bytes(text.strip() + '\n', 'utf-8'))
+
+    def read(self):
+        if self.link is not None:
+            res = self.link.read_all()
+            if self.trace:
+                for line in res.split('\n'):
+                    print(str.format("<<S %8s|  " % self.nickname), end='')
+                    print(line)
+            return res
+        else:
+            return ''
+
+    def run(self, cmd, wait_ms=0):
+        self.write(cmd)
+        time.sleep(wait_ms/1000.0)
+        return self.read()
+
+
 class Ssh(AbstractConnection):
 
     def __init__(self, name=None, user="pi", host="10.5.124.249", port=22, password=""):
@@ -261,15 +328,31 @@ class WfxConnection(object):
         self.trace = False
 
         if 'host' in kwargs:
-            host = kwargs['host']
-            port = kwargs['port'] if 'port' in kwargs else 22
-            user = kwargs['user'] if 'user' in kwargs else 'root'
-            print('%s: Configuring a SSH connection to host %s for user %s' % (nickname, host, user))
-            password = kwargs['password'] if 'password' in kwargs else None
-            self.link = Ssh(nickname, host=host, user=user, port=port, password=password)
+            port = kwargs['port'] if 'port' in kwargs else ""
+            if port == 'telnet':
+                host = kwargs['host']
+                if 'user' not in kwargs:
+                    raise Exception("%s: Missing 'user'. Telnet Connection impossible to host %s" % (nickname, host))
+                user = kwargs['user']
+                print('%s: Configuring a Telnet connection to host %s for user %s' % (nickname, host, user))
+                password = kwargs['password'] if 'password' in kwargs else None
+                self.link = Telnet(nickname, host=host, user=user, password=password)
+
+        if not self.link:
+            if 'host' in kwargs:
+                if not loaded_paramiko:
+                    raise Exception("'paramiko'   is not installed. SSH connection impossible for " + nickname)
+                host = kwargs['host']
+                port = kwargs['port'] if 'port' in kwargs else 22
+                user = kwargs['user'] if 'user' in kwargs else 'root'
+                print('%s: Configuring a SSH connection to host %s for user %s' % (nickname, host, user))
+                password = kwargs['password'] if 'password' in kwargs else None
+                self.link = Ssh(nickname, host=host, user=user, port=port, password=password)
 
         if not self.link:
             if 'port' in kwargs:
+                if not loaded_serial:
+                    raise Exception("'serial'   is not installed. UART connection impossible for " + nickname)
                 port = kwargs['port']
                 print('%s: Configuring a UART connection using %s' % (nickname, port))
                 self.link = Uart(nickname, port=port)
@@ -309,6 +392,8 @@ class WfxConnection(object):
 
 # Functions allowing discovery of possible connections
 def uarts():
+    if loaded_serial == 0:
+        return "'serial' is not installed. Can't list UARTs"
     com_ports = os.popen('python -m serial.tools.list_ports').read().replace(' ', '').strip().split('\n')
     res = ''
     for port in com_ports:
@@ -325,6 +410,10 @@ def uarts():
 
 
 def networks():
+    try:
+        import ifaddr
+    except ImportError:
+        return "ifaddr not installed. Can't list networks"
     adapters = ''
     all_adapters = ifaddr.get_adapters()
     for adapter in all_adapters:
@@ -351,6 +440,7 @@ if __name__ == '__main__':
     print(uarts())
 
     eth = Ssh('master', host='10.5.124.249', user='pi', port=2186, password='default_password')
+    tel = Telnet('telnet', host='10.5.124.249', user='pi', port='telnet', password='default_password')
 
     me = Direct('WinPC')
     me.trace = False
