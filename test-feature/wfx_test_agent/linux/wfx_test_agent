@@ -2,6 +2,10 @@
 # Copyright (c) 2019, Silicon Laboratories
 # See license terms contained in COPYING file
 
+set -euo pipefail
+. wfx_set_env
+run_as_root
+
 if [ $(id -u) != 0 ]; then
     echo "ERROR: please run this script as root (running 'sudo $(basename $0)' should work)" >&2
     exit 1
