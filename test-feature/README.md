@@ -194,7 +194,7 @@ NB: `dut.test_ind_period()` allows controlling the delay between these messages
 >>> dut.tx_rx_select(1,1)
 >>> dut.channel(11)
 >>> dut.rx_start()
->>> dut.rx_receive('MCS7', frames=10000, timeout = 10)
+>>> dut.rx_receive('MCS7', frames=10000, timeout_s = 10)
 >>> dut.rx_logs('global')
 >>> dut.rx_logs('MCS7')
 >>> dut.rx_logs()
@@ -420,7 +420,7 @@ These are the functions which are primarily used by users to test the product.
 | `test_ind_period` |`period`:[0-TBD/65535?] delay in ms between messages                          |`TEST_IND`                                |
 | `rx_start`        |**none**                                                                      |`TEST_MODE`                               |
 | `rx_stop`         |**none**                                                                      |`NB_FRAME`                                |
-| `rx_receive`      |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'<br>`frames`: Nb of frames to receive before stopping'<br>`sleep_ms`:[(750)]. Polling period. No need to poll too often, the FW updates the table only every second<br>`timeout`: max number of seconds to poll (useful if very few frames are received) |**none**|
+| `rx_receive`      |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'<br>`frames`: Nb of frames to receive before stopping'<br>`sleep_ms`:[(750)]. Polling period. No need to poll too often, the FW updates the table only every second<br>`timeout_s`: max number of seconds to poll (useful if very few frames are received) |**none**|
 | `rx_logs`         |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'|**none**           |
 
 
