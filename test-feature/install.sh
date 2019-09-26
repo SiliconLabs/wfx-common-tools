@@ -11,7 +11,7 @@ set -x
 apt-get update
 apt-get install -y libffi-dev python3-pip
 apt-get install -y libssl-dev
-pip3 install pip==19.1
+pip3 install pip==19.2.3
 pip3 install setuptools==41.0.1
 pip3 install pynacl
 pip3 install pygments==2.3.1
