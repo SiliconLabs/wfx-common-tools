@@ -18,10 +18,10 @@ Please refer to the corresponding README files for details on using the tools.
 Whenever a tool is only valid for a single platform, it is stored
  in a corresponding platform-specific repository.
 
-At the time of writing, related repositories are:
+Platform-specific repositories are:
 
-* [The 'FullMAC tools' repository][1]
-* [The 'Linux tools' repository][2]
+* [The 'FullMAC tools' repository][1], for RTOS & Bare Metal applications
+* [The 'Linux tools' repository][2], for Linux platforms
 
 [1]: https://github.com/SiliconLabs/wfx-fullMAC-tools
 [2]: https://github.com/SiliconLabs/wfx-linux-tools
