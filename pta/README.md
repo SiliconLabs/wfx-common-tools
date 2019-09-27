@@ -155,12 +155,12 @@ state options:
   --State {ON,OFF}      PTA state on/off
 
         Examples:
-        python wfx_pta.py settings --Config 3W_COMBINED_BLE
-        python wfx_pta.py settings --Config 3W_NOT_COMBINED_BLE --FirstSlotTime 123
-        python wfx_pta.py settings --Config 3W_NOT_COMBINED_BLE --FirstSlotTime 123 --PrioritySamplingTime 12
-        python wfx_pta.py priority --PriorityMode BALANCED
-        python wfx_pta.py state --State ON
-        python wfx_pta.py state --State OFF
+        wfx_pta.py settings --Config 3W_COMBINED_BLE
+        wfx_pta.py settings --Config 3W_NOT_COMBINED_BLE --FirstSlotTime 123
+        wfx_pta.py settings --Config 3W_NOT_COMBINED_BLE --FirstSlotTime 123 --PrioritySamplingTime 12
+        wfx_pta.py priority --PriorityMode BALANCED
+        wfx_pta.py state --State ON
+        wfx_pta.py state --State OFF
 
 ```
 ## PTA API
@@ -229,7 +229,7 @@ Select one of (with your own parameters for the SSH or UART cases)
 ### PTA settings 
 **All defaults + PtaMode & TxRxSamplingTime**
 ```
->>> dut.settings('--PtaMode=3W TxRxSamplingTime=30')
+>>> dut.settings('--PtaMode 3W --TxRxSamplingTime 30')
 ```
 **Pre-filled configuration 'as is'**
 ```
