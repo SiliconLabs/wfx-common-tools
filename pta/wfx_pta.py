@@ -84,9 +84,13 @@ class WfxPtaTarget(object):
         return pta.data()
 
     def _prepare_pta_data(self, args_text, mode):
+        print("_prepare_pta_data " + args_text)
         pta = WfxPtaData(mode)
+        print("_prepare_pta_data " + args_text)
         pta.set_args(args_text)
+        print("_prepare_pta_data " + args_text)
         self.pta_data = pta.data()
+        print("_prepare_pta_data " + args_text)
 
     def settings(self, options, mode='quiet'):
         return self.send_pta('settings', options, mode)
@@ -121,30 +125,14 @@ class WfxPtaTarget(object):
         print('settings result: ' + self.settings('--Config 3W_NOT_COMBINED_BLE', mode=mode))
         print('priority result: ' + self.priority('--PriorityMode BALANCED', mode=mode))
         print('state    result: ' + self.state('--State OFF', mode=mode))
+
         self.link.trace = stored_trace
 
 
 if __name__ == '__main__':
-    print('You\'re using a ', sys.platform, 'platform')
-
-    print(uarts())
-    print(networks())
-
-    eth = WfxPtaTarget('Pi203', host='pi203', user='pi', port=22, password='default_password')
-    uart = WfxPtaTarget('OutSerial', port='COM8')
-
-    dut = eth
-
-    me = WfxPtaTarget('ThisPC')
-    me.link.trace = False
-    print(me.run('dir wfx_*.py'))
-
-    print(dut.run('uname -a'))
-    dut.link.trace = True
-
-    #print(dut.pta_help())
-
-    print(dut.settings('--Config 3W_NOT_COMBINED_BLE'))
-    print(dut.settings('--Config 3W_NOT_COMBINED_BLE --FirstSlotTime 123', mode='verbose'))
-    print(dut.priority('--PriorityMode BALANCED'))
-    print(dut.state('--State OFF'))
+    dut = WfxPtaTarget('Local')
+    command = sys.argv[1]
+    options = ""
+    for a in sys.argv[2:]:
+        options = options + a + " "
+    dut.send_pta(command, options.strip())
