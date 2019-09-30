@@ -178,15 +178,15 @@ PTA settings are filled based on the `options` string as a structure with the fo
 | CoexType                 |GENERIC,BLE                           | GENERIC       |
 | DefaultGrantState        |NO_GRANT,GRANT                        | GRANT         |
 | SimultaneousRxAccesses   |FALSE,TRUE                            | FALSE         |
-| PrioritySamplingTime     |TBD                                   |   9           |
-| TxRxSamplingTime         |TBD                                   |  50           |
+| PrioritySamplingTime     |1 to 31                               |   9           |
+| TxRxSamplingTime         |1 to 50                               |  50           |
 | FreqSamplingTime         |1 to 127                              |  70           |
-| GrantValidTime           |TBD                                   |  72           |
-| FemControlTime           |TBD                                   | 140           |
-| FirstSlotTime            |TBD                                   | 150           |
+| GrantValidTime           |int                                   |  72           |
+| FemControlTime           |int                                   | 140           |
+| FirstSlotTime            |int                                   | 150           |
 | PeriodicTxRxSamplingTime |1 to 1023                             |   1           |
-| CoexQuota                |TBD                                   |   0           |
-| WlanQuota                |TBD                                   |   0           |
+| CoexQuota                |int                                   |   0           |
+| WlanQuota                |int                                   |   0           |
 
 * Each parameter can be set using the `--<parameter>=<value>` syntax
 * No specific order for parameters provided in the `options` string
@@ -273,7 +273,7 @@ FreqSignalActiveLevel          1          \x01
 GrantSignalActiveLevel         0          \x00
 CoexType                       1          \x01
 DefaultGrantState              1          \x01
-SimultaneousRxAccesses         0          \x00
+SimultaneousRxAccesses         FALSE      \x00
 PrioritySamplingTime           10         \x0a
 TxRxSamplingTime               50         \x32
 FreqSamplingTime               70         \x46
