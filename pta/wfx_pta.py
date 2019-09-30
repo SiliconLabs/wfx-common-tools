@@ -13,12 +13,11 @@
 # Use wfx_pta_data to prepare PTA bytes from input parameters
 #  then send them to the target
 #
-#
 
 from __future__ import print_function
 
 # If you modify this file, please don't forget to increment version number.
-__version__ = "0.0"
+__version__ = "0.1"
 
 import sys
 
@@ -84,13 +83,9 @@ class WfxPtaTarget(object):
         return pta.data()
 
     def _prepare_pta_data(self, args_text, mode):
-        print("_prepare_pta_data " + args_text)
         pta = WfxPtaData(mode)
-        print("_prepare_pta_data " + args_text)
         pta.set_args(args_text)
-        print("_prepare_pta_data " + args_text)
         self.pta_data = pta.data()
-        print("_prepare_pta_data " + args_text)
 
     def settings(self, options, mode='quiet'):
         return self.send_pta('settings', options, mode)
@@ -122,17 +117,14 @@ class WfxPtaTarget(object):
     def selftest(self, mode='verbose'):
         stored_trace = self.link.trace
         self.link.trace = True
-        print('settings result: ' + self.settings('--Config 3W_NOT_COMBINED_BLE', mode=mode))
+        print('settings result: ' + self.settings('--Config 3W_NOT_COMBINED_BLE --PrioritySamplingTime 9', mode=mode))
         print('priority result: ' + self.priority('--PriorityMode BALANCED', mode=mode))
         print('state    result: ' + self.state('--State OFF', mode=mode))
-
         self.link.trace = stored_trace
 
 
 if __name__ == '__main__':
+    if sys.version_info < (3, 0):
+        sys.stderr.write("This tools was developed for Python 3 and was not tested with Python 2.x\n")
     dut = WfxPtaTarget('Local')
-    command = sys.argv[1]
-    options = ""
-    for a in sys.argv[2:]:
-        options = options + a + " "
-    dut.send_pta(command, options.strip())
+    dut.send_pta(sys.argv[1], ' '.join(sys.argv[2:]))
