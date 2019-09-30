@@ -16,7 +16,7 @@
 from __future__ import print_function
 
 # If you modify this file, please don't forget to increment version number.
-__version__ = "0.0"
+__version__ = "0.1"
 
 import sys
 import argparse
@@ -45,8 +45,8 @@ class WfxPtaData(object):
     HI_PTA_NO_GRANT = 0
     HI_PTA_GRANT = 1
 
-    HI_PTA_FALSE = 0
-    HI_PTA_TRUE = 1
+    HI_PTA_FALSE = False
+    HI_PTA_TRUE = True
 
     HI_PTA_PRIORITY_COEX_MAXIMIZED = 0x00000562
     HI_PTA_PRIORITY_COEX_HIGH = 0x00000462
@@ -77,8 +77,8 @@ class WfxPtaData(object):
               Coex type"""),
         ('DefaultGrantState', str, 1, ['NO_GRANT', 'GRANT'], HI_PTA_GRANT, """
               State of the GRANT signal before arbitration at GrantValidTime"""),
-        ('SimultaneousRxAccesses', str, 1, ['0', '1'], HI_PTA_FALSE, """
-          (uint8),  Boolean to allow both Coex and Wlan to receive concurrently, 
+        ('SimultaneousRxAccesses', str, 1, ['FALSE', 'TRUE'], HI_PTA_FALSE, """
+          (uint8),  Boolean to allow both Coex and Wlan to receive concurrently,
               also named combined mode"""),
         ('PrioritySamplingTime', int, 1, None, 9, """
           (uint8),  Time in microseconds from the Coex request to the sampling of the
@@ -254,7 +254,6 @@ class WfxPtaData(object):
     def state_setup(self, options):
 
         if options.State == 'ON':
-            self.g_settings.State = 1
             self.g_settings.State = 1
         if options.State == 'OFF':
             self.g_settings.State = 0
