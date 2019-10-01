@@ -164,7 +164,7 @@ def command_line_test():
 
     # print(dut.pta_help())
     mode = 'quiet'
-    dut.settings('--Config 3W_NOT_COMBINED_BLE --RequestSignalActiveLevel LOW --FirstSlotTime 123', mode=mode)
+    dut.settings('--Config 3W_BLE --RequestSignalActiveLevel LOW --FirstSlotTime 123', mode=mode)
     dut.settings('--PtaMode 1W_COEX_MASTER', mode=mode)
     dut.settings('--PtaMode 2W', mode=mode)
     dut.settings('--PtaMode 3W', mode=mode)
