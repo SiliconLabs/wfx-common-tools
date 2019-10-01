@@ -164,18 +164,18 @@ class Uart(AbstractConnection):
             agent_reply = self.run('wfx_test_agent')
             if agent_reply == '':
                 agent_error = ' No \'wfx_test_agent\' on ' + port + '. Communication is OK, but we miss the agent!!'
-                raise Exception("%s %s" % (self.nickname, str(agent_error)))
+                #raise Exception("%s %s" % (self.nickname, str(agent_error)))
         except serial.serialutil.SerialException as oops:
             if 'PermissionError' in str(oops):
                 uart_error = port + ' is present, but already used. Use \'uarts()\' to list available COM ports'
                 logging.error("%s %s" % (self.nickname, str(uart_error)))
-                raise Exception("%s %s" % (self.nickname, str(uart_error)))
+                #raise Exception("%s %s" % (self.nickname, str(uart_error)))
             if 'FileNotFoundError' in str(oops):
                 uart_error = ' No ' + port + ' COM port. Use \'uarts()\' to list available COM ports after connecting.'
                 uart_error += '\nCurrently available ports:\n' + uarts()
                 logging.error("%s: %s" % (self.nickname, str(uart_error)))
                 print(uarts())
-                raise Exception("%s %s" % (self.nickname, str(uart_error)))
+                #raise Exception("%s %s" % (self.nickname, str(uart_error)))
 
     def write(self, text):
         if self.link is not None:

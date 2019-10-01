@@ -13,11 +13,12 @@
 # Use wfx_pta_data to prepare PTA bytes from input parameters
 #  then send them to the target
 #
+#
 
 from __future__ import print_function
 
 # If you modify this file, please don't forget to increment version number.
-__version__ = "0.1"
+__version__ = "0.0"
 
 import sys
 
@@ -30,6 +31,7 @@ HI_STATUS_SUCCESS = '0'
 HI_STATUS_FAILURE = '1'
 HI_INVALID_PARAMETER = '2'
 HI_ERROR_UNSUPPORTED_MSG_ID = '4'
+
 
 class WfxPtaTarget(object):
 
@@ -82,7 +84,7 @@ class WfxPtaTarget(object):
         pta.set_args('--help')
         return pta.data()
 
-    def _prepare_pta_data(self, args_text, mode):
+    def prepare_pta_data(self, args_text, mode):
         pta = WfxPtaData(mode)
         pta.set_args(args_text)
         self.pta_data = pta.data()
@@ -97,7 +99,7 @@ class WfxPtaTarget(object):
         return self.send_pta('state', options, mode)
 
     def send_pta(self, command, options, mode='quiet'):
-        self._prepare_pta_data(command + ' ' + options, mode)
+        self.prepare_pta_data(command + ' ' + options, mode)
         if self.pta_data is not None:
             send_result = self.link.run(r'wfx_exec wfx_hif_send_msg "' + self.pta_data + r'"')
             if send_result == HI_STATUS_SUCCESS:
@@ -110,21 +112,90 @@ class WfxPtaTarget(object):
                 elif send_result == HI_ERROR_UNSUPPORTED_MSG_ID:
                     return 'HI_ERROR_UNSUPPORTED_MSG_ID'
                 else:
-                    return 'unknown_error_sending PTA data: ' + str(send_result) + ' (' + str(type(send_result)) + ')'
+                    if str(send_result) != "":
+                        return "ERROR: unknown_error_sending PTA data: '" + str(send_result) + "'"
+                    else:
+                        return "ERROR: unknown_error_sending PTA data"
         else:
             return "Error applying " + command + " '" + options + "'"
 
     def selftest(self, mode='verbose'):
         stored_trace = self.link.trace
         self.link.trace = True
-        print('settings result: ' + self.settings('--Config 3W_NOT_COMBINED_BLE --PrioritySamplingTime 9', mode=mode))
+        print('settings result: ' + self.settings('--Config 3W_NOT_COMBINED_BLE', mode=mode))
         print('priority result: ' + self.priority('--PriorityMode BALANCED', mode=mode))
         print('state    result: ' + self.state('--State OFF', mode=mode))
         self.link.trace = stored_trace
 
 
+def command_line_main():
+    if 'verbose' in sys.argv:
+        mode = 'verbose'
+    else:
+        mode = 'quiet'
+    dut = WfxPtaTarget('Local')
+    if 'verbose' in sys.argv:
+        dut.trace = True
+        dut.link.trace = True
+        sys.argv.remove('verbose')
+        mode = 'verbose'
+    else:
+        mode = 'quiet'
+    sys.exit(dut.send_pta(sys.argv[1], ' '.join(sys.argv[2:]), mode))
+
+
+def command_line_test():
+    print('You\'re using a ', sys.platform, 'platform')
+
+    print(uarts())
+    print(networks())
+
+    eth = WfxPtaTarget('pi', host='rns-SD3-rc7', user='pi', port=22, password='default_password')
+    uart = WfxPtaTarget('OutSerial', port='COM8')
+
+    dut = eth
+
+    me = WfxPtaTarget('ThisPC')
+    me.link.trace = False
+    print(me.run('dir wfx_*.py'))
+
+    print(dut.run('uname -a'))
+    dut.link.trace = True
+
+    # print(dut.pta_help())
+    mode = 'quiet'
+    dut.settings('--Config 3W_NOT_COMBINED_BLE --RequestSignalActiveLevel LOW --FirstSlotTime 123', mode=mode)
+    dut.settings('--PtaMode 1W_COEX_MASTER', mode=mode)
+    dut.settings('--PtaMode 2W', mode=mode)
+    dut.settings('--PtaMode 3W', mode=mode)
+    dut.settings('--PtaMode 4W', mode=mode)
+    dut.settings('--RequestSignalActiveLevel LOW', mode=mode)
+    dut.settings('--PrioritySignalActiveLevel LOW', mode=mode)
+    dut.settings('--FreqSignalActiveLevel LOW', mode=mode)
+    dut.settings('--GrantSignalActiveLevel HIGH', mode=mode)
+    dut.settings('--CoexType GENERIC', mode=mode)
+    dut.settings('--CoexType BLE', mode=mode)
+    dut.settings('--DefaultGrantState NO_GRANT', mode=mode)
+    dut.settings('--SimultaneousRxAccesses TRUE', mode=mode)
+    dut.settings('--PrioritySamplingTime 3', mode=mode)
+    dut.settings('--TxRxSamplingTime 4', mode=mode)
+    dut.settings('--FreqSamplingTime 5', mode=mode)
+    dut.settings('--GrantValidTime 6', mode=mode)
+    dut.settings('--FemControlTime 7', mode=mode)
+    dut.settings('--FirstSlotTime 8', mode=mode)
+    dut.settings('--PeriodicTxRxSamplingTime 9', mode=mode)
+    dut.settings('--CoexQuota 1000', mode=mode)
+    dut.settings('--WlanQuota 1234', mode=mode)
+    dut.state('--State OFF')
+    dut.state('--State ON')
+    dut.priority('--PriorityMode BALANCED')
+    return 0
+
+
 if __name__ == '__main__':
     if sys.version_info < (3, 0):
         sys.stderr.write("This tools was developed for Python 3 and was not tested with Python 2.x\n")
-    dut = WfxPtaTarget('Local')
-    dut.send_pta(sys.argv[1], ' '.join(sys.argv[2:]))
+    if len(sys.argv) > 1:
+        sys.exit(command_line_main())
+    else:
+        sys.exit(command_line_test())
