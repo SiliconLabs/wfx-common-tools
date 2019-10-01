@@ -16,7 +16,7 @@
 from __future__ import print_function
 
 # If you modify this file, please don't forget to increment version number.
-__version__ = "0.1"
+__version__ = "0.2"
 
 import sys
 import argparse
@@ -32,7 +32,7 @@ class WfxPtaData(object):
 
     settings_parameters = [
         #  Parameter, type, bytes, choices, default, help
-        ('Config', str, 1, ['3W_NOT_COMBINED_BLE', '3W_COMBINED_BLE', '3W_NOT_COMBINED_ZIGBEE', '3W_COMBINED_ZIGBEE'],
+        ('Config', str, 1, ['3W_BLE', '3W_NOT_COMBINED_ZIGBEE', '3W_COMBINED_ZIGBEE'],
          None, """
               Preset configurations for common use cases
                   (presets required non-default 'settings' options,
@@ -56,13 +56,13 @@ class WfxPtaData(object):
         ('SimultaneousRxAccesses', str, 1, {'FALSE': 0, 'TRUE': 1}, 'FALSE', """
           (uint8),  Boolean to allow both Coex and Wlan to receive concurrently, 
               also named combined mode"""),
-        ('PrioritySamplingTime', int, 1, None, 9, """
+        ('PrioritySamplingTime', int, 1, None, 10, """
           (uint8),  Time in microseconds from the Coex request to the sampling of the
           priority on PRIORITY signal (1 to 31),"""),
         ('TxRxSamplingTime', int, 1, None, 50, """
           (uint8),  Time in microseconds from the Coex request to the 
               sampling of the directionality on PRIORITY signal (PrioritySamplingTime to 63)"""),
-        ('FreqSamplingTime', int, 1, None, 70, """
+        ('FreqSamplingTime', int, 1, None, 40, """
           (uint8),  Time in microseconds from the Coex request to the 
               sampling of the freq-match information on FREQ signal (1 to 127)"""),
         ('GrantValidTime', int, 1, None, 72, """
@@ -77,17 +77,17 @@ class WfxPtaData(object):
         ('PeriodicTxRxSamplingTime', int, 2, None, 1, """
           (uint16), Period in microseconds from FirstSlotTime of following samplings of the 
               directionality on PRIORITY signal (1 to 1023),"""),
-        ('CoexQuota', int, 2, None, 0, """
+        ('CoexQuota', int, 2, None, 7500, """
           (uint16), Duration in microseconds for which RF is granted to Coex 
               before it is moved to Wlan"""),
-        ('WlanQuota', int, 2, None, 0, """
+        ('WlanQuota', int, 2, None, 7500, """
           (uint16), Duration in microseconds for which RF is granted to Wlan 
               before it is moved to Coex""")
     ]
 
     priority_parameters = [
         #  Parameter, type, bytes,  choices, default, help
-        ('PriorityMode', str, 4, {'COEX_MAXIMIZED': 0x0562, 'COEX_HIGH':0x0462, 'BALANCED':0x1461, 'WLAN_HIGH':0x1851, 'WLAN_MAXIMIZED': 0x1A51}, None, """
+        ('PriorityMode', str, 4, {'COEX_MAXIMIZED': 0x0562, 'COEX_HIGH':0x0462, 'BALANCED':0x1461, 'WLAN_HIGH':0x1851, 'WLAN_MAXIMIZED': 0x1A51}, 'BALANCED', """
             COEX_MAXIMIZED = 0x0562 : Maximizes priority to COEX, WLAN connection is not ensured.  
             COEX_HIGH      = 0x0462 : High priority to COEX, targets low-latency to COEX. 
             BALANCED       = 0x1461 : Balanced PTA arbitration, WLAN acknowledge receptions are protected. 
@@ -97,7 +97,7 @@ class WfxPtaData(object):
 
     state_parameters = [
         #  Parameter, type, bytes,  choices, default, help
-        ('State', str, 4, {'ON': 0, 'OFF': 1}, 'OFF', """
+        ('State', str, 4, {'OFF': 0, 'ON': 1}, 'OFF', """
             PTA state on/off""")
     ]
 
@@ -127,15 +127,6 @@ class WfxPtaData(object):
         return self.pta_bytes()
 
     @staticmethod
-    def print_keys(self, c, name=None):
-        for k in c.__dict__.keys():
-            if '__' not in k:
-                if name is None:
-                    self.print_if_verbose("%-30s %s" % (k, c.__dict__[k]))
-                else:
-                    self.print_if_verbose("%s.%-30s %s" % (name, k, c.__dict__[k]))
-
-    @staticmethod
     def parse_cmdline(self, args):
         parser = argparse.ArgumentParser(usage="%(prog)s <settings/priority/state> [options]...",
                                          formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -143,12 +134,71 @@ class WfxPtaData(object):
         Prepare and send PTA parameters depending on the selected pta_cmd
         """, epilog="""
         Examples:
-        python wfx_pta.py settings --Config 3W_COMBINED_BLE
-        python wfx_pta.py settings --Config 3W_NOT_COMBINED_BLE --FirstSlotTime 123
-        python wfx_pta.py settings --Config 3W_NOT_COMBINED_BLE --FirstSlotTime 123 --PrioritySamplingTime 12
-        python wfx_pta.py priority --PriorityMode BALANCED
-        python wfx_pta.py state --State ON
-        python wfx_pta.py state --State OFF
+
+        Python3 interpreter:
+        python3
+         >>> from wfx_pta import *
+        selecting the connection mode to match your DUT:
+         >>> dut = WfxPtaTarget('Pi203', host='pi203', user='pi', port=22, password='default_password')
+         >>> dut = WfxPtaTarget('Serial', port='COM8')
+         >>> dut = WfxPtaTarget('Local')
+         selecting settings, priority and activating PTA:
+         >>> dut.settings('--Config 3W_BLE --FirstSlotTime 123')
+         >>> dut.priority('--PriorityMode BALANCED')
+         >>> dut.state('--State ON')
+         activating PTA traces (tracks PTA data values):
+         >>> dut.trace = True
+         activating communication link traces (tracks bytes write/read):
+         >>> dut.link.trace = True
+         
+        Command line using 'wfx_pta.py': directly sending PTA bytes to a 'Local' DUT: 
+         (bytes silently sent to DUT)
+           python wfx_pta.py settings --Config 3W_BLE
+           python wfx_pta.py priority --PriorityMode BALANCED
+           python wfx_pta.py state --State ON
+         (verbose mode)
+           python wfx_pta.py settings --Config 3W_BLE verbose
+            Local: Configuring a Direct connection
+            ['settings', '--Config', '3W_BLE']
+            Configuring for 3W_BLE
+            PtaMode                        1W_WLAN_MASTER =>       3W
+            CoexType                        GENERIC =>      BLE
+            TxRxSamplingTime                     50 =>        0
+            FreqSamplingTime                     40 =>        0
+            FirstSlotTime                       150 =>        0
+            PeriodicTxRxSamplingTime              1 =>        0
+            PtaMode                        3W         \\x03
+            RequestSignalActiveLevel       HIGH       \\x01
+            PrioritySignalActiveLevel      HIGH       \\x01
+            FreqSignalActiveLevel          HIGH       \\x01
+            GrantSignalActiveLevel         LOW        \\x00
+            CoexType                       BLE        \\x01
+            DefaultGrantState              GRANT      \\x01
+            SimultaneousRxAccesses         FALSE      \\x00
+            PrioritySamplingTime           10         \\x0a
+            TxRxSamplingTime               0          \\x00
+            FreqSamplingTime               0          \\x00
+            GrantValidTime                 72         \\x48
+            FemControlTime                 140        \\x8c
+            FirstSlotTime                  0          \\x00
+            PeriodicTxRxSamplingTime       0          \\x00\\x00
+            CoexQuota                      7500       \\x4c\\x1d
+            WlanQuota                      7500       \\x4c\\x1d
+            Local    D>>|  wfx_exec wfx_hif_send_msg "\\x18\\x00\\x2b\\x00\\x03\\x01\\x01\\x01\\x00\\x01\\x01\\x00\\x0a\\x00\\x00\\x48\\x8c\\x00\\x00\\x00\\x4c\\x1d\\x4c\\x1d"
+            Local    D<<|  0
+
+        Command line using 'wfx_pta_data.py': retrieving the PTA bytes (no byte sent to HW):
+          python wfx_pta_data.py settings --Config 3W_BLE
+            \\x18\\x00\\x2b\\x00\\x03\\x01\\x01\\x01\\x00\\x01\\x01\\x00\\x0a\\x00\\x00\\x48\\x8c\\x00\\x00\\x00\\x4c\\x1d\\x4c\\x1d
+          python wfx_pta_data.py settings --Config 3W_BLE --GrantValidTime 40 --PrioritySamplingTime 8
+            \\x18\\x00\\x2b\\x00\\x03\\x01\\x01\\x01\\x00\\x01\\x01\\x00\\x08\\x00\\x00\\x28\\x8c\\x00\\x00\\x00\\x4c\\x1d\\x4c\\x1d
+          python wfx_pta_data.py priority --PriorityMode BALANCED
+            \\x08\\x00\\x2c\\x00\\x61\\x14\\x00\\x00
+          python wfx_pta_data.py state --State ON
+            \\x08\\x00\\x2d\\x00\\x01\\x00\\x00\\x00
+          python wfx_pta_data.py state --State OFF
+            \\x08\\x00\\x2d\\x00\\x00\\x00\\x00\\x00
+        
         """)
         parser.add_argument("pta_cmd", choices=['settings', 'priority', 'state'],
                             help="pta_cmd <settings/priority/state>")
@@ -181,37 +231,64 @@ class WfxPtaData(object):
 
         if config == '3W_COMBINED_ZIGBEE':
             self.print_if_verbose('Configuring for %s' % config)
-            self.g_settings.PtaMode = '3W'
-            self.g_settings.CoexType = 'GENERIC'
-            self.g_settings.SimultaneousRxAccesses = 'TRUE'
-            self.g_settings.PrioritySamplingTime = 10
-            self.g_settings.TxRxSamplingTime = 30
+            self.g_settings.PtaMode = '3W' #self.HI_PTA_3W
+            self.g_settings.RequestSignalActiveLevel = 'HIGH' #self.HI_PTA_HIGH
+            self.g_settings.PrioritySignalActiveLevel = 'HIGH' #self.HI_PTA_HIGH
+            self.g_settings.FreqSignalActiveLevel = 'HIGH' #self.HI_PTA_HIGH
+            self.g_settings.GrantSignalActiveLevel = 'LOW' #self.HI_PTA_LOW
+            self.g_settings.CoexType = 'GENERIC' #self.HI_COEX_TYPE_GENERIC
+            self.g_settings.DefaultGrantState = 'GRANT' #self.HI_PTA_GRANT
+            self.g_settings.SimultaneousRxAccesses = 'TRUE' #self.HI_PTA_TRUE
+            self.g_settings.PrioritySamplingTime = 10 # 5 to 10
+            self.g_settings.TxRxSamplingTime = 30 # 10 to 40?
+            self.g_settings.FreqSamplingTime = 0 #
             self.g_settings.GrantValidTime = 40
             self.g_settings.FemControlTime = 40
             self.g_settings.FirstSlotTime = 40
+            self.g_settings.PeriodicTxRxSamplingTime = 1
+            self.g_settings.CoexQuota = 7500
+            self.g_settings.WlanQuota = 7500
 
         if config == '3W_NOT_COMBINED_ZIGBEE':
             self.print_if_verbose('Configuring for %s' % config)
-            self.g_settings.PtaMode = '3W'
-            self.g_settings.CoexType = 'GENERIC'
-            self.g_settings.SimultaneousRxAccesses = 'FALSE'
+            self.g_settings.PtaMode = '3W' #self.HI_PTA_3W
+            self.g_settings.RequestSignalActiveLevel = 'HIGH' #self.HI_PTA_HIGH
+            self.g_settings.PrioritySignalActiveLevel = 'HIGH' #self.HI_PTA_HIGH
+            self.g_settings.FreqSignalActiveLevel = 'HIGH' #self.HI_PTA_HIGH
+            self.g_settings.GrantSignalActiveLevel = 'LOW' #self.HI_PTA_LOW
+            self.g_settings.CoexType = 'GENERIC' #self.HI_COEX_TYPE_GENERIC
+            self.g_settings.DefaultGrantState = 'GRANT' #self.HI_PTA_GRANT
+            self.g_settings.SimultaneousRxAccesses = 'FALSE' #self.HI_PTA_FALSE
             self.g_settings.PrioritySamplingTime = 10
+            self.g_settings.TxRxSamplingTime = 0
+            self.g_settings.FreqSamplingTime = 0
             self.g_settings.GrantValidTime = 20
             self.g_settings.FemControlTime = 20
+            self.g_settings.FirstSlotTime = 0
+            self.g_settings.PeriodicTxRxSamplingTime = 0
+            self.g_settings.CoexQuota = 7500
+            self.g_settings.WlanQuota = 7500
 
-        if config == '3W_COMBINED_BLE':
+        if config == '3W_BLE': #'3W_NOT_COMBINED_BLE':
             self.print_if_verbose('Configuring for %s' % config)
-            self.g_settings.PtaMode = '3W'
-            self.g_settings.CoexType = 'BLE'
-            self.g_settings.SimultaneousRxAccesses = 'TRUE'
+            self.g_settings.PtaMode = '3W' #self.HI_PTA_3W
+            self.g_settings.RequestSignalActiveLevel = 'HIGH' #self.HI_PTA_HIGH
+            self.g_settings.PrioritySignalActiveLevel = 'HIGH' #self.HI_PTA_HIGH
+            self.g_settings.FreqSignalActiveLevel = 'HIGH' #self.HI_PTA_HIGH
+            self.g_settings.GrantSignalActiveLevel = 'LOW' #self.HI_PTA_LOW
+            self.g_settings.CoexType = 'BLE' #self.HI_COEX_TYPE_BLE
+            self.g_settings.DefaultGrantState = 'GRANT' #self.HI_PTA_GRANT
+            self.g_settings.SimultaneousRxAccesses = 'FALSE' #self.HI_PTA_FALSE
             self.g_settings.PrioritySamplingTime = 10
+            self.g_settings.TxRxSamplingTime = 0
+            self.g_settings.FreqSamplingTime = 0
+            self.g_settings.GrantValidTime = 72
+            self.g_settings.FemControlTime = 140
+            self.g_settings.FirstSlotTime = 0
+            self.g_settings.PeriodicTxRxSamplingTime = 0
+            self.g_settings.CoexQuota = 7500
+            self.g_settings.WlanQuota = 7500
 
-        if config == '3W_NOT_COMBINED_BLE':
-            self.print_if_verbose('Configuring for %s' % config)
-            self.g_settings.PtaMode = '3W'
-            self.g_settings.CoexType = 'BLE'
-            self.g_settings.SimultaneousRxAccesses = 'FALSE'
-            self.g_settings.PrioritySamplingTime = 10
 
     @staticmethod
     def apply_options(self, options):
@@ -307,5 +384,49 @@ class WfxPtaData(object):
         return data_bytes
 
 
+def command_line_main():
+    if 'verbose' in sys.argv:
+        mode = 'verbose'
+        sys.argv.remove('verbose')
+    else:
+        mode = 'quiet'
+    sys.exit(WfxPtaData(mode).data())
+
+
+def command_line_test():
+    pta = WfxPtaData()
+    pta.mode = 'verbose'
+    pta.set_args('settings --Config 3W_BLE --RequestSignalActiveLevel LOW --FirstSlotTime 123'); print(pta.data())
+    pta.mode = 'quiet'
+    pta.set_args('settings --PtaMode 1W_COEX_MASTER'); print(pta.data())
+    pta.set_args('settings --PtaMode 2W'); print(pta.data())
+    pta.set_args('settings --PtaMode 3W'); print(pta.data())
+    pta.set_args('settings --PtaMode 4W'); print(pta.data())
+    pta.set_args('settings --RequestSignalActiveLevel LOW'); print(pta.data())
+    pta.set_args('settings --PrioritySignalActiveLevel LOW'); print(pta.data())
+    pta.set_args('settings --FreqSignalActiveLevel LOW'); print(pta.data())
+    pta.set_args('settings --GrantSignalActiveLevel HIGH'); print(pta.data())
+    pta.set_args('settings --CoexType GENERIC'); print(pta.data())
+    pta.set_args('settings --CoexType BLE'); print(pta.data())
+    pta.set_args('settings --DefaultGrantState NO_GRANT'); print(pta.data())
+    pta.set_args('settings --SimultaneousRxAccesses TRUE'); print(pta.data())
+    pta.set_args('settings --PrioritySamplingTime 3'); print(pta.data())
+    pta.set_args('settings --TxRxSamplingTime 4'); print(pta.data())
+    pta.set_args('settings --FreqSamplingTime 5'); print(pta.data())
+    pta.set_args('settings --GrantValidTime 6'); print(pta.data())
+    pta.set_args('settings --FemControlTime 7'); print(pta.data())
+    pta.set_args('settings --FirstSlotTime 8'); print(pta.data())
+    pta.set_args('settings --PeriodicTxRxSamplingTime 9'); print(pta.data())
+    pta.set_args('settings --CoexQuota 1000'); print(pta.data())
+    pta.set_args('settings --WlanQuota 1234'); print(pta.data())
+    pta.set_args('state --State OFF'); print(pta.data())
+    pta.set_args('state --State ON'); print(pta.data())
+    pta.set_args('priority --PriorityMode BALANCED'); print(pta.data())
+    return 0
+
+
 if __name__ == '__main__':
-    sys.exit(WfxPtaData().data())
+    if len(sys.argv) > 1:
+        sys.exit(command_line_main())
+    else:
+        sys.exit(command_line_test())
