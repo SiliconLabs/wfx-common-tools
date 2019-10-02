@@ -25,14 +25,15 @@ The scripts have been written for and tested for Python3
 ## Installation
 These scripts are used to format PTA bytes according to the user's preferences and send them to the WFX firmware.
 
-They can be used either directly on the target or on a remote tester, via the **WXF connection layer**
+They can be used either directly on the target or on a remote tester, via the **WFX connection layer**
 
 ### Prerequisites
-First install the  **WXF connection layer**
+First install the  **WFX connection layer**
 The connection layer is the same as the one used for WFX RF testing, allowing connection in the following modes:
 * Local
 * SSH
 * UART
+* Telnet
 
 The connection layer is available in 
 https://github.com/SiliconLabs/wfx-common-tools/tree/master/connection
@@ -45,7 +46,7 @@ https://github.com/SiliconLabs/wfx-common-tools/blob/master/connection/README.md
 ----------------
 
 ### PTA scripts installation
-Once you have installed the **WXF connection layer** you will also have installed the Python scripts for PTA, since
+Once you have installed the **WFX connection layer** you will also have installed the Python scripts for PTA, since
 these are in the same repository, in the `pta` folder.
 ```
 cd siliconlabs/wfx-common-tools/pta
@@ -154,14 +155,6 @@ priority options:
 state options:
   --State {ON,OFF}      PTA state on/off
 
-        Examples:
-        wfx_pta.py settings --Config 3W_COMBINED_BLE
-        wfx_pta.py settings --Config 3W_NOT_COMBINED_BLE --FirstSlotTime 123
-        wfx_pta.py settings --Config 3W_NOT_COMBINED_BLE --FirstSlotTime 123 --PrioritySamplingTime 12
-        wfx_pta.py priority --PriorityMode BALANCED
-        wfx_pta.py state --State ON
-        wfx_pta.py state --State OFF
-
 ```
 ## PTA API
 ### settings(options)
@@ -213,7 +206,7 @@ There are 4 such configurations:
 
 NB: Using the PTA data filling tracing (described below) can be a good way to become familiar with this process
 
-## Use case examples
+## Use case 1: from a Python3 interpreter 
 ```
 python3
 >>> from wfx_pta import *
@@ -243,13 +236,13 @@ Select one of (with your own parameters for the SSH or UART cases)
 ```
 >>> dut.priority('--PriorityMode BALANCED')
 ```
-### PAT state
+### PTA state
 ```
 >>> dut.state('--State OFF')
 ```
 
-## Tracing
-### Tracing PTA data filling
+### Tracing
+#### Tracing PTA data filling
 Adding `mode='verbose'` to a PTA function call will enable tracing of the PTA data filling process
 
 **without traces**
@@ -291,7 +284,7 @@ NB: Above we can see
  * Indicated with `->`: the changes done on the current settings when applying '--FemControlTime 135'
  * When there is a change from the default: the default values on the left side, the final value on the right
  
-### Tracing PTA data transmission
+#### Tracing PTA data transmission
 It is also possible to track the connection layer communication with the DUT, using
 ```
 >>> dut.link.trace = True
@@ -308,6 +301,24 @@ pi       D>>|  wfx_exec wfx_hif_send_msg "\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x
 <<D       pi|  0
 'HI_STATUS_SUCCESS'
 ```
+## Use case 2: command line to retrieve PTA formatted data
+### settings
+`python wfx_pta.py settings --Config 3W_BLE`
+### priority
+`python wfx_pta.py priority --PriorityMode BALANCED`
+### state
+`python wfx_pta.py state --State ON`
+### tracing
+add 'verbose' to the command to trace PTA data filling
+`python wfx_pta.py settings --Config 3W_BLE verbose`
+
+## Use case 3: command line to directly send PTA data
+### settings
+`python wfx_pta_data.py settings --Config 3W_BLE --GrantValidTime 40 --PrioritySamplingTime 8`
+### priority
+`python wfx_pta_data.py priority --PriorityMode BALANCED`
+### state
+`python wfx_pta_data.py state --State ON`
 
 # Self test
 A specific `selftest` function has been added to allow testing proper installation of the tools.
