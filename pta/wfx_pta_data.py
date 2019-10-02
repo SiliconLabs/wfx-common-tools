@@ -37,7 +37,7 @@ class WfxPtaData(object):
               Preset configurations for common use cases
                   (presets required non-default 'settings' options,
                   these can then be overwritten using options listed below)"""),
-        ('PtaMode', str, 1, {'1W_WLAN_MASTER': 0, '1W_COEX_MASTER': 1, '2W': 2, '3W': 3, '4W': 4}, '1W_WLAN_MASTER', """
+        ('PtaMode', str, 1, {'3W': 0, '1W_COEX_MASTER': 1, '2W': 2, '3W': 3, '4W': 4}, '1W_WLAN_MASTER', """
               PTA mode selection"""),
         ('RequestSignalActiveLevel', str, 1, {'LOW': 0, 'HIGH':  1}, 'HIGH', """
               Active level on REQUEST signal, provided by Coex to request the RF"""),
@@ -128,11 +128,12 @@ class WfxPtaData(object):
 
     @staticmethod
     def parse_cmdline(self, args):
-        parser = argparse.ArgumentParser(usage="%(prog)s <settings/priority/state> [options]...",
-                                         formatter_class=argparse.RawDescriptionHelpFormatter,
-                                         description="""
+        parser = argparse.ArgumentParser(
+                                        formatter_class=argparse.RawDescriptionHelpFormatter,
+                                        description="""
         Prepare and send PTA parameters depending on the selected pta_cmd
-        """, epilog="""
+        """,
+                                        epilog="""
         Examples:
 
         Python3 interpreter:
