@@ -45,14 +45,14 @@ class WfxPtaTarget(object):
             host = kwargs['host']
             port = kwargs['port'] if 'port' in kwargs else 22
             user = kwargs['user'] if 'user' in kwargs else 'root'
-            print('%s: Configuring a SSH connection to host %s for user %s (port %d)' % (nickname, host, user, port))
+            print('%s: configuring a SSH connection to host %s for user %s (port %d)' % (nickname, host, user, port))
             password = kwargs['password'] if 'password' in kwargs else None
             self.link = Ssh(nickname, host=host, user=user, port=port, password=password)
 
         if not self.link:
             if 'port' in kwargs:
                 port = kwargs['port']
-                print('%s: Configuring a UART connection using %s' % (nickname, port))
+                print('%s: configuring a UART connection using %s' % (nickname, port))
                 self.link = Uart(nickname, port=port)
                 if self.link is None:
                     if port in uarts():
@@ -60,7 +60,7 @@ class WfxPtaTarget(object):
 
         if not self.link:
             if not kwargs:
-                print('%s: Configuring a Direct connection' % nickname)
+                print('%s: configuring a Direct connection' % nickname)
                 self.link = Direct(nickname)
 
     def write(self, text):
@@ -122,9 +122,9 @@ class WfxPtaTarget(object):
     def selftest(self, mode='verbose'):
         stored_trace = self.link.trace
         self.link.trace = True
-        print('settings result: ' + self.settings('--Config 3W_NOT_COMBINED_BLE', mode=mode))
-        print('priority result: ' + self.priority('--PriorityMode BALANCED', mode=mode))
-        print('state    result: ' + self.state('--State OFF', mode=mode))
+        print('settings result: ' + self.settings('--config 3w_ble', mode=mode))
+        print('priority result: ' + self.priority('--priority_mode balanced', mode=mode))
+        print('state    result: ' + self.state('--state off', mode=mode))
         self.link.trace = stored_trace
 
 
@@ -164,31 +164,31 @@ def command_line_test():
 
     # print(dut.pta_help())
     mode = 'quiet'
-    dut.settings('--Config 3W_BLE --RequestSignalActiveLevel LOW --FirstSlotTime 123', mode=mode)
-    dut.settings('--PtaMode 1W_COEX_MASTER', mode=mode)
-    dut.settings('--PtaMode 2W', mode=mode)
-    dut.settings('--PtaMode 3W', mode=mode)
-    dut.settings('--PtaMode 4W', mode=mode)
-    dut.settings('--RequestSignalActiveLevel LOW', mode=mode)
-    dut.settings('--PrioritySignalActiveLevel LOW', mode=mode)
-    dut.settings('--FreqSignalActiveLevel LOW', mode=mode)
-    dut.settings('--GrantSignalActiveLevel HIGH', mode=mode)
-    dut.settings('--CoexType GENERIC', mode=mode)
-    dut.settings('--CoexType BLE', mode=mode)
-    dut.settings('--DefaultGrantState NO_GRANT', mode=mode)
-    dut.settings('--SimultaneousRxAccesses TRUE', mode=mode)
-    dut.settings('--PrioritySamplingTime 3', mode=mode)
-    dut.settings('--TxRxSamplingTime 4', mode=mode)
-    dut.settings('--FreqSamplingTime 5', mode=mode)
-    dut.settings('--GrantValidTime 6', mode=mode)
-    dut.settings('--FemControlTime 7', mode=mode)
-    dut.settings('--FirstSlotTime 8', mode=mode)
-    dut.settings('--PeriodicTxRxSamplingTime 9', mode=mode)
-    dut.settings('--CoexQuota 1000', mode=mode)
-    dut.settings('--WlanQuota 1234', mode=mode)
-    dut.state('--State OFF')
-    dut.state('--State ON')
-    dut.priority('--PriorityMode BALANCED')
+    dut.settings('--config 3w_ble --request_signal_active_level low --first_slot_time 123', mode=mode)
+    dut.settings('--pta_mode 1w_coex_master', mode=mode)
+    dut.settings('--pta_mode 2w', mode=mode)
+    dut.settings('--pta_mode 3w', mode=mode)
+    dut.settings('--pta_mode 4w', mode=mode)
+    dut.settings('--request_signal_active_level low', mode=mode)
+    dut.settings('--priority_signal_active_level low', mode=mode)
+    dut.settings('--freq_signal_active_level low', mode=mode)
+    dut.settings('--grant_signal_active_level high', mode=mode)
+    dut.settings('--coex_type generic', mode=mode)
+    dut.settings('--coex_type ble', mode=mode)
+    dut.settings('--default_grant_state no_grant', mode=mode)
+    dut.settings('--simultaneous_rx_accesses true', mode=mode)
+    dut.settings('--priority_sampling_time 3', mode=mode)
+    dut.settings('--tx_rx_sampling_time 4', mode=mode)
+    dut.settings('--freq_sampling_time 5', mode=mode)
+    dut.settings('--grant_valid_time 6', mode=mode)
+    dut.settings('--fem_control_time 7', mode=mode)
+    dut.settings('--first_slot_time 8', mode=mode)
+    dut.settings('--periodic_tx_rx_sampling_time 9', mode=mode)
+    dut.settings('--coex_quota 1000', mode=mode)
+    dut.settings('--wlan_quota 1234', mode=mode)
+    dut.state('--state off')
+    dut.state('--state on')
+    dut.priority('--priority_mode balanced')
     return 0
 
 
