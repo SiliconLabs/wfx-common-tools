@@ -3,68 +3,84 @@
 PTA is used to manage radio coexistence of Wi-Fi with other standards
 
 Common use cases are:
+
 * Wi-Fi + Bluetooth
 * Wi-Fi + Zigbee
 
-(Watch https://www.youtube.com/watch?v=BiEe_EbhpGg to discover the benefits of PTA and
-visit https://www.silabs.com/products/wireless/learning-center/wi-fi-coexistence for more details)
+(Watch <https://www.youtube.com/watch?v=BiEe_EbhpGg> to discover the benefits of PTA and
+visit <https://www.silabs.com/products/wireless/learning-center/wi-fi-coexistence> for more details)
 
 ## Usage
 
 To manage PTA, sending configuration data is required to
+
 * Provide the PTA settings to the WFX firmware
 * Control the PTA priority
 * Turn PTA on/off
 
 ## Source repository
-https://github.com/SiliconLabs/wfx-common-tools
+
+<https://github.com/SiliconLabs/wfx-common-tools>
 
 ## Python version
+
 The scripts have been written for and tested for Python3 
 
 ## Installation
+
 These scripts are used to format PTA bytes according to the user's preferences and send them to the WFX firmware.
 
 They can be used either directly on the target or on a remote tester, via the **WFX connection layer**
 
 ### Prerequisites
+
 First install the  **WFX connection layer**
 The connection layer is the same as the one used for WFX RF testing, allowing connection in the following modes:
+
 * Local
 * SSH
 * UART
 * Telnet
 
-The connection layer is available in 
-https://github.com/SiliconLabs/wfx-common-tools/tree/master/connection
+The connection layer is available in
+<https://github.com/SiliconLabs/wfx-common-tools/tree/master/connection>
 (a subfolder of `wfx-common-tools`, so from the PTA scripts perspective they are under `../connection`)
 
-Refer to 
-https://github.com/SiliconLabs/wfx-common-tools/blob/master/connection/README.md
+Refer to
+<https://github.com/SiliconLabs/wfx-common-tools/blob/master/connection/README.md>
  for details on the connection layer and its installation.
 
 ----------------
 
 ### PTA scripts installation
+
 Once you have installed the **WFX connection layer** you will also have installed the Python scripts for PTA, since
 these are in the same repository, in the `pta` folder.
-```
+
+```bash
 cd siliconlabs/wfx-common-tools/pta
 ```
 
 ----------------
 
 ### PTA help
+
 Help can be obtained using the `pta_help()` function, and will also be displayed in case a function parameter
  is missing or invalid.
-```
+
+```bash
 python3
+```
+
+```python
 >>> from wfx_pta import *
 >>> dut = WfxPtaTarget('local')
 >>> dut.pta_help()
 ```
+
 #### PTA help content
-```
+
+```text
 usage: wfx_pta.py [-h] [--version]
                   [--config {3w_ble,3w_not_combined_zigbee,3w_combined_zigbee}]
                   [--pta_mode {3w,1w_coex_master,2w,4w}]
@@ -243,9 +259,10 @@ state options:
             \x08\x00\x2d\x00\x01\x00\x00\x00
           python wfx_pta_data.py state --state off
             \x08\x00\x2d\x00\x00\x00\x00\x00
-
 ```
+
 ## PTA API
+
 ### settings(options)
 
 PTA settings are filled based on the `options` string as a structure with the following parameters
@@ -286,6 +303,7 @@ There are 4 such configurations:
 | 3w_combined_zigbee            |pta_mode=3w <br>coex_type=generic <br>simultaneous_rx_accesses=true  <br>priority_sampling_time=10 <br>tx_rx_sampling_time=30 <br>grant_valid_time=40 <br>fem_control_time=40 <br>first_slot_time=40|
 
 #### PTA settings defaults vs pre-filled configurations vs user options
+
 **PTA settings** are applied in the following order:
 
 * All defaults
@@ -294,52 +312,73 @@ There are 4 such configurations:
 
 NB: Using the PTA data filling tracing (described below) can be a good way to become familiar with this process
 
-## Use case 1: from a Python3 interpreter 
-```
+## Use case 1: from a Python3 interpreter
+
+```bash
 python3
+```
+
+```python
 >>> from wfx_pta import *
 ```
+
 ### Connection
+
 Select one of (with your own parameters for the SSH or UART cases)
-```
+```python
 >>> dut = WfxPtaTarget('Pi203', host='pi203', user='pi', port=22, password='default_password')
 >>> dut = WfxPtaTarget('Serial', port='COM8')
 >>> dut = WfxPtaTarget('Local')
 ```
 
-### PTA settings 
+### PTA settings
+
 **All defaults + pta_mode & tx_rx_sampling_time**
-```
+
+```python
 >>> dut.settings('--pta_mode 3w --tx_rx_sampling_time 30')
 ```
+
 **Pre-filled configuration 'as is'**
-```
+
+```python
 >>> dut.settings('--config 3w_ble')
 ```
+
 **Pre-filled configuration + user-selected values**
-```
+
+```python
 >>> dut.settings('--config 3w_ble --first_slot_time 123')
 ```
+
 ### PTA priority
-```
+
+```python
 >>> dut.priority('--priority_mode balanced')
 ```
+
 ### PTA state
-```
+
+```python
 >>> dut.state('--state off')
 ```
 
 ### Tracing
+
 #### Tracing PTA data filling
+
 Adding `mode='verbose'` to a PTA function call will enable tracing of the PTA data filling process
 
 **without traces**
-```
+
+```python
 >>> dut.settings('--config 3w_ble')
 'HI_STATUS_SUCCESS'
 ```
+
 **with traces**
-```
+
+```python
 >>> dut.settings('--config 3w_ble --fem_control_time 135', mode='verbose')
 ['settings', '--config', '3w_ble', '--fem_control_time', '135']
 configuring for 3w_ble
@@ -367,58 +406,99 @@ wlan_quota                        0          \x00\x00
 'HI_STATUS_SUCCESS'
 >>>
 ```
+
 NB: Above we can see
- * Indicated with `=>`: the changes done on the defaults when applying '3w_ble'
- * Indicated with `->`: the changes done on the current settings when applying '--fem_control_time 135'
- * When there is a change from the default: the default values on the left side, the final value on the right
- 
+
+* Indicated with `=>`: the changes done on the defaults when applying '3w_ble'
+* Indicated with `->`: the changes done on the current settings when applying '--fem_control_time 135'
+* When there is a change from the default: the default values on the left side, the final value on the right
+
 #### Tracing PTA data transmission
+
 It is also possible to track the connection layer communication with the DUT, using
-```
+```python
 >>> dut.link.trace = True
 ```
+
 **without connection traces**
-```
+
+```python
 >>> dut.settings('--config 3w_ble')
 'HI_STATUS_SUCCESS'
 ```
+
 **with connection traces**
-```
+
+```python
 >>> dut.settings('--config 3w_ble')
 pi       D>>|  wfx_exec wfx_hif_send_msg "\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x46\x48\x8c\x96\x01\x00\x00\x00\x00\x00"
 <<D       pi|  0
 'HI_STATUS_SUCCESS'
 ```
+
 ## Use case 2: command line to retrieve PTA formatted data
+
 ### settings
-`python wfx_pta.py settings --config 3w_ble`
+
+```bash
+python wfx_pta.py settings --config 3w_ble
+```
+
 ### priority
-`python wfx_pta.py priority --priority_mode balanced`
+
+```bash
+python wfx_pta.py priority --priority_mode balanced
+```
+
 ### state
-`python wfx_pta.py state --state on`
+
+```bash
+python wfx_pta.py state --state on
+```
+
 ### tracing
+
 add 'verbose' to the command to trace PTA data filling
-`python wfx_pta.py settings --config 3w_ble verbose`
+
+```bash
+python wfx_pta.py settings --config 3w_ble verbose
+```
 
 ## Use case 3: command line to directly send PTA data
+
 ### settings
-`python wfx_pta_data.py settings --config 3w_ble --grant_valid_time 40 --priority_sampling_time 8`
+
+```bash
+python wfx_pta_data.py settings --config 3w_ble --grant_valid_time 40 --priority_sampling_time 8
+```
+
 ### priority
-`python wfx_pta_data.py priority --priority_mode balanced`
+
+```bash
+python wfx_pta_data.py priority --priority_mode balanced
+```
+
 ### state
-`python wfx_pta_data.py state --state on`
+
+```bash
+python wfx_pta_data.py state --state on
+```
 
 # Self test
+
 A specific `selftest` function has been added to allow testing proper installation of the tools.
 `selftest` calls the 3 PTA functions will valid example values to check that PAT data formatting and transmission
  is working as expected. To achieve this, internal tracing features are used.
 
 ## Running the self test
-```
+
+```bash
 python3 wfx_pta_data.py
 ```
+
 ## Expected result of dut.selftest():
-```
+
+```text
 ['settings', '--config', '3w_ble', '--request_signal_active_level', 'low', '--first_slot_time', '123']
 configuring for 3w_ble
 tx_rx_sampling_time                  50 =>        0
@@ -470,4 +550,3 @@ wlan_quota                     7500       \x4c\x1d
 \x08\x00\x2d\x00\x01\x00\x00\x00
 \x08\x00\x2c\x00\x61\x14\x00\x00
 ```
-
