@@ -5,10 +5,12 @@
 
 import re
 import sys
+import time
+
 sys.path.append('../connection')
 
-from pds_compress import compress_string
 from wfx_connection import *
+from pds_compress import compress_string
 from wfx_pds_tree import *
 
 pds_env = dict()
@@ -45,8 +47,10 @@ class WfxTestTarget(object):
         if not self.link:
             if 'port' in kwargs:
                 port = kwargs['port']
-                print('%s: Configuring a UART connection using %s' % (nickname, port))
-                self.link = Uart(nickname, port=port)
+                user = kwargs['user'] if 'user' in kwargs else ''
+                password = kwargs['password'] if 'password' in kwargs else ''
+                print('%s: Configuring a UART connection using %s/%s' % (nickname, port, user, password))
+                self.link = Uart(nickname, port=port, user=user, password=password)
                 if self.link is None:
                     if port in uarts():
                         raise Exception(port + ' is detected but is not available. Check for other applications using ' + port)
@@ -66,6 +70,10 @@ class WfxTestTarget(object):
                 print("%s: No fw_version retrieved from HW, using max_fw_version (%s)" % (self.nickname, fw_version))
             else:
                 print("%s: fw_version retrieved from HW (%s)" % (self.nickname, fw_version))
+            agent_version = self.run('wfx_test_agent --help')
+            if agent_version == '':
+                agent_error = ' No \'wfx_test_agent\' on ' + nickname + '. Communication is OK, but we miss the agent!!'
+                raise Exception("%s %s" % (self.nickname, str(agent_error)))
         self.test_data.fill_tree(fw_version)
         print('%s: tree filled for FW%s' % (self.nickname, fw_version))
 
