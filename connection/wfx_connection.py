@@ -32,17 +32,20 @@ class AbstractConnection(object):
     def run(self, cmd, wait_ms=0):
         raise NotImplementedError()
 
+    def close(self):
+        raise NotImplementedError()
+
 
 class Uart(AbstractConnection):
 
-    def __init__(self, nickname="uart", port=None, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=0.1, user='', password=''):
+    def __init__(self, nickname="uart", port=None, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=0.1, user='', password='', trace=False):
         try:
             import serial
         except ImportError:
             print("'serial'     is not installed. UART connection impossible")
         else:
             logging.getLogger("serial").setLevel(logging.WARNING)
-            print('loaded serial')
+            #print("imported 'serial'")
         object.__init__(self)
         self.nickname = nickname
         self.conn = 'UART ' + str(port) + '/' + str(baudrate) + '/' + str(bytesize) + '/' + parity + '/' + str(stopbits)
@@ -50,33 +53,76 @@ class Uart(AbstractConnection):
         self.password = password
         self.hostname = 'foo'
         self.prompt = 'bar'
+        self.max_response_ms = 500
+        self.trace = trace
         if port:
             self.configure(port, baudrate, bytesize, parity, stopbits, timeout)
             return
 
-    def configure(self, port, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=0.1):
+    def test_connectivity(self):
+        # send once to flush possible errors
+        self.write('')
+        time.sleep(500/1000)
+        self.write('')
+        time.sleep(500/1000)
+        try:
+            res = self.read_raw()
+        except:
+            print("error on first write/read, retrying...")
+            self.write('')
+            time.sleep(0.5)
+            try:
+                res = self.read_raw()
+            except:
+                print("'ERROR: " + self.nickname + " can NOT connect")
+                return 0
+        if 'login:' in res:
+            self.log_in()
+        print(self.nickname + " connected")
+        return 1
+
+    def log_in(self):
+        print("sending login '" + self.user + "'...")
+        self.write(self.user)
+        time.sleep(500/1000)
+        login_res = self.link.read_all().decode("utf-8")
+        print("login res : " + login_res)
+        if 'assword:' in login_res:
+            print("sending password '" + self.password + "'...")
+            self.write(self.password)
+            time.sleep(500/1000)
+            password_res = self.link.read_all().decode("utf-8")
+            print("password_res : " + password_res)
+
+    def get_prompt(self):
+        self.write('')
+        time.sleep(500/1000)
+        #res = self.read_raw()
+        res = self.link.read_all().decode("utf-8")
+        split_res = res.split('\n')
+        res_len = len(split_res)
+        last_res = split_res[res_len-1]
+        if len(last_res) > 2:
+            self.prompt = split_res[res_len-1].strip()
+            print(self.nickname + " prompt set to '" + self.prompt + "'")
+
+    def configure(self, port, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1):
         import serial
         self.connection = None
         self.link = None
-        self.trace = False
+        self.prompt = None
         try:
-            self.link = serial.Serial(port, baudrate, bytesize, parity, stopbits, timeout, write_timeout=0.1)
+            self.link = serial.serial_for_url(url=port, baudrate=baudrate, bytesize=bytesize, parity=parity,
+                                      stopbits=stopbits, timeout=timeout, write_timeout=None)
             self.connection = port
             if self is None:
                 raise Exception("%s %s" % (self.nickname, 'Can not connect to ' + port))
-            for n in range(0, 4):
-                dut_reply = self.run('', 0)
-                if 'login:' in dut_reply:
-                    print("sending login '" + self.user + "'")
-                    dut_reply = self.run(self.user)
-                if 'assword:' in dut_reply:
-                    print("sending password '" + self.password + "'")
-                    dut_reply = self.run(self.password)
-                    break
-            dut_reply = self.run('hostname')
-            le = len(dut_reply.split("\n"))
-            self.prompt = dut_reply.split("\n")[le-1]
-            self.hostname = self.prompt.split("@")[0]
+            # from https://pyserial.readthedocs.io/en/latest/appendix.html#faq:
+            # A delay after opening the port, before the first write(), is recommended in this situation. E.g. a time.sleep(1)
+            time.sleep(1)
+            self.test_connectivity()
+            if self.user != '':
+                self.get_prompt()
         except serial.serialutil.SerialException as oops:
             if 'PermissionError' in str(oops):
                 uart_error = port + ' is present, but already used. Use \'uarts()\' to list available COM ports'
@@ -90,28 +136,74 @@ class Uart(AbstractConnection):
     def write(self, text):
         if self.link is not None:
             if self.trace:
-                print("UART sending  | ", end='' )
-                print(text)
-            self.link.write(bytes(str(text).strip() + '\r', 'utf-8'))
+                print("UART sending  '", end='' )
+                print(text.strip(), end='')
+                print("'")
+            self.link.write(bytes(str(text).strip() + '\n', 'utf-8'))
+            self.link.flush()
+            time.sleep(5/1000)
+            self.last_write = time.time_ns()
+
+    def read_raw(self):
+        res = 'no uart link yet'
+        if self.link is not None:
+            start = time.time_ns()
+            stop_time = start + self.max_response_ms*1000
+            while time.time_ns() < stop_time:
+                res = self.link.read_all().decode("utf-8")
+                if len(res):
+                    for read_line in res.split('\n'):
+                        if self.trace:
+                            print("UART received <" + read_line.strip() + ">")
+                    return res
+        return res
+
+    def read_raw_lines(self):
+        res = 'no uart link!'
+        if self.link is not None:
+            res = self.link.readline().decode("utf-8")
+            if len(res):
+                for read_line in res.split('\n'):
+                    if self.trace:
+                        print("UART received <" + read_line.strip() + ">")
+                return res
+        return res
 
     def read(self, wait_ms=0):
         lines = []
-        line = ''
-        line_count = 0
         if self.link is not None:
-            while True:
-                read_line = self.link.readline()
-                line = read_line.decode("utf-8", "strict").strip()
-                if self.trace:
-                    print("UART received | ", end='')
-                    print(line)
-                if line == '':
-                    check_line = read_line.decode("utf-8", "strict").strip()
-                    if check_line == '':
-                        return "\n".join(lines)
-                # Skip empty 'prompt' lines (when remote is a direct shell console)
-                if self.prompt != line:
-                    lines.append(line)
+            start = time.time_ns()
+            if self.user != '':
+                stop_time = start + (self.max_response_ms*1E6)
+                # only exit on prompt if there is an os, i.e there is a 'user'
+                while True:
+                    read_lines = self.read_raw_lines()
+                    for line in read_lines.split('\n'):
+                        if len(line):
+                            # Skip empty 'prompt' lines (when remote is a direct shell console)
+                            if line.strip() != self.prompt:
+                                lines.append(line)
+                            else:
+                                # return when receiving the prompt
+                                # print("prompt received after " + str((time.time_ns()-start)/1E6))
+                                return "\n".join(lines)
+                        else:
+                            # print("empty... after " + str((time.time_ns()-start)/1E6))
+                            ...
+                    now = time.time_ns()
+                    if now > stop_time:
+                        print("read timeout after " + str((now-start)/1E6) + "(start " + str(start) +")" + "(stop " + str(stop_time) +")")
+                        break
+            else:
+                # when connected to a RTOS target, exit on timeout
+                stop_time = start + self.max_response_ms*1E6
+                while time.time_ns() < stop_time:
+                    read_lines = self.read_raw_lines()
+                    for line in read_lines.split('\n'):
+                        line = line.strip()
+                        if len(line):
+                            lines.append(line)
+                            break
         return "\n".join(lines)
 
     def run(self, cmd, wait_ms=0):
@@ -119,11 +211,16 @@ class Uart(AbstractConnection):
         res = ''
         time.sleep(wait_ms/1000)
         lines = self.read(wait_ms).split('\n')
-        if lines[0] == cmd:
+        if lines[0].strip() == cmd.strip():
             # Skip echo of 'cmd' (when remote is a direct shell console)
             del lines[0]
         res = '\n'.join(lines)
         return res
+
+    def close(self):
+        if self.link is not None:
+            self.link.close()
+            time.sleep(1)
 
 
 class Telnet(AbstractConnection):
@@ -277,8 +374,9 @@ class WfxConnection(object):
                 port = kwargs['port']
                 user = kwargs['user'] if 'user' in kwargs else 'root'
                 password = kwargs['password'] if 'password' in kwargs else ''
-                print('%s: Configuring a UART connection using %s for user %s/%s' % (nickname, port, user, password))
-                self.link = Uart(nickname, port=port, user=user, password=password)
+                self.trace = kwargs['trace'] if 'trace' in kwargs else False
+                print('%s: Configuring a UART connection using %s for user %s with trace %s' % (nickname, port, user, str(self.trace)))
+                self.link = Uart(nickname, port=port, user=user, password=password, trace=self.trace)
                 if self.link is None:
                     if port in uarts():
                         raise Exception(port + ' is detected but is not available. Check for other applications using ' + port)
@@ -319,6 +417,8 @@ class WfxConnection(object):
                 print(line)
         return res
 
+    def close(self):
+        self.link.close()
 
 # Functions allowing discovery of possible connections
 def uarts():
@@ -366,15 +466,39 @@ if __name__ == '__main__':
     print(uarts())
     print(networks())
 
-    #uart = WfxConnection('Uart', port='COM7', user='root', password='')
-    uartpi = WfxConnection('Uart', port='COM19', user='pi', password='default_password')
+    #uart = WfxConnection('Uart', port='COM19', user='pi', password='default_password')
     #tel = Telnet('telnet', host='10.5.124.249', user='pi', port='telnet', password='default_password')
-    me = Direct('WinPC')
+    #me = Direct('WinPC')
+    #for m in [110, 100, 95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 0]:
+    for m in [2, 1, 0]:
+        uart = WfxConnection('Glory', port='COM26', baudrate=115200, user='root', password='', trace=False)
+        u = uart.run('uname -a')
+        if 'GNU/Linux' in u:
+            print("---\nuart uname -a: " + u + "\n---")
+            print(uart.run('dmesg | tail'))
+            print(uart.run('ip address show wlan0'))
+            print(uart.run('wfx_test_agent --help'))
+            break
+        else:
+            print("---\nERROR ! uart uname -a: " + u + "\n---")
+        uart.close()
+    for m in [2, 1, 0]:
+        uart = WfxConnection('Pi', port='COM19', baudrate=115200, user='pi', password='default_password', trace=False)
+        u = uart.run('uname -a')
+        if 'GNU/Linux' in u:
+            print("---\nuart uname -a: with " + u + "\n---")
+            print(uart.run('dmesg | tail'))
+            print(uart.run('ip address show wlan0'))
+            print(uart.run('wfx_test_agent --help'))
+            break
+        else:
+            print("---\nERROR ! uart uname -a: with " + u + "\n---")
+            break
+        uart.close()
 
-    uart26 = WfxConnection('Uart', port='COM26', user='root', password='')
-    eth = Ssh('master', host='rns-SD3-rc7', user='pi', port=22, password='default_password')
+    #uart26 = WfxConnection('Uart', port='COM26', user='root', password='')
+    #eth = Ssh('master', host='rns-SD3-rc7', user='pi', port=22, password='default_password')
 
-    print("me     path: " + me.run('path'))
-    print("uart26 uname -a: " + uart26.run('uname -a'))
-    print("eth    uname -a: " + eth.run('uname -a'))
-    print("uartpi uname -a: " + uartpi.run('uname -a'))
+    #print("me     path: " + me.run('path'))
+    #print("eth    uname -a: " + eth.run('uname -a'))
+    #print("uart uname -a: " + uart.run('uname -a'))
