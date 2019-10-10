@@ -117,12 +117,14 @@ class Uart(AbstractConnection):
             self.connection = port
             if self is None:
                 raise Exception("%s %s" % (self.nickname, 'Can not connect to ' + port))
+
             # from https://pyserial.readthedocs.io/en/latest/appendix.html#faq:
             # A delay after opening the port, before the first write(), is recommended in this situation. E.g. a time.sleep(1)
             time.sleep(1)
             self.test_connectivity()
             if self.user != '':
                 self.get_prompt()
+
         except serial.serialutil.SerialException as oops:
             if 'PermissionError' in str(oops):
                 uart_error = port + ' is present, but already used. Use \'uarts()\' to list available COM ports'
@@ -131,7 +133,7 @@ class Uart(AbstractConnection):
                 uart_error = ' No ' + port + ' COM port. Use \'uarts()\' to list available COM ports after connecting.'
                 uart_error += '\nCurrently available ports:\n' + uarts()
                 logging.error("%s: %s" % (self.nickname, str(uart_error)))
-                #print(uarts())
+                print(uart_error)
 
     def write(self, text):
         if self.link is not None:
@@ -142,7 +144,6 @@ class Uart(AbstractConnection):
             self.link.write(bytes(str(text).strip() + '\n', 'utf-8'))
             self.link.flush()
             time.sleep(5/1000)
-            self.last_write = time.time_ns()
 
     def read_raw(self):
         res = 'no uart link yet'
@@ -174,28 +175,28 @@ class Uart(AbstractConnection):
         if self.link is not None:
             start = time.time_ns()
             if self.user != '':
+                # OS target: wait for prompt 
                 stop_time = start + (self.max_response_ms*1E6)
-                # only exit on prompt if there is an os, i.e there is a 'user'
                 while True:
                     read_lines = self.read_raw_lines()
                     for line in read_lines.split('\n'):
                         if len(line):
-                            # Skip empty 'prompt' lines (when remote is a direct shell console)
-                            if line.strip() != self.prompt:
-                                lines.append(line)
-                            else:
-                                # return when receiving the prompt
+                            # return when receiving the prompt
+                            if line.strip() == self.prompt:
                                 # print("prompt received after " + str((time.time_ns()-start)/1E6))
                                 return "\n".join(lines)
+                            else:
+                                lines.append(line)
                         else:
+                            # skip empty lines
                             # print("empty... after " + str((time.time_ns()-start)/1E6))
                             ...
                     now = time.time_ns()
                     if now > stop_time:
-                        print("read timeout after " + str((now-start)/1E6) + "(start " + str(start) +")" + "(stop " + str(stop_time) +")")
+                        print("read timeout after " + str((now-start)/1E6))
                         break
             else:
-                # when connected to a RTOS target, exit on timeout
+                # RTOS target, exit on timeout
                 stop_time = start + self.max_response_ms*1E6
                 while time.time_ns() < stop_time:
                     read_lines = self.read_raw_lines()
@@ -345,42 +346,40 @@ class WfxConnection(object):
         self.link = None
         self.trace = False
 
+        # TELNET
         if 'host' in kwargs:
             port = kwargs['port'] if 'port' in kwargs else ""
             if port == 'telnet':
                 host = kwargs['host']
-                #if 'user' not in kwargs:
-                #    raise Exception("%s: Missing 'user'. Telnet Connection impossible to host %s" % (nickname, host))
                 user = kwargs['user']
-                print('%s: Configuring a Telnet connection to host %s for user %s' % (nickname, host, user))
                 password = kwargs['password'] if 'password' in kwargs else None
+                print('%s: Configuring a Telnet connection to host %s for user %s' % (nickname, host, user))
                 self.link = Telnet(nickname, host=host, user=user, password=password)
 
+        # SSH
         if not self.link:
             if 'host' in kwargs:
-                #if not loaded_paramiko:
-                #    raise Exception("'paramiko'   is not installed. SSH connection impossible for " + nickname)
                 host = kwargs['host']
                 port = kwargs['port'] if 'port' in kwargs else 22
                 user = kwargs['user'] if 'user' in kwargs else 'root'
-                print('%s: Configuring a SSH connection to host %s for user %s' % (nickname, host, user))
                 password = kwargs['password'] if 'password' in kwargs else None
+                print('%s: Configuring a SSH connection to host %s port %d for user %s' % (nickname, host, port, user))
                 self.link = Ssh(nickname, host=host, user=user, port=port, password=password)
 
+        # UART
         if not self.link:
             if 'port' in kwargs:
-                #if not loaded_serial:
-                #    raise Exception("'serial'   is not installed. UART connection impossible for " + nickname)
                 port = kwargs['port']
                 user = kwargs['user'] if 'user' in kwargs else 'root'
                 password = kwargs['password'] if 'password' in kwargs else ''
                 self.trace = kwargs['trace'] if 'trace' in kwargs else False
-                print('%s: Configuring a UART connection using %s for user %s with trace %s' % (nickname, port, user, str(self.trace)))
+                print('%s: Configuring a UART connection using %s for user %s' % (nickname, port, user))
                 self.link = Uart(nickname, port=port, user=user, password=password, trace=self.trace)
                 if self.link is None:
                     if port in uarts():
                         raise Exception(port + ' is detected but is not available. Check for other applications using ' + port)
 
+        # DIRECT
         if not self.link:
             if not kwargs:
                 print('%s: Configuring a Direct connection' % nickname)
@@ -466,12 +465,16 @@ if __name__ == '__main__':
     print(uarts())
     print(networks())
 
+    # RTOS/uart: no 'user', no 'password'
+    #uart = WfxConnection('RTOS', port='COM19')
+    # Linux/uart: 'user' & 'password'
     #uart = WfxConnection('Uart', port='COM19', user='pi', password='default_password')
-    #tel = Telnet('telnet', host='10.5.124.249', user='pi', port='telnet', password='default_password')
+    # TELNET target: host & port = 'telnet' + 'user' & 'password'
+    #tel = WfxConnection('telnet', host='10.5.124.249', user='pi', port='telnet', password='default_password')
     #me = Direct('WinPC')
     #for m in [110, 100, 95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 0]:
     for m in [2, 1, 0]:
-        uart = WfxConnection('Glory', port='COM26', baudrate=115200, user='root', password='', trace=False)
+        uart = WfxConnection('Glory', port='COM26', baudrate=115200, user='root', password='')
         u = uart.run('uname -a')
         if 'GNU/Linux' in u:
             print("---\nuart uname -a: " + u + "\n---")
@@ -483,7 +486,7 @@ if __name__ == '__main__':
             print("---\nERROR ! uart uname -a: " + u + "\n---")
         uart.close()
     for m in [2, 1, 0]:
-        uart = WfxConnection('Pi', port='COM19', baudrate=115200, user='pi', password='default_password', trace=False)
+        uart = WfxConnection('Pi', port='COM19', baudrate=115200, user='pi', password='default_password')
         u = uart.run('uname -a')
         if 'GNU/Linux' in u:
             print("---\nuart uname -a: with " + u + "\n---")
@@ -495,10 +498,16 @@ if __name__ == '__main__':
             print("---\nERROR ! uart uname -a: with " + u + "\n---")
             break
         uart.close()
-
-    #uart26 = WfxConnection('Uart', port='COM26', user='root', password='')
-    #eth = Ssh('master', host='rns-SD3-rc7', user='pi', port=22, password='default_password')
-
-    #print("me     path: " + me.run('path'))
-    #print("eth    uname -a: " + eth.run('uname -a'))
-    #print("uart uname -a: " + uart.run('uname -a'))
+    for m in [2, 1, 0]:
+        ssh = WfxConnection('Pi', host='rns-SD3-rc7', user='pi', password='default_password')
+        u = ssh.run('uname -a')
+        if 'GNU/Linux' in u:
+            print("---\nssh uname -a: with " + u + "\n---")
+            print(ssh.run('dmesg | tail'))
+            print(ssh.run('ip address show wlan0'))
+            print(ssh.run('wfx_test_agent --help'))
+            break
+        else:
+            print("---\nERROR ! ssh uname -a: with " + u + "\n---")
+            break
+        ssh.close()
