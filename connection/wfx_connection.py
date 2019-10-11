@@ -59,7 +59,19 @@ class Uart(AbstractConnection):
         self.password = password
         self.hostname = 'foo'
         self.prompt = 'bar'
-        self.max_response_ms = 5000
+        print(self.error_color + "user: " + self.user + self.reset_color)
+        if self.user != '':
+            # 'OS' UART relies on the prompt to return, so a high timeout is not and issue
+            self.max_response_ms = 5000
+        else:
+            # 'RTOS' UART can only end a 'read' upon a timeout.
+            # 'timeout' is the read timout of the port. It is not critical
+            # Following each read the wait is increased by self.max_response_ms, so this value is critical
+            #  self.max_response_ms may need to be adapted, depending on the RTOS response times
+            # If it's too small some messages may be lost
+            # If it's too high each 'read' is long
+            self.max_response_ms = 50
+            timeout = 20/1000
         self.trace = trace
         self.debug = False
         self.last_write = ''
@@ -186,8 +198,8 @@ class Uart(AbstractConnection):
 
     def read(self, wait_ms=0):
         lines = []
+        start = time.time_ns()
         if self.link is not None:
-            start = time.time_ns()
             stop_time = start + (self.max_response_ms*1E6)
             if self.user != '':
                 # OS target: wait for prompt
@@ -219,7 +231,13 @@ class Uart(AbstractConnection):
                     line = self.read_raw_line()
                     if len(line):
                         lines.append(line.rstrip())
-                        break
+                        stop_time = time.time_ns() + (self.max_response_ms*1E6)
+                        if self.debug:
+                            print("  DEBUG   " + self.nickname + self.debug_color + " line received after " + str((time.time_ns()-start)/1E6) + self.reset_color)
+                            ...
+        if self.debug:
+            print("  DEBUG   " + self.nickname + self.debug_color + " full message received after " + str((time.time_ns()-start)/1E6) + self.reset_color)
+            ...
         return "\n".join(lines)
 
     def run(self, cmd, wait_ms=0):
@@ -385,7 +403,7 @@ class WfxConnection(object):
         if not self.link:
             if 'port' in kwargs:
                 port = kwargs['port']
-                user = kwargs['user'] if 'user' in kwargs else 'root'
+                user = kwargs['user'] if 'user' in kwargs else ''
                 password = kwargs['password'] if 'password' in kwargs else ''
                 self.trace = kwargs['trace'] if 'trace' in kwargs else False
                 print('%s: Configuring a UART connection using %s for user %s' % (nickname, port, user))
