@@ -8,6 +8,7 @@ import sys
 import time
 
 sys.path.append('../connection')
+sys.path.append('connection')
 
 from wfx_connection import *
 from pds_compress import compress_string
@@ -26,6 +27,12 @@ pds_env['useful_options'] = []
 
 class WfxTestTarget(object):
     global pds_env
+    debug_color = "\033[95m"
+    error_color = "\033[91m"
+    write_color = "\033[94m"
+    read_color  = "\033[92m"
+    set_color   = "\033[93m"
+    reset_color = "\033[0;0m"
 
     def __init__(self, nickname, **kwargs):
         self.trace = False
@@ -36,6 +43,7 @@ class WfxTestTarget(object):
         self.link = None
         self.required_options = pds_env['required_options']
         self.useful_options = pds_env['useful_options']
+
         if 'host' in kwargs:
             host = kwargs['host']
             port = kwargs['port'] if 'port' in kwargs else 22
@@ -49,7 +57,7 @@ class WfxTestTarget(object):
                 port = kwargs['port']
                 user = kwargs['user'] if 'user' in kwargs else ''
                 password = kwargs['password'] if 'password' in kwargs else ''
-                print('%s: Configuring a UART connection using %s/%s' % (nickname, port, user, password))
+                print('%s: Configuring a UART connection using %s/%s' % (nickname, port, user))
                 self.link = Uart(nickname, port=port, user=user, password=password)
                 if self.link is None:
                     if port in uarts():
@@ -88,9 +96,10 @@ class WfxTestTarget(object):
             return ''
 
     def run(self, cmd, wait_ms=0):
-        self.write(cmd)
-        time.sleep(wait_ms/1000.0)
-        return self.read()
+        if self.link is not None:
+            return self.link.run(cmd, wait_ms)
+        else:
+            return ''
 
     def _prepare_test_data(self, parameters):
         _subtree = self.test_data.sub_tree(parameters)
@@ -135,7 +144,7 @@ class WfxTestTarget(object):
             res += str(self.test_data.set(parameter, value)) + '     '
             parameters.append(parameter)
         if self.trace:
-            print(str.format("%-8s SET|  " % self.nickname), res.strip())
+            print(str.format("%-8s SET|  " % self.nickname), self.set_color + res.strip() + self.reset_color)
         self._prepare_and__send_test_data(parameters, send_data)
         return res.strip()
 
