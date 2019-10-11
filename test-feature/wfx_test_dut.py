@@ -9,6 +9,12 @@ from job import *
 
 class WfxTestDut(WfxTestTarget):
     tools_version = '1.0.0'
+    debug_color = "\033[95m"
+    error_color = "\033[91m"
+    write_color = "\033[94m"
+    read_color  = "\033[92m"
+    set_color   = "\033[93m"
+    reset_color = "\033[0;0m"
 
     def __init__(self, nickname, **kwargs):
         critical_message = ''
@@ -300,7 +306,7 @@ class WfxTestDut(WfxTestTarget):
                 if nb_same_timestamp > 3:
                     msg = ' Error: Rx stats timestamp not changing. Rx not running!'
                     add_pds_warning(msg)
-                    print('\n', msg, '\n')
+                    print('\n' + self.error_color + msg + self.reset_color + '\n')
                     break
             if elapsed > timeout_s > 0:
                 msg = str.format(' Warning: Rx stats timeout after %5.2f seconds!' % elapsed)
@@ -312,6 +318,8 @@ class WfxTestDut(WfxTestTarget):
             next_loop = origin + ((loops+1)*sleep_ms/1000)
             after = time.time()
             sleep_this_time = int((next_loop - after)*1000)
+            if sleep_this_time < 0:
+                sleep_this_time = 0
             time.sleep(sleep_this_time/1000)
         return self.rx_logs(mode)
 
@@ -406,13 +414,27 @@ class WfxTestDut(WfxTestTarget):
 
 if __name__ == '__main__':
 
-    print(uarts())
+    #print(uarts())
+    # Select one of the following lines to connect
+    #dut = WfxTestDut('Local')
+    #dut = WfxTestDut('Pi_ssh', host='10.5.124.186', user='pi', port=22, password='default_password')
+    #dut = WfxTestDut('Pi_uart',   port='COM19', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='pi', password='default_password')
+    dut = WfxTestDut('iMX6_uart', port='COM26', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='root', password='')
+    #dut = WfxTestDut('RTOS_uart', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1)
 
-    # dut = WfxTestDut('Local')
-    dut = WfxTestDut('Pi_186', host='10.5.124.186', user='pi', port=22, password='default_password')
-    # dut = WfxTestDut('Serial', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1)
+    # enable traces if needed
+    dut.link.trace = False
+    dut.link.debug = False
+    dut.trace = True
 
-    dut.link.trace = True
+    if 'GNU/Linux' in dut.run('uname -a'):
+        # for linux: avoid dmesg forwarding to console
+        print(dut.run('dmesg -D'))
+
+    driver_version = dut.run('wfx_test_agent read_driver_version').strip()
+    print("driver_version '" + driver_version + "'")
+    dut.run('wfx_driver_reload -C')
+    print(dut.run('dmesg | tail'))
 
     print(check_pds_warning())
     print(dut.test_data.pretty())
@@ -431,8 +453,7 @@ if __name__ == '__main__':
 
     # Rx test (endless)
     dut.run('wfx_test_agent log_message "Rx test (endless)"')
-    dut.link.trace = False
-    # dut.link.trace = True
+    dut.trace = False
     print(dut.rx_receive('endless'))
     for i in range(10):
         time.sleep(1200 / 1000)
