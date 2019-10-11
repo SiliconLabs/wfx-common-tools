@@ -38,7 +38,7 @@ class AbstractConnection(object):
 
 class Uart(AbstractConnection):
 
-    def __init__(self, nickname="uart", port=None, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=0.1, user='', password='', trace=False):
+    def __init__(self, nickname="uart", port=None, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1, user='', password='', trace=False):
         try:
             import serial
         except ImportError:
@@ -53,7 +53,7 @@ class Uart(AbstractConnection):
         self.password = password
         self.hostname = 'foo'
         self.prompt = 'bar'
-        self.max_response_ms = 500
+        self.max_response_ms = 5000
         self.trace = trace
         if port:
             self.configure(port, baudrate, bytesize, parity, stopbits, timeout)
@@ -95,7 +95,7 @@ class Uart(AbstractConnection):
             print("password_res : " + password_res)
 
     def get_prompt(self):
-        self.write('')
+        self.write('cd ~')
         time.sleep(500/1000)
         #res = self.read_raw()
         res = self.link.read_all().decode("utf-8")
@@ -159,59 +159,55 @@ class Uart(AbstractConnection):
                     return res
         return res
 
-    def read_raw_lines(self):
+    def read_raw_line(self):
         res = 'no uart link!'
         if self.link is not None:
-            res = self.link.readline().decode("utf-8")
-            if len(res):
-                for read_line in res.split('\n'):
-                    if self.trace:
-                        print("UART received <" + read_line.strip() + ">")
-                return res
+            res = ''
+            line = self.link.readline().decode("utf-8")
+            if len(line):
+                if self.trace:
+                    print("UART received <" + line.strip() + ">")
+                return line.strip()
         return res
 
     def read(self, wait_ms=0):
         lines = []
         if self.link is not None:
             start = time.time_ns()
+            stop_time = start + (self.max_response_ms*1E6)
             if self.user != '':
-                # OS target: wait for prompt 
-                stop_time = start + (self.max_response_ms*1E6)
+                # OS target: wait for prompt
                 while True:
-                    read_lines = self.read_raw_lines()
-                    for line in read_lines.split('\n'):
-                        if len(line):
-                            # return when receiving the prompt
-                            if line.strip() == self.prompt:
-                                # print("prompt received after " + str((time.time_ns()-start)/1E6))
-                                return "\n".join(lines)
-                            else:
-                                lines.append(line)
+                    line = self.read_raw_line()
+                    if len(line):
+                        # return when receiving the prompt
+                        if line.strip() == self.prompt:
+                            # print("prompt received after " + str((time.time_ns()-start)/1E6))
+                            return "\n".join(lines)
                         else:
-                            # skip empty lines
-                            # print("empty... after " + str((time.time_ns()-start)/1E6))
-                            ...
+                            lines.append(line)
+                    else:
+                        # skip empty lines
+                        # print("empty... after " + str((time.time_ns()-start)/1E6))
+                        ...
                     now = time.time_ns()
                     if now > stop_time:
                         print("read timeout after " + str((now-start)/1E6))
                         break
             else:
                 # RTOS target, exit on timeout
-                stop_time = start + self.max_response_ms*1E6
                 while time.time_ns() < stop_time:
-                    read_lines = self.read_raw_lines()
-                    for line in read_lines.split('\n'):
-                        line = line.strip()
-                        if len(line):
-                            lines.append(line)
-                            break
+                    line = self.read_raw_line()
+                    if len(line):
+                        lines.append(line.strip())
+                        break
         return "\n".join(lines)
 
     def run(self, cmd, wait_ms=0):
         self.write(cmd)
         res = ''
         time.sleep(wait_ms/1000)
-        lines = self.read(wait_ms).split('\n')
+        lines = self.read().split('\n')
         if lines[0].strip() == cmd.strip():
             # Skip echo of 'cmd' (when remote is a direct shell console)
             del lines[0]
@@ -465,49 +461,49 @@ if __name__ == '__main__':
     print(uarts())
     print(networks())
 
-    # RTOS/uart: no 'user', no 'password'
-    #uart = WfxConnection('RTOS', port='COM19')
-    # Linux/uart: 'user' & 'password'
-    #uart = WfxConnection('Uart', port='COM19', user='pi', password='default_password')
+    # RTOS/uart: port + no 'user', no 'password'
+    #dut = WfxConnection('RTOS_uart', port='COM19')
+    # Linux/uart: port + 'user' & 'password'
+    #dut = WfxConnection('Linux_uart', port='COM19', user='pi', password='default_password')
+    #dut = WfxConnection('Linux_ssh', host='rns-SD3-rc7, user='pi', password='default_password')
     # TELNET target: host & port = 'telnet' + 'user' & 'password'
-    #tel = WfxConnection('telnet', host='10.5.124.249', user='pi', port='telnet', password='default_password')
-    #me = Direct('WinPC')
-    #for m in [110, 100, 95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 0]:
+    #dut = WfxConnection('telnet', host='10.5.124.249', user='pi', port='telnet', password='default_password')
+    #dut = Direct('myPC')
     for m in [2, 1, 0]:
-        uart = WfxConnection('Glory', port='COM26', baudrate=115200, user='root', password='')
-        u = uart.run('uname -a')
+        dut = WfxConnection('iMX6_uart', port='COM26', baudrate=115200, user='root', password='')
+        u = dut.run('uname -a')
         if 'GNU/Linux' in u:
-            print("---\nuart uname -a: " + u + "\n---")
-            print(uart.run('dmesg | tail'))
-            print(uart.run('ip address show wlan0'))
-            print(uart.run('wfx_test_agent --help'))
+            print("---\ndut uname -a: " + u + "\n---")
+            print(dut.run('dmesg | tail'))
+            print(dut.run('ip address show wlan0'))
+            print(dut.run('wfx_test_agent --help'))
             break
         else:
-            print("---\nERROR ! uart uname -a: " + u + "\n---")
-        uart.close()
+            print("---\nERROR ! dut uname -a: " + u + "\n---")
+        dut.close()
     for m in [2, 1, 0]:
-        uart = WfxConnection('Pi', port='COM19', baudrate=115200, user='pi', password='default_password')
-        u = uart.run('uname -a')
+        dut = WfxConnection('Pi_uart', port='COM19', baudrate=115200, user='pi', password='default_password')
+        u = dut.run('uname -a')
         if 'GNU/Linux' in u:
-            print("---\nuart uname -a: with " + u + "\n---")
-            print(uart.run('dmesg | tail'))
-            print(uart.run('ip address show wlan0'))
-            print(uart.run('wfx_test_agent --help'))
+            print("---\ndut uname -a: with " + u + "\n---")
+            print(dut.run('dmesg | tail'))
+            print(dut.run('ip address show wlan0'))
+            print(dut.run('wfx_test_agent --help'))
             break
         else:
-            print("---\nERROR ! uart uname -a: with " + u + "\n---")
+            print("---\nERROR ! udut uname -a: with " + u + "\n---")
             break
-        uart.close()
+        dut.close()
     for m in [2, 1, 0]:
-        ssh = WfxConnection('Pi', host='rns-SD3-rc7', user='pi', password='default_password')
-        u = ssh.run('uname -a')
+        dut = WfxConnection('Pi_ssh', host='rns-SD3-rc7', user='pi', password='default_password')
+        u = dut.run('uname -a')
         if 'GNU/Linux' in u:
-            print("---\nssh uname -a: with " + u + "\n---")
-            print(ssh.run('dmesg | tail'))
-            print(ssh.run('ip address show wlan0'))
-            print(ssh.run('wfx_test_agent --help'))
+            print("---\ndut uname -a: with " + u + "\n---")
+            print(dut.run('dmesg | tail'))
+            print(dut.run('ip address show wlan0'))
+            print(dut.run('wfx_test_agent --help'))
             break
         else:
-            print("---\nERROR ! ssh uname -a: with " + u + "\n---")
+            print("---\nERROR ! dut uname -a: with " + u + "\n---")
             break
-        ssh.close()
+        dut.close()
