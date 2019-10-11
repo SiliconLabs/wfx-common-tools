@@ -19,6 +19,12 @@ class AbstractConnection(object):
     connection = None
     nickname = ''
     trace = False
+    debug_color = "\033[95m"
+    error_color = "\033[91m"
+    write_color = "\033[94m"
+    read_color  = "\033[92m"
+    set_color   = "\033[93m"
+    reset_color = "\033[0;0m"
 
     def configure(self, *args, **kwargs):
         raise NotImplementedError()
@@ -55,6 +61,8 @@ class Uart(AbstractConnection):
         self.prompt = 'bar'
         self.max_response_ms = 5000
         self.trace = trace
+        self.debug = False
+        self.last_write = ''
         if port:
             self.configure(port, baudrate, bytesize, parity, stopbits, timeout)
             return
@@ -103,7 +111,7 @@ class Uart(AbstractConnection):
         res_len = len(split_res)
         last_res = split_res[res_len-1]
         if len(last_res) > 2:
-            self.prompt = split_res[res_len-1].strip()
+            self.prompt = split_res[res_len-1].rstrip()
             print(self.nickname + " prompt set to '" + self.prompt + "'")
 
     def configure(self, port, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1):
@@ -137,11 +145,12 @@ class Uart(AbstractConnection):
 
     def write(self, text):
         if self.link is not None:
+            if self.debug:
+                print("  DEBUG   " + self.nickname + self.debug_color + " write " + self.debug_color + text + self.reset_color + "...")
             if self.trace:
-                print("UART sending  '", end='' )
-                print(text.strip(), end='')
-                print("'")
-            self.link.write(bytes(str(text).strip() + '\n', 'utf-8'))
+                print("UART sending  '"  + self.write_color + text.rstrip() + self.reset_color + "'")
+            self.last_write = text
+            self.link.write(bytes(str(text).rstrip() + '\n', 'utf-8'))
             self.link.flush()
             time.sleep(5/1000)
 
@@ -155,7 +164,7 @@ class Uart(AbstractConnection):
                 if len(res):
                     for read_line in res.split('\n'):
                         if self.trace:
-                            print("UART received <" + read_line.strip() + ">")
+                            print("UART received <" + read_line.rstrip() + ">")
                     return res
         return res
 
@@ -163,11 +172,16 @@ class Uart(AbstractConnection):
         res = 'no uart link!'
         if self.link is not None:
             res = ''
-            line = self.link.readline().decode("utf-8")
+            r = self.link.readline()
+            try:
+                line = r.decode("utf-8")
+            except:
+                print(self.error_color + "UART ERROR decoding line" + self.reset_color)
+                line = ''
             if len(line):
                 if self.trace:
-                    print("UART received <" + line.strip() + ">")
-                return line.strip()
+                    print("UART received <"  + self.read_color + line.rstrip() + self.reset_color + ">")
+                return line.rstrip()
         return res
 
     def read(self, wait_ms=0):
@@ -181,25 +195,30 @@ class Uart(AbstractConnection):
                     line = self.read_raw_line()
                     if len(line):
                         # return when receiving the prompt
-                        if line.strip() == self.prompt:
-                            # print("prompt received after " + str((time.time_ns()-start)/1E6))
-                            return "\n".join(lines)
+                        if line.rstrip() == self.prompt:
+                            if self.debug:
+                                print("  DEBUG   " + self.nickname + self.debug_color + " prompt received after " + str((time.time_ns()-start)/1E6) + self.reset_color)
+                                ...
+                            break
                         else:
                             lines.append(line)
+                            stop_time = start + (self.max_response_ms*1E6)
                     else:
                         # skip empty lines
-                        # print("empty... after " + str((time.time_ns()-start)/1E6))
+                        if self.debug:
+                            print("  DEBUG   " + self.nickname + self.debug_color + " empty... after " + str((time.time_ns()-start)/1E6) + self.reset_color)
+                            ...
                         ...
                     now = time.time_ns()
                     if now > stop_time:
-                        print("read timeout after " + str((now-start)/1E6))
+                        print(self.error_color + "read timeout after " + str((now-start)/1E6) + self.write_color + " last_write: " + self.last_write + self.reset_color)
                         break
             else:
                 # RTOS target, exit on timeout
                 while time.time_ns() < stop_time:
                     line = self.read_raw_line()
                     if len(line):
-                        lines.append(line.strip())
+                        lines.append(line.rstrip())
                         break
         return "\n".join(lines)
 
@@ -208,7 +227,7 @@ class Uart(AbstractConnection):
         res = ''
         time.sleep(wait_ms/1000)
         lines = self.read().split('\n')
-        if lines[0].strip() == cmd.strip():
+        if lines[0].rstrip() == cmd.rstrip():
             # Skip echo of 'cmd' (when remote is a direct shell console)
             del lines[0]
         res = '\n'.join(lines)
@@ -241,10 +260,10 @@ class Telnet(AbstractConnection):
     def write(self, text):
         if self.link is not None:
             if self.trace:
-                for line in text.strip().split('\n'):
+                for line in text.rstrip().split('\n'):
                     print(str.format("%-8s S>>|  " % self.nickname), end='')
                     print(line)
-            self.link.write(bytes(text.strip() + '\n', 'utf-8'))
+            self.link.write(bytes(text.rstrip() + '\n', 'utf-8'))
 
     def read(self):
         if self.link is not None:
@@ -279,10 +298,10 @@ class Ssh(AbstractConnection):
     def write(self, text):
         if self.link is not None:
             if self.trace:
-                for line in text.strip().split('\n'):
+                for line in text.rstrip().split('\n'):
                     print(str.format("%-8s S>>|  " % self.nickname), end='')
                     print(line)
-            self.link.write(bytes(text.strip() + '\n', 'utf-8'))
+            self.link.write(bytes(text.rstrip() + '\n', 'utf-8'))
 
     def read(self):
         if self.link is not None:
@@ -314,10 +333,10 @@ class Direct(AbstractConnection):
 
     def write(self, text):
         if self.trace:
-            for line in text.strip().split('\n'):
+            for line in text.rstrip().split('\n'):
                 print(str.format("%-8s D>>|  " % self.nickname), end='')
                 print(line)
-        self.command_res = os.popen(text).read().strip()
+        self.command_res = os.popen(text).read().rstrip()
 
     def read(self):
         if self.command_res:
@@ -384,7 +403,7 @@ class WfxConnection(object):
     def write(self, text):
         if self.link is not None:
             if self.trace:
-                for line in text.strip().split('\n'):
+                for line in text.rstrip().split('\n'):
                     print(str.format("%-8s S>>|  " % self.nickname), end='')
                     print(line)
             self.link.write(text)
@@ -402,7 +421,7 @@ class WfxConnection(object):
 
     def run(self, cmd, wait_ms=0):
         if self.trace:
-            for line in cmd.strip().split('\n'):
+            for line in cmd.rstrip().split('\n'):
                 print(str.format("%-8s S>>|  " % self.nickname), end='')
                 print(line)
         res = self.link.run(cmd, wait_ms)
@@ -421,7 +440,7 @@ def uarts():
         import serial
     except ImportError:
         return "'serial'     is not installed. UART connection impossible"
-    com_ports = os.popen('python -m serial.tools.list_ports').read().replace(' ', '').strip().split('\n')
+    com_ports = os.popen('python -m serial.tools.list_ports').read().replace(' ', '').rstrip().split('\n')
     res = ''
     for port in com_ports:
         try:
@@ -433,7 +452,7 @@ def uarts():
             res += '%-5s (free)\n' % port
         finally:
             pass
-    return res.strip()
+    return res.rstrip()
 
 
 def networks():
@@ -480,7 +499,9 @@ if __name__ == '__main__':
             break
         else:
             print("---\nERROR ! dut uname -a: " + u + "\n---")
-        dut.close()
+        dut.link.trace = True
+    print(dut.run('cat $(which wfx_test_agent)'))
+    dut.close()
     for m in [2, 1, 0]:
         dut = WfxConnection('Pi_uart', port='COM19', baudrate=115200, user='pi', password='default_password')
         u = dut.run('uname -a')
