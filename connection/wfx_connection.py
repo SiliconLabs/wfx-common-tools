@@ -505,44 +505,10 @@ if __name__ == '__main__':
     #dut = WfxConnection('Linux_ssh', host='rns-SD3-rc7, user='pi', password='default_password')
     # TELNET target: host & port = 'telnet' + 'user' & 'password'
     #dut = WfxConnection('telnet', host='10.5.124.249', user='pi', port='telnet', password='default_password')
-    #dut = Direct('myPC')
-    for m in [2, 1, 0]:
-        dut = WfxConnection('iMX6_uart', port='COM26', baudrate=115200, user='root', password='')
-        u = dut.run('uname -a')
-        if 'GNU/Linux' in u:
-            print("---\ndut uname -a: " + u + "\n---")
-            print(dut.run('dmesg | tail'))
-            print(dut.run('ip address show wlan0'))
-            print(dut.run('wfx_test_agent --help'))
-            break
-        else:
-            print("---\nERROR ! dut uname -a: " + u + "\n---")
-        dut.link.trace = True
+    dut = Direct('myPC')
+    u = dut.run('uname -a')
+    if 'GNU/Linux' in u:
+        print("---\ndut uname -a: " + u + "\n---")
+    dut.link.trace = True
     print(dut.run('cat $(which wfx_test_agent)'))
     dut.close()
-    for m in [2, 1, 0]:
-        dut = WfxConnection('Pi_uart', port='COM19', baudrate=115200, user='pi', password='default_password')
-        u = dut.run('uname -a')
-        if 'GNU/Linux' in u:
-            print("---\ndut uname -a: with " + u + "\n---")
-            print(dut.run('dmesg | tail'))
-            print(dut.run('ip address show wlan0'))
-            print(dut.run('wfx_test_agent --help'))
-            break
-        else:
-            print("---\nERROR ! udut uname -a: with " + u + "\n---")
-            break
-        dut.close()
-    for m in [2, 1, 0]:
-        dut = WfxConnection('Pi_ssh', host='rns-SD3-rc7', user='pi', password='default_password')
-        u = dut.run('uname -a')
-        if 'GNU/Linux' in u:
-            print("---\ndut uname -a: with " + u + "\n---")
-            print(dut.run('dmesg | tail'))
-            print(dut.run('ip address show wlan0'))
-            print(dut.run('wfx_test_agent --help'))
-            break
-        else:
-            print("---\nERROR ! dut uname -a: with " + u + "\n---")
-            break
-        dut.close()
