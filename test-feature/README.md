@@ -24,7 +24,6 @@ The connection layer is common to RF testing, allowing connection in the followi
 * Local
 * SSH
 * UART
-* TELNET
 
 (The connection layer is available in [wfx-common-tools repository 'connection' folder][COM_REPO_CONN], so from the RF Test scripts perspective they are under `../connection`)
 
@@ -135,13 +134,13 @@ python3
 >>> from wfx_test_dut import *
 ```
 
-* Local/Direct DUT connection
+#### Local/Direct DUT connection
 
 ```python
 >>>  dut = WfxTestDut('Local')
 ```
 
-* SSH DUT connection
+#### SSH DUT connection
 
 ```python
 >>>  dut = WfxTestDut('Pi_186', host='10.5.124.186', user='root', port=22)
@@ -150,14 +149,21 @@ python3
 _NB: for SSH connection: user, port and password values are optional, values used above are the default values
  (The user account needs to have root privileges)_
 
-* UART DUT connection
+#### UART DUT connection (Linux, OS with login/password)
+
+```python
+>>>  dut = WfxTestDut('Serial', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='<user>', password='<password>' )
+```
+
+_NB: for UART connection: baudrate, bytesize, parity and stopbits values are optional, values used above are the default values_
+
+#### UART DUT connection (RTOS/Bare metal)
 
 ```python
 >>>  dut = WfxTestDut('Serial', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1)
 ```
 
-_NB: for UART connection: baudrate, bytesize, parity and stopbits values are optional, 
- values used above are the default values_
+_NB: for UART connection: baudrate, bytesize, parity and stopbits values are optional, values used above are the default values_
 
 ### Tx (modulated)
 
@@ -659,7 +665,7 @@ Local    D>>|  dmesg | tail
  command is callable using dut.run('command')*
 
 *Under Linux, we see here the 'HI_GENERIC_INDICATION_TYPE_STRING' string messages received by the
- driver being copied to dmesg. We can also see that they appear with a period of 1000 ms, 
+ driver being copied to dmesg. We can also see that they appear with a period of 1000 ms,
  matching the default value of TEST_IND (set using `dut.test_ind_period(period_ms)`).*
 
 *NB: There is no driver processing on those messages, they are directly coming from the FW 'as is'*

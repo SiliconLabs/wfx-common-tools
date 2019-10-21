@@ -1,8 +1,10 @@
 # wfx-common-tools
+
 This repository contains WFX tools which are not platform-specific,
  and can be used on several platforms.
 
 ## Content
+
 Typically, Python resources can be used to run tests on WFX devices, and such tools can be running on any
  Python-capable platform.
 
@@ -15,6 +17,7 @@ Typically, Python resources can be used to run tests on WFX devices, and such to
 Please refer to the corresponding README files for details on using the tools.
 
 ## Related resources
+
 Whenever a tool is only valid for a single platform, it is stored
  in a corresponding platform-specific repository.
 
