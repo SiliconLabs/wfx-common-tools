@@ -122,7 +122,7 @@ class WfxPtaTarget(object):
     def selftest(self, mode='verbose'):
         stored_trace = self.link.trace
         self.link.trace = True
-        print('settings result: ' + self.settings('--config 3w_ble', mode=mode))
+        print('settings result: ' + self.settings('--config 3w_example', mode=mode))
         print('priority result: ' + self.priority('--priority_mode balanced', mode=mode))
         print('state    result: ' + self.state('--state off', mode=mode))
         self.link.trace = stored_trace
@@ -164,7 +164,7 @@ def command_line_test():
 
     # print(dut.pta_help())
     mode = 'quiet'
-    dut.settings('--config 3w_ble --request_signal_active_level low --first_slot_time 123', mode=mode)
+    dut.settings('--config 3w_example --request_signal_active_level low --first_slot_time 123', mode=mode)
     dut.settings('--pta_mode 1w_coex_master', mode=mode)
     dut.settings('--pta_mode 2w', mode=mode)
     dut.settings('--pta_mode 3w', mode=mode)
@@ -188,7 +188,18 @@ def command_line_test():
     dut.settings('--wlan_quota 1234', mode=mode)
     dut.state('--state off')
     dut.state('--state on')
+    dut.priority('--priority_mode coex_maximized')
+    dut.priority('--priority_mode coex_high')
     dut.priority('--priority_mode balanced')
+    dut.priority('--priority_mode wlan_high')
+    dut.priority('--priority_mode wlan_maximized')
+    dut.priority('--coex_priority_low 7')
+    dut.priority('--coex_priority_high 7')
+    dut.priority('--grant_coex 1')
+    dut.priority('--grant_wlan 1')
+    dut.priority('--protect_coex 1')
+    dut.priority('--protect_wlan_tx 1')
+    dut.priority('--protect_wlan_rx 1')
     return 0
 
 
