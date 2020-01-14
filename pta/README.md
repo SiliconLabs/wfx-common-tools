@@ -81,27 +81,38 @@ python3
 #### PTA help content
 
 ```text
-usage: wfx_pta.py [-h] [--version]
-                  [--config {3w_ble,3w_not_combined_zigbee,3w_combined_zigbee}]
-                  [--pta_mode {3w,1w_coex_master,2w,4w}]
-                  [--request_signal_active_level {low,high}]
-                  [--priority_signal_active_level {low,high}]
-                  [--freq_signal_active_level {low,high}]
-                  [--grant_signal_active_level {low,high}]
-                  [--coex_type {generic,ble}]
-                  [--default_grant_state {no_grant,grant}]
-                  [--simultaneous_rx_accesses {false,true}]
-                  [--priority_sampling_time PRIORITY_SAMPLING_TIME]
-                  [--tx_rx_sampling_time TX_RX_SAMPLING_TIME]
-                  [--freq_sampling_time FREQ_SAMPLING_TIME]
-                  [--grant_valid_time GRANT_VALID_TIME]
-                  [--fem_control_time FEM_CONTROL_TIME]
-                  [--first_slot_time FIRST_SLOT_TIME]
-                  [--periodic_tx_rx_sampling_time PERIODIC_TX_RX_SAMPLING_TIME]
-                  [--coex_quota COEX_QUOTA] [--wlan_quota WLAN_QUOTA]
-                  [--priority_mode {coex_maximized,coex_high,balanced,wlan_high,wlan_maximized}]
-                  [--state {off,on}]
-                  {settings,priority,state}
+usage: wfx_pta_data.py [-h] [--version]
+                       [--config {1w_wlan_master_example,1w_coex_master_example,2w_example,3w_example,4w_example}]
+                       [--pta_mode {1w_wlan_master,1w_coex_master,2w,3w,4w}]
+                       [--request_signal_active_level {low,high}]
+                       [--priority_signal_active_level {low,high}]
+                       [--freq_signal_active_level {low,high}]
+                       [--grant_signal_active_level {low,high}]
+                       [--coex_type {generic,ble}]
+                       [--default_grant_state {no_grant,grant}]
+                       [--simultaneous_rx_accesses {false,true}]
+                       [--priority_sampling_time PRIORITY_SAMPLING_TIME]
+                       [--tx_rx_sampling_time TX_RX_SAMPLING_TIME]
+                       [--freq_sampling_time FREQ_SAMPLING_TIME]
+                       [--grant_valid_time GRANT_VALID_TIME]
+                       [--fem_control_time FEM_CONTROL_TIME]
+                       [--first_slot_time FIRST_SLOT_TIME]
+                       [--periodic_tx_rx_sampling_time PERIODIC_TX_RX_SAMPLING_TIME]
+                       [--coex_quota COEX_QUOTA]
+                       [--wlan_quota WLAN_QUOTA]
+                       [--priority_mode {coex_maximized,coex_high,balanced,wlan_high,wlan_maximized}]
+                       [--coex_priority_low COEX_PRIORITY_LOW]
+                       [--reserved1 RESERVED1]
+                       [--coex_priority_high COEX_PRIORITY_HIGH]
+                       [--reserved2 RESERVED2]
+                       [--grant_coex GRANT_COEX]
+                       [--grant_wlan GRANT_WLAN]
+                       [--protect_coex PROTECT_COEX]
+                       [--protect_wlan_tx PROTECT_WLAN_TX]
+                       [--protect_wlan_rx PROTECT_WLAN_RX]
+                       [--reserved3 RESERVED3]
+                       [--state {off,on}]
+                       {settings,priority,state}
 
         Prepare and send PTA parameters depending on the selected pta_cmd
 
@@ -114,31 +125,32 @@ optional arguments:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
 
-settings options:
-  --config {3w_ble,3w_not_combined_zigbee,3w_combined_zigbee}
-                        Preset configurations for common use cases (presets
-                        required non-default 'settings' options, these can
-                        then be overwritten using options listed below)
-  --pta_mode {3w,1w_coex_master,2w,4w}
+settings:
+  --config {1w_wlan_master_example,1w_coex_master_example,2w_example,3w_example,4w_example}
+                        Preset configurations for common use cases examples
+                        (These presets can be used as start points and be
+                        overwritten using options listed below to fine-tune
+                        specific options)
+  --pta_mode {1w_wlan_master,1w_coex_master,2w,3w,4w}
                         PTA mode selection (default 1w_wlan_master)
   --request_signal_active_level {low,high}
-                        Active level on REQUEST signal, provided by Coex to
-                        request the RF (default high)
+                        (input) Active level on REQUEST signal, provided by
+                        Coex to request the RF (default low)
   --priority_signal_active_level {low,high}
-                        Active level on PRIORITY signal, provided by Coex to
-                        set the priority of the request (default high)
+                        (input) Active level on PRIORITY signal, provided by
+                        Coex to set the priority of the request (default low)
   --freq_signal_active_level {low,high}
-                        Active level on FREQ signal, provided by Coex in
-                        4-wire mode when Coex and Wlan share the same band
-                        (default high)
+                        (input) Active level on FREQ signal, provided by Coex
+                        in 4-wire mode when Coex and Wlan share the same band
+                        (default low)
   --grant_signal_active_level {low,high}
-                        Active level on grant signal, generated by PTA to
-                        grant the RF to Coex (default low)
+                        (output) Active level on grant signal, generated by
+                        PTA to grant the RF to Coex (default low)
   --coex_type {generic,ble}
                         Coex type (default generic)
   --default_grant_state {no_grant,grant}
-                        state of the grant signal before arbitration at
-                        grant_valid_time (default grant)
+                        State of the grant signal before arbitration at
+                        grant_valid_time (default no_grant)
   --simultaneous_rx_accesses {false,true}
                         (uint8), Boolean to allow both Coex and Wlan to
                         receive concurrently, also named combined mode
@@ -146,52 +158,77 @@ settings options:
   --priority_sampling_time PRIORITY_SAMPLING_TIME
                         (uint8), Time in microseconds from the Coex request to
                         the sampling of the priority on PRIORITY signal (1 to
-                        31), (default 10)
+                        31), (default 0)
   --tx_rx_sampling_time TX_RX_SAMPLING_TIME
                         (uint8), Time in microseconds from the Coex request to
                         the sampling of the directionality on PRIORITY signal
-                        (priority_sampling_time to 63) (default 50)
+                        (priority_sampling_time to 63) (default 0)
   --freq_sampling_time FREQ_SAMPLING_TIME
                         (uint8), Time in microseconds from the Coex request to
                         the sampling of the freq-match information on FREQ
-                        signal (1 to 127) (default 40)
+                        signal (1 to 127) (default 0)
   --grant_valid_time GRANT_VALID_TIME
                         (uint8), Time in microseconds from Coex request to the
                         grant signal assertion (max(tx_rx_sampling_time,
-                        freq_sampling_time), to 0xFF), (default 72)
+                        freq_sampling_time), to 0xFF), (default 0)
   --fem_control_time FEM_CONTROL_TIME
                         (uint8), Time in microseconds from Coex request to the
-                        control of FEM (grant_valid_time to 0xFF), (default
-                        140)
+                        control of FEM (grant_valid_time to 0xFF), (default 0)
   --first_slot_time FIRST_SLOT_TIME
                         (uint8), Time in microseconds from the Coex request to
                         the beginning of reception or transmission
-                        (grant_valid_time to 0xFF), (default 150)
+                        (grant_valid_time to 0xFF), (default 0)
   --periodic_tx_rx_sampling_time PERIODIC_TX_RX_SAMPLING_TIME
                         (uint16), Period in microseconds from first_slot_time
                         of following samplings of the directionality on
-                        PRIORITY signal (1 to 1023), (default 1)
+                        PRIORITY signal (1 to 1023), (default 0)
   --coex_quota COEX_QUOTA
                         (uint16), Duration in microseconds for which RF is
-                        granted to Coex before it is moved to Wlan (default
-                        7500)
+                        granted to Coex before it is moved to Wlan (default 0)
   --wlan_quota WLAN_QUOTA
                         (uint16), Duration in microseconds for which RF is
-                        granted to Wlan before it is moved to Coex (default
-                        7500)
+                        granted to Wlan before it is moved to Coex (default 0)
 
-priority options:
+priority:
   --priority_mode {coex_maximized,coex_high,balanced,wlan_high,wlan_maximized}
-                        coex_maximized = 0x0562 : Maximizes priority to COEX,
-                        WLAN connection is not ensured. coex_high = 0x0462 :
-                        High priority to COEX, targets low-latency to COEX.
-                        balanced = 0x1461 : Balanced PTA arbitration, WLAN
-                        acknowledge receptions are protected. wlan_high =
-                        0x1851 : High priority to WLAN, protects WLAN
-                        transmissions. wlan_maximized = 0x1A51 : Maximizes
-                        priority to WLAN
+                        coex_maximized = 0x00000562 : Maximizes priority to
+                        COEX, WLAN connection is not ensured. coex_high =
+                        0x00000462 : High priority to COEX, targets low-
+                        latency to COEX. balanced = 0x00001461 : Balanced PTA
+                        arbitration, WLAN acknowledge receptions are
+                        protected. wlan_high = 0x00001851 : High priority to
+                        WLAN, protects WLAN transmissions. wlan_maximized =
+                        0x00001A51 : Maximizes priority to WLAN
+  --coex_priority_low COEX_PRIORITY_LOW
+                        Priority given to Coex for low-priority requests
+                        (default 0)
+  --reserved1 RESERVED1
+                        Reserved for future use (default 0)
+  --coex_priority_high COEX_PRIORITY_HIGH
+                        Priority given to Coex for high-priority requests
+                        (default 0)
+  --reserved2 RESERVED2
+                        Reserved for future use (default 0)
+  --grant_coex GRANT_COEX
+                        Allows Coex to override Wlan (default 0)
+  --grant_wlan GRANT_WLAN
+                        Allows Wlan to override Coex whenever Wlan is not idle
+                        (default 0)
+  --protect_coex PROTECT_COEX
+                        Wlan grant is delayed until Coex has finished its
+                        present granted transaction (default 0)
+  --protect_wlan_tx PROTECT_WLAN_TX
+                        Prevents Coex from being granted when Wlan is
+                        transmitting (the protection is also extended to the
+                        response) (default 0)
+  --protect_wlan_rx PROTECT_WLAN_RX
+                        Prevents Coex from being granted when Wlan is
+                        receiving or waiting for a response to an already
+                        transmitted frame (default 0)
+  --reserved3 RESERVED3
+                        Reserved for future use (default 0)
 
-state options:
+state:
   --state {off,on}      PTA state on/off
 
         Examples:
@@ -214,47 +251,51 @@ state options:
 
         Command line using 'wfx_pta.py': directly sending PTA bytes to a 'Local' DUT:
          (bytes silently sent to DUT)
-           python wfx_pta.py settings --config 3w_ble
+           python wfx_pta.py settings --config 3w_example
            python wfx_pta.py priority --priority_mode balanced
            python wfx_pta.py state --state on
          (verbose mode)
-           python wfx_pta.py settings --config 3w_ble verbose
+           python wfx_pta.py settings --config 3w_example verbose
             Local: configuring a Direct connection
-            ['settings', '--config', '3w_ble']
-            configuring for 3w_ble
-            pta_mode                        1w_wlan_master =>       3w
-            coex_type                        generic =>      ble
-            tx_rx_sampling_time                   50 =>        0
-            freq_sampling_time                    40 =>        0
-            first_slot_time                      150 =>        0
-            periodic_tx_rx_sampling_time           1 =>        0
-            pta_mode                          3w         \x03
-            request_signal_active_level       high       \x01
-            priority_signal_active_level      high       \x01
-            freq_signal_active_level          high       \x01
-            grant_signal_active_level         low        \x00
-            coex_type                         ble        \x01
-            default_grant_state               grant      \x01
-            simultaneous_rx_accesses          false      \x00
-            priority_sampling_time            10         \x0a
-            tx_rx_sampling_time               0          \x00
-            freq_sampling_time                0          \x00
-            grant_valid_time                  72         \x48
-            fem_control_time                  140        \x8c
-            first_slot_time                   0          \x00
-            periodic_tx_rx_sampling_time      0          \x00\x00
-            coex_quota                        7500       \x4c\x1d
-            wlan_quota                        7500       \x4c\x1d
-            Local    D>>|  wfx_exec wfx_hif_send_msg "\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x00\x00\x48\x8c\x00\x00\x00\x4c\x1d\x4c\x1d"
+            ['settings', '--config', '3w_example']
+            configuring for 3w_example
+            pta_mode                       1w_wlan_master =>       3w
+            request_signal_active_level         low =>     high
+            priority_signal_active_level        low =>     high
+            default_grant_state            no_grant =>    grant
+            priority_sampling_time                0 =>       10
+            grant_valid_time                      0 =>       72
+            fem_control_time                      0 =>      140
+            pta_mode                       3w         
+            request_signal_active_level    high       
+            priority_signal_active_level   high       
+            freq_signal_active_level       low
+            grant_signal_active_level      low
+            coex_type                      generic
+            default_grant_state            grant      
+            simultaneous_rx_accesses       false
+            priority_sampling_time         10
+
+            tx_rx_sampling_time            0
+            freq_sampling_time             0
+            grant_valid_time               72         H
+            fem_control_time               140        
+            first_slot_time                0
+            periodic_tx_rx_sampling_time   0
+            coex_quota                     0
+            wlan_quota                     0
+            Local    D>>|  wfx_exec wfx_hif_send_msg "\x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x0a\x00\x00\x48\x8c\x00\x00\x00\x00\x00\x00\x00"
             Local    D<<|  0
 
         Command line using 'wfx_pta_data.py': retrieving the PTA bytes (no byte sent to HW):
-          python wfx_pta_data.py settings --config 3w_ble
-            \x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x00\x00\x48\x8c\x00\x00\x00\x4c\x1d\x4c\x1d
-          python wfx_pta_data.py settings --config 3w_ble --grant_valid_time 40 --priority_sampling_time 8
-            \x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x08\x00\x00\x28\x8c\x00\x00\x00\x4c\x1d\x4c\x1d
+          python wfx_pta_data.py settings --config 3w_example
+            \x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x0a\x00\x00\x48\x8c\x00\x00\x00\x00\x00\x00\x00
+          python wfx_pta_data.py settings --config 3w_example --grant_valid_time 40 --priority_sampling_time 8
+            \x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x08\x00\x00\x28\x8c\x00\x00\x00\x00\x00\x00\x00
           python wfx_pta_data.py priority --priority_mode balanced
-            \x08\x00\x2c\x00\x61\x14\x00\x00
+             , a
+          python wfx_pta_data.py priority --coex_priority_low 1 --coex_priority_high 5 --grant_wlan 1 --protect_wlan_tx 1 --protect_wlan_rx 1
+             , Q
           python wfx_pta_data.py state --state on
             \x08\x00\x2d\x00\x01\x00\x00\x00
           python wfx_pta_data.py state --state off
@@ -267,40 +308,42 @@ state options:
 
 PTA settings are filled based on the `options` string as a structure with the following parameters
 
-| parameter                   | Possible values                      | default       |
-|-----------------------------|--------------------------------------|---------------|
-| pta_mode                    |1w_wlan_master,1w_coex_master,2w,3w,4w| 3w            |
-| request_signal_active_level |low,high                              | high          |
-| priority_signal_active_level|low,high                              | high          |
-| freq_signal_active_level    |low,high                              | high          |
-| grant_signal_active_level   |low,high                              | low           |
-| coex_type                   |generic,ble                           | ble           |
-| default_grant_state         |no_grant,grant                        | grant         |
-| simultaneous_rx_accesses    |false,true                            | false         |
-| priority_sampling_time      |1 to 31                               |  10           |
-| tx_rx_sampling_time         |1 to 50                               |  50           |
-| freq_sampling_time          |1 to 127                              |  40           |
-| grant_valid_time            |int                                   |  72           |
-| fem_control_time            |int                                   | 140           |
-| first_slot_time             |int                                   | 150           |
-| periodic_tx_rx_sampling_time|1 to 1023                             |   1           |
-| coex_quota                  |int                                   |7500           |
-| wlan_quota                  |int                                   |7500           |
+| settings parameter          | Possible values                      | unit |
+|-----------------------------|--------------------------------------|------|
+| pta_mode                    |1w_wlan_master,1w_coex_master,2w,3w,4w|      |
+| request_signal_active_level |low,high                              |      |
+| priority_signal_active_level|low,high                              |      |
+| freq_signal_active_level    |low,high                              |      |
+| grant_signal_active_level   |low,high                              |      |
+| coex_type                   |generic,ble                           |      |
+| default_grant_state         |no_grant,grant                        |      |
+| simultaneous_rx_accesses    |false,true                            |      |
+| priority_sampling_time      |1 to 31                               | us   |
+| tx_rx_sampling_time         |1 to 50                               | us   |
+| freq_sampling_time          |1 to 127                              | us   |
+| grant_valid_time            |int                                   | us   |
+| fem_control_time            |int                                   | us   |
+| first_slot_time             |int                                   | us   |
+| periodic_tx_rx_sampling_time|1 to 1023                             | us   |
+| coex_quota                  |int                                   | us   |
+| wlan_quota                  |int                                   | us   |
 
 * Each parameter can be set using the `--<parameter>=<value>` syntax
 * No specific order for parameters provided in the `options` string
 * All parameters are optional
+* Parameters not listed will be set to 0
 
 #### PTA setting pre-filled configurations
 
-Typical pre-filled configurations (matching common use cases) can be selected using an additional `config` parameter.
-There are 4 such configurations:
+Typical pre-filled configurations (matching common use cases) can be selected using an additional `config` parameter:
 
-| '--config=<pre_filled_config>'| pre-filled options         |
-|-------------------------------|----------------------------|
-| 3w_ble                        |pta_mode=3w <br>coex_type=ble     <br>simultaneous_rx_accesses=true  <br>priority_sampling_time=10
-| 3w_not_combined_zigbee        |pta_mode=3w <br>coex_type=generic <br>simultaneous_rx_accesses=false <br>priority_sampling_time=10 <br>grant_valid_time=20 <br>fem_control_time=20
-| 3w_combined_zigbee            |pta_mode=3w <br>coex_type=generic <br>simultaneous_rx_accesses=true  <br>priority_sampling_time=10 <br>tx_rx_sampling_time=30 <br>grant_valid_time=40 <br>fem_control_time=40 <br>first_slot_time=40|
+| '--config=<pre_filled_config>'| pta_mode     | signals used                 | options set             |
+|-------------------------------|--------------|------------------------------|-------------------------|
+| 1w_wlan_master_example        |1w_wlan_master|GRANT                         |wlan_quota <br>coex_quota|
+| 1w_coex_master_example        |1w_coex_master|REQUEST                       |                         |
+| 2w_example                    |2w            |GRANT, REQUEST                |                         |
+| 3w_example                    |3w            |GRANT, REQUEST, PRIORITY      |coex_type <br> simultaneous_rx_accesses <br> priority_sampling_time <br>grant_valid_time <br>fem_control_time|
+| 4w_example                    |4w            |GRANT, REQUEST, PRIORITY, FREQ|coex_type <br> simultaneous_rx_accesses <br> priority_sampling_time <br>tx_rx_sampling_time <br>freq_sampling_time <br>grant_valid_time <br>fem_control_time <br>first_slot_time <br>periodic_tx_rx_sampling_time|
 
 #### PTA settings defaults vs pre-filled configurations vs user options
 
@@ -311,6 +354,38 @@ There are 4 such configurations:
 * User options
 
 NB: Using the PTA data filling tracing (described below) can be a good way to become familiar with this process
+
+### priority (options)
+
+PTA priority options are filled based on the `options` string as a structure with the following parameters
+
+| priority parameter          | Possible values    |
+|-----------------------------|--------------------|
+| coex_priority_low           |0 to 7              |
+| coex_priority_high          |0 to 7              |
+| grant_coex                  |0, 1                |
+| grant_wlan                  |0, 1                |
+| protect_coex                |0, 1                |
+| protect_wlan_tx             |0, 1                |
+| protect_wlan_rx             |0, 1                |
+
+* Each parameter can be set using the `--<parameter>=<value>` syntax
+* No specific order for parameters provided in the `options` string
+* All parameters are optional
+* Parameters not listed will be set to 0
+
+#### PTA priority pre-filled configurations
+
+Typical pre-filled configurations (matching common use cases) can be selected using an additional `priority_mode` parameter:
+
+| '--priority_mode=<pre_filled_config>'| coex_prio_low | coex_prio_high | grant_coex | grant_wlan | protect_coex | protect_wlan_tx | protect_wlan_rx |
+|--------------------------------------|---------------|----------------|------------|------------|--------------|-----------------|-----------------|
+| coex_maximized                       | 2             | 6              | 1          | 0          | 1            | 0               | 0               |
+| coex_high                            | 1             | 6              | 0          | 0          | 1            | 0               | 0               |
+| balanced                             | 1             | 5              | 0          | 0          | 1            | 0               | 1               |
+| wlan_high                            | 1             | 5              | 0          | 0          | 0            | 1               | 1               |
+| wlan_maximized                       | 1             | 5              | 0          | 1          | 0            | 1               | 1               |
+
 
 ## Use case 1: from a Python3 interpreter
 
@@ -325,6 +400,7 @@ python3
 ### Connection
 
 Select one of (with your own parameters for the SSH or UART cases)
+
 ```python
 >>> dut = WfxPtaTarget('Pi203', host='pi203', user='pi', port=22, password='default_password')
 >>> dut = WfxPtaTarget('Serial', port='COM8')
@@ -342,19 +418,25 @@ Select one of (with your own parameters for the SSH or UART cases)
 **Pre-filled configuration 'as is'**
 
 ```python
->>> dut.settings('--config 3w_ble')
+>>> dut.settings('--config 3w_example')
 ```
 
 **Pre-filled configuration + user-selected values**
 
 ```python
->>> dut.settings('--config 3w_ble --first_slot_time 123')
+>>> dut.settings('--config 3w_example --first_slot_time 123')
 ```
 
 ### PTA priority
 
 ```python
 >>> dut.priority('--priority_mode balanced')
+```
+
+**Pre-filled configuration + user-selected values**
+
+```python
+>>> dut.settings('--priority_mode balanced --coex_priority_high 4')
 ```
 
 ### PTA state
@@ -379,43 +461,48 @@ Adding `mode='verbose'` to a PTA function call will enable tracing of the PTA da
 **with traces**
 
 ```python
->>> dut.settings('--config 3w_ble --fem_control_time 135', mode='verbose')
-['settings', '--config', '3w_ble', '--fem_control_time', '135']
-configuring for 3w_ble
-coex_type                              0 =>        1 (x1)
-pta_mode                               0 =>        3 (x3)
-priority_sampling_time                 9 =>       10 (xa)
-fem_control_time                     140 ->      135 (x135)
-pta_mode                          3          \x03
-request_signal_active_level       1          \x01
-priority_signal_active_level      1          \x01
-freq_signal_active_level          1          \x01
-grant_signal_active_level         0          \x00
-coex_type                         1          \x01
-default_grant_state               1          \x01
-simultaneous_rx_accesses          false      \x00
-priority_sampling_time            10         \x0a
-tx_rx_sampling_time               50         \x32
-freq_sampling_time                70         \x46
-grant_valid_time                  72         \x48
-fem_control_time                  135        \x87
-first_slot_time                   150        \x96
-periodic_tx_rx_sampling_time      1          \x01\x00
-coex_quota                        0          \x00\x00
-wlan_quota                        0          \x00\x00
+>>> dut.settings('--config 3w_example --fem_control_time 135', mode='verbose')
+['settings', '--config', '3w_example', '--fem_control_time', '135']
+configuring for 3w_example
+pta_mode                       1w_wlan_master =>       3w
+request_signal_active_level         low =>     high
+priority_signal_active_level        low =>     high
+default_grant_state            no_grant =>    grant
+priority_sampling_time                0 =>       10
+grant_valid_time                      0 =>       72
+fem_control_time                      0 =>      140
+fem_control_time                    140 ->      135
+pta_mode                       3w         \x03
+request_signal_active_level    high       \x01
+priority_signal_active_level   high       \x01
+freq_signal_active_level       low        \x00
+grant_signal_active_level      low        \x00
+coex_type                      generic    \x00
+default_grant_state            grant      \x01
+simultaneous_rx_accesses       false      \x00
+priority_sampling_time         10         \x0a
+tx_rx_sampling_time            0          \x00
+freq_sampling_time             0          \x00
+grant_valid_time               72         \x48
+fem_control_time               135        \x87
+first_slot_time                0          \x00
+periodic_tx_rx_sampling_time   0          \x00\x00
+coex_quota                     0          \x00\x00
+wlan_quota                     0          \x00\x00
 'HI_STATUS_SUCCESS'
 >>>
 ```
 
 NB: Above we can see
 
-* Indicated with `=>`: the changes done on the defaults when applying '3w_ble'
+* Indicated with `=>`: the changes done on the defaults when applying '3w_example'
 * Indicated with `->`: the changes done on the current settings when applying '--fem_control_time 135'
 * When there is a change from the default: the default values on the left side, the final value on the right
 
 #### Tracing PTA data transmission
 
 It is also possible to track the connection layer communication with the DUT, using
+
 ```python
 >>> dut.link.trace = True
 ```
@@ -423,15 +510,15 @@ It is also possible to track the connection layer communication with the DUT, us
 **without connection traces**
 
 ```python
->>> dut.settings('--config 3w_ble')
+>>> dut.settings('--config 3w_example')
 'HI_STATUS_SUCCESS'
 ```
 
 **with connection traces**
 
 ```python
->>> dut.settings('--config 3w_ble')
-pi       D>>|  wfx_exec wfx_hif_send_msg "\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x46\x48\x8c\x96\x01\x00\x00\x00\x00\x00"
+>>> dut.settings('--config 3w_example')
+pi       D>>|  wfx_exec wfx_hif_send_msg "\x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x0a\x00\x00\x48\x8c\x00\x00\x00\x00\x00\x00\x00"
 <<D       pi|  0
 'HI_STATUS_SUCCESS'
 ```
@@ -441,7 +528,7 @@ pi       D>>|  wfx_exec wfx_hif_send_msg "\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x
 ### settings
 
 ```bash
-python wfx_pta.py settings --config 3w_ble
+python wfx_pta.py settings --config 3w_example
 ```
 
 ### priority
@@ -461,7 +548,7 @@ python wfx_pta.py state --state on
 add 'verbose' to the command to trace PTA data filling
 
 ```bash
-python wfx_pta.py settings --config 3w_ble verbose
+python wfx_pta.py settings --config 3w_example verbose
 ```
 
 ## Use case 3: command line to directly send PTA data
@@ -469,7 +556,7 @@ python wfx_pta.py settings --config 3w_ble verbose
 ### settings
 
 ```bash
-python wfx_pta_data.py settings --config 3w_ble --grant_valid_time 40 --priority_sampling_time 8
+python wfx_pta_data.py settings --config 3w_example --grant_valid_time 40 --priority_sampling_time 8
 ```
 
 ### priority
@@ -486,8 +573,8 @@ python wfx_pta_data.py state --state on
 
 # Self test
 
-A specific `selftest` function has been added to allow testing proper installation of the tools.
-`selftest` calls the 3 PTA functions will valid example values to check that PAT data formatting and transmission
+A specific set of `command_line_test/selftest` functions has been added to allow testing proper installation of the tools.
+`command_line_test/selftest` calls the 3 PTA functions will valid example values to check that PTA data formatting and transmission
  is working as expected. To achieve this, internal tracing features are used.
 
 ## Running the self test
@@ -500,19 +587,21 @@ python3 wfx_pta_data.py
 
 ```text
 ['settings', '--config', '3w_ble', '--request_signal_active_level', 'low', '--first_slot_time', '123']
-configuring for 3w_ble
-tx_rx_sampling_time                  50 =>        0
-freq_sampling_time                   40 =>        0
-first_slot_time                     150 =>        0
-periodic_tx_rx_sampling_time          1 =>        0
-request_signal_active_level        high ->      low
+configuring for 3w_example
+pta_mode                       1w_wlan_master =>       3w
+request_signal_active_level         low =>     high
+priority_signal_active_level        low =>     high
+default_grant_state            no_grant =>    grant
+priority_sampling_time                0 =>       10
+grant_valid_time                      0 =>       72
+fem_control_time                      0 =>      140
 first_slot_time                       0 ->      123
 pta_mode                       3w         \x03
-request_signal_active_level    low        \x00
+request_signal_active_level    high       \x01
 priority_signal_active_level   high       \x01
-freq_signal_active_level       high       \x01
+freq_signal_active_level       low        \x00
 grant_signal_active_level      low        \x00
-coex_type                      ble        \x01
+coex_type                      generic    \x00
 default_grant_state            grant      \x01
 simultaneous_rx_accesses       false      \x00
 priority_sampling_time         10         \x0a
@@ -522,31 +611,43 @@ grant_valid_time               72         \x48
 fem_control_time               140        \x8c
 first_slot_time                123        \x7b
 periodic_tx_rx_sampling_time   0          \x00\x00
-coex_quota                     7500       \x4c\x1d
-wlan_quota                     7500       \x4c\x1d
-\x18\x00\x2b\x00\x03\x00\x01\x01\x00\x01\x01\x00\x0a\x00\x00\x48\x8c\x7b\x00\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x01\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x02\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x04\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x00\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x00\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x00\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x01\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x00\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x00\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x01\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x03\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x04\x28\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x05\x48\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x06\x8c\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x07\x96\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x08\x01\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x09\x00\x4c\x1d\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\xe8\x03\x4c\x1d
-\x18\x00\x2b\x00\x03\x01\x01\x01\x00\x01\x01\x00\x0a\x32\x28\x48\x8c\x96\x01\x00\x4c\x1d\xd2\x04
+coex_quota                     0          \x00\x00
+wlan_quota                     0          \x00\x00
+\x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x0a\x00\x00\x48\x8c\x7b\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09\x00\x00\x00\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xe8\x03\x00\x00
+\x18\x00\x2b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xd2\x04
 \x08\x00\x2d\x00\x00\x00\x00\x00
 \x08\x00\x2d\x00\x01\x00\x00\x00
+\x08\x00\x2c\x00\x62\x05\x00\x00
+\x08\x00\x2c\x00\x62\x04\x00\x00
 \x08\x00\x2c\x00\x61\x14\x00\x00
+\x08\x00\x2c\x00\x51\x18\x00\x00
+\x08\x00\x2c\x00\x51\x1a\x00\x00
+\x08\x00\x2c\x00\x07\x00\x00\x00
+\x08\x00\x2c\x00\x70\x00\x00\x00
+\x08\x00\x2c\x00\x00\x01\x00\x00
+\x08\x00\x2c\x00\x00\x02\x00\x00
+\x08\x00\x2c\x00\x00\x04\x00\x00
+\x08\x00\x2c\x00\x00\x08\x00\x00
+\x08\x00\x2c\x00\x00\x10\x00\x00
+
 ```
