@@ -91,9 +91,9 @@ class WfxPtaData(object):
             balanced       = 0x00001461 : Balanced PTA arbitration, WLAN acknowledge receptions are protected. 
             wlan_high      = 0x00001851 : High priority to WLAN, protects WLAN transmissions. 
             wlan_maximized = 0x00001A51 : Maximizes priority to WLAN"""),
-        ('coex_priority_low'  , int, 0.3, None, 0, """Priority given to Coex for low-priority requests"""),
+        ('coex_prio_low'      , int, 0.3, None, 0, """Priority given to Coex for low-priority requests"""),
         ('reserved1'          , int, 0.1, None, 0, """Reserved for future use"""),
-        ('coex_priority_high' , int, 0.3, None, 0, """Priority given to Coex for high-priority requests"""),
+        ('coex_prio_high'     , int, 0.3, None, 0, """Priority given to Coex for high-priority requests"""),
         ('reserved2'          , int, 0.1, None, 0, """Reserved for future use"""),
         ('grant_coex'         , int, 0.1, None, 0, """Allows Coex to override Wlan"""),
         ('grant_wlan'         , int, 0.1, None, 0, """Allows Wlan to override Coex whenever Wlan is not idle"""),
@@ -206,7 +206,7 @@ class WfxPtaData(object):
             \\x18\\x00\\x2b\\x00\\x03\\x01\\x01\\x00\\x00\\x00\\x01\\x00\\x08\\x00\\x00\\x28\\x8c\\x00\\x00\\x00\\x00\\x00\\x00\\x00
           python wfx_pta_data.py priority --priority_mode balanced
             \x04\x00\x2c\x00\x61\x14\x00\x00
-          python wfx_pta_data.py priority --coex_priority_low 1 --coex_priority_high 5 --grant_wlan 1 --protect_wlan_tx 1 --protect_wlan_rx 1
+          python wfx_pta_data.py priority --coex_prio_low 1 --coex_prio_high 5 --grant_wlan 1 --protect_wlan_tx 1 --protect_wlan_rx 1
             \x04\x00\x2c\x00\x51\x1a\x00\x00
           python wfx_pta_data.py state --state on
             \\x08\\x00\\x2d\\x00\\x01\\x00\\x00\\x00
@@ -316,8 +316,8 @@ class WfxPtaData(object):
        #'priority_mode'  'coex_maximized': 0x00000562
         if priority_mode == 'coex_maximized':
             self.print_if_verbose('configuring for %s' % priority_mode)
-            self.g_settings.coex_priority_low  = 2
-            self.g_settings.coex_priority_high = 6
+            self.g_settings.coex_prio_low  = 2
+            self.g_settings.coex_prio_high = 6
             self.g_settings.grant_coex = 1
             self.g_settings.grant_wlan = 0
             self.g_settings.protect_coex = 1
@@ -327,8 +327,8 @@ class WfxPtaData(object):
        #'priority_mode'  'coex_high':0x00000462
         if priority_mode == 'coex_high':
             self.print_if_verbose('configuring for %s' % priority_mode)
-            self.g_settings.coex_priority_low  = 2
-            self.g_settings.coex_priority_high = 6
+            self.g_settings.coex_prio_low  = 2
+            self.g_settings.coex_prio_high = 6
             self.g_settings.grant_coex = 0
             self.g_settings.grant_wlan = 0
             self.g_settings.protect_coex = 1
@@ -338,8 +338,8 @@ class WfxPtaData(object):
        #'priority_mode'  'balanced':0x00001461
         if priority_mode == 'balanced':
             self.print_if_verbose('configuring for %s' % priority_mode)
-            self.g_settings.coex_priority_low  = 1
-            self.g_settings.coex_priority_high = 6
+            self.g_settings.coex_prio_low  = 1
+            self.g_settings.coex_prio_high = 6
             self.g_settings.grant_coex = 0
             self.g_settings.grant_wlan = 0
             self.g_settings.protect_coex = 1
@@ -349,8 +349,8 @@ class WfxPtaData(object):
        #'priority_mode'  'wlan_high':0x00001851
         if priority_mode == 'wlan_high':
             self.print_if_verbose('configuring for %s' % priority_mode)
-            self.g_settings.coex_priority_low  = 1
-            self.g_settings.coex_priority_high = 5
+            self.g_settings.coex_prio_low  = 1
+            self.g_settings.coex_prio_high = 5
             self.g_settings.grant_coex = 0
             self.g_settings.grant_wlan = 0
             self.g_settings.protect_coex = 0
@@ -360,8 +360,8 @@ class WfxPtaData(object):
        #'priority_mode'  'wlan_maximized': 0x00001a51
         if priority_mode == 'wlan_maximized':
             self.print_if_verbose('configuring for %s' % priority_mode)
-            self.g_settings.coex_priority_low  = 1
-            self.g_settings.coex_priority_high = 5
+            self.g_settings.coex_prio_low  = 1
+            self.g_settings.coex_prio_high = 5
             self.g_settings.grant_coex = 0
             self.g_settings.grant_wlan = 1
             self.g_settings.protect_coex = 0
@@ -535,8 +535,8 @@ def command_line_test():
     pta.set_args('priority --priority_mode balanced'); print(pta.data())
     pta.set_args('priority --priority_mode wlan_high'); print(pta.data())
     pta.set_args('priority --priority_mode wlan_maximized'); print(pta.data())
-    pta.set_args('priority --coex_priority_low 7'); print(pta.data())
-    pta.set_args('priority --coex_priority_high 7'); print(pta.data())
+    pta.set_args('priority --coex_prio_low 7'); print(pta.data())
+    pta.set_args('priority --coex_prio_high 7'); print(pta.data())
     pta.set_args('priority --grant_coex 1'); print(pta.data())
     pta.set_args('priority --grant_wlan 1'); print(pta.data())
     pta.set_args('priority --protect_coex 1'); print(pta.data())

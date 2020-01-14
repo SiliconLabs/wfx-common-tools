@@ -101,9 +101,9 @@ usage: wfx_pta_data.py [-h] [--version]
                        [--coex_quota COEX_QUOTA]
                        [--wlan_quota WLAN_QUOTA]
                        [--priority_mode {coex_maximized,coex_high,balanced,wlan_high,wlan_maximized}]
-                       [--coex_priority_low COEX_PRIORITY_LOW]
+                       [--coex_prio_low coex_prio_low]
                        [--reserved1 RESERVED1]
-                       [--coex_priority_high COEX_PRIORITY_HIGH]
+                       [--coex_prio_high coex_prio_high]
                        [--reserved2 RESERVED2]
                        [--grant_coex GRANT_COEX]
                        [--grant_wlan GRANT_WLAN]
@@ -199,12 +199,12 @@ priority:
                         protected. wlan_high = 0x00001851 : High priority to
                         WLAN, protects WLAN transmissions. wlan_maximized =
                         0x00001A51 : Maximizes priority to WLAN
-  --coex_priority_low COEX_PRIORITY_LOW
+  --coex_prio_low coex_prio_low
                         Priority given to Coex for low-priority requests
                         (default 0)
   --reserved1 RESERVED1
                         Reserved for future use (default 0)
-  --coex_priority_high COEX_PRIORITY_HIGH
+  --coex_prio_high coex_prio_high
                         Priority given to Coex for high-priority requests
                         (default 0)
   --reserved2 RESERVED2
@@ -294,7 +294,7 @@ state:
             \x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x08\x00\x00\x28\x8c\x00\x00\x00\x00\x00\x00\x00
           python wfx_pta_data.py priority --priority_mode balanced
              , a
-          python wfx_pta_data.py priority --coex_priority_low 1 --coex_priority_high 5 --grant_wlan 1 --protect_wlan_tx 1 --protect_wlan_rx 1
+          python wfx_pta_data.py priority --coex_prio_low 1 --coex_prio_high 5 --grant_wlan 1 --protect_wlan_tx 1 --protect_wlan_rx 1
              , Q
           python wfx_pta_data.py state --state on
             \x08\x00\x2d\x00\x01\x00\x00\x00
@@ -361,8 +361,8 @@ PTA priority options are filled based on the `options` string as a structure wit
 
 | priority parameter          | Possible values    |
 |-----------------------------|--------------------|
-| coex_priority_low           |0 to 7              |
-| coex_priority_high          |0 to 7              |
+| coex_prio_low               |0 to 7              |
+| coex_prio_high              |0 to 7              |
 | grant_coex                  |0, 1                |
 | grant_wlan                  |0, 1                |
 | protect_coex                |0, 1                |
@@ -436,7 +436,7 @@ Select one of (with your own parameters for the SSH or UART cases)
 **Pre-filled configuration + user-selected values**
 
 ```python
->>> dut.settings('--priority_mode balanced --coex_priority_high 4')
+>>> dut.settings('--priority_mode balanced --coex_prio_high 4')
 ```
 
 ### PTA state
