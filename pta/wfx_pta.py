@@ -194,7 +194,7 @@ def command_line_test():
     dut.priority('--priority_mode wlan_high')
     dut.priority('--priority_mode wlan_maximized')
     dut.priority('--coex_prio_low 7')
-    dut.priority('--coex_priority_high 7')
+    dut.priority('--coex_prio_high 7')
     dut.priority('--grant_coex 1')
     dut.priority('--grant_wlan 1')
     dut.priority('--protect_coex 1')
