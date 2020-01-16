@@ -241,7 +241,7 @@ state:
          >>> dut = WfxPtaTarget('Serial', port='COM8')
          >>> dut = WfxPtaTarget('Local')
          selecting settings, priority and activating PTA:
-         >>> dut.settings('--config 3w_ble --first_slot_time 123')
+         >>> dut.settings('--config 3w_example --first_slot_time 123')
          >>> dut.priority('--priority_mode balanced')
          >>> dut.state('--state on')
          activating PTA traces (tracks PTA data values):
