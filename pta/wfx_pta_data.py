@@ -375,7 +375,6 @@ class WfxPtaData(object):
         # filling defaults and self.g_settings with default values
         defaults = self.parse_cmdline(self, args=[options.pta_cmd])
         self.g_settings = self.parse_cmdline(self, args=[options.pta_cmd])
-        self.print_if_verbose('\n+++++ options:' + str(options) + "\n")
         self.g_settings.pta_cmd = options.pta_cmd
 
         if options.pta_cmd == 'settings':
@@ -402,8 +401,8 @@ class WfxPtaData(object):
                     config_value = self.g_settings.__dict__[k]
                     if user_value != default_value:
                         if config_value != user_value:
-                            self.print_if_verbose("%-30s %8s -> %8s" % (k, config_value, user_value))
                             self.g_settings.__dict__[k] = user_value
+                            self.print_if_verbose("%-30s %8s -> %8s" % (k, config_value, user_value))
 
         if options.pta_cmd == 'state':
             self.g_settings.state = options.state
