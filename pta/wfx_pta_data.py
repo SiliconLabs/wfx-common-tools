@@ -133,7 +133,7 @@ class WfxPtaData(object):
         self.g_settings.pta_cmd = None
         user_options = self.parse_cmdline(self, self.sysargs)
         # self.print_if_verbose(user_options)
-        self.apply_options(self, user_options)
+        self.apply_options(self, user_options, self.sysargs)
         return self.pta_bytes()
 
     @staticmethod
@@ -369,51 +369,43 @@ class WfxPtaData(object):
             self.g_settings.protect_wlan_rx = 1
 
     @staticmethod
-    def apply_options(self, options):
-        # self.print_if_verbose("options.pta_cmd: %s" % options.pta_cmd)
+    def apply_options(self, options, user_args):
+        if not options.pta_cmd:
+            print('No pta_cmd! Use settings, priority or state')
+        # filling defaults and self.g_settings with default values
+        defaults = self.parse_cmdline(self, args=[options.pta_cmd])
+        self.g_settings = self.parse_cmdline(self, args=[options.pta_cmd])
+        self.print_if_verbose('\n+++++ options:' + str(options) + "\n")
+        self.g_settings.pta_cmd = options.pta_cmd
+
         if options.pta_cmd == 'settings':
-            self.g_settings.pta_cmd = options.pta_cmd
-            # filling defaults and self.g_settings with default values
-            defaults = self.parse_cmdline(self, args=['settings'])
-            self.g_settings = self.parse_cmdline(self, args=['settings'])
             if options.config is not None:
                 self.settings_by_config(self, options.config)
-                # Tracing modified values after applying config
-                for k in self.g_settings.__dict__.keys():
-                    if '__' not in k:
-                        config_value = self.g_settings.__dict__[k]
-                        default_value = defaults.__dict__[k]
-                        if config_value != default_value:
-                            self.print_if_verbose("%-30s %8s => %8s" % (k, default_value, config_value))
-            for k in options.__dict__.keys():
-                if '__' not in k and k != 'config':
-                    user_value = options.__dict__[k]
-                    default_value = defaults.__dict__[k]
-                    config_value = self.g_settings.__dict__[k]
-                    if user_value != default_value:
-                        if config_value != user_value:
-                            self.print_if_verbose("%-30s %8s -> %8s" % (k, config_value, user_value))
-                            self.g_settings.__dict__[k] = user_value
+
         if options.pta_cmd == 'priority':
-            self.g_settings.pta_cmd = options.pta_cmd
-            # filling defaults and self.g_settings with default values
-            defaults = self.parse_cmdline(self, args=['priority'])
-            self.g_settings = self.parse_cmdline(self, args=['priority'])
             if options.priority_mode is not None:
                 self.priorities_by_mode(self, options.priority_mode)
-            # Applying user 'priority' options on top of current settings
-            for item in self.priority_parameters:
-                k, _type, _bytes, _choices, _default, _help = item
-                if k in options.__dict__.keys():
+
+        # Tracing modified values after applying config
+        for k in self.g_settings.__dict__.keys():
+            if k not in 'config priority_mode':
+                config_value = self.g_settings.__dict__[k]
+                default_value = defaults.__dict__[k]
+                if config_value != default_value:
+                    self.print_if_verbose("%-30s %8s => %8s" % (k, default_value, config_value))
+
+        # Applying user options on top of current settings
+        for k in options.__dict__.keys():
+            if k not in 'config priority_mode':
+                if '--' + k in user_args:
                     user_value = options.__dict__[k]
-                    default_value = defaults.__dict__[k]
                     config_value = self.g_settings.__dict__[k]
                     if user_value != default_value:
                         if config_value != user_value:
                             self.print_if_verbose("%-30s %8s -> %8s" % (k, config_value, user_value))
                             self.g_settings.__dict__[k] = user_value
+
         if options.pta_cmd == 'state':
-            self.g_settings.pta_cmd = options.pta_cmd
             self.g_settings.state = options.state
         # Applying user 'settings' options on top of current settings
 
