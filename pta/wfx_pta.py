@@ -18,7 +18,7 @@
 from __future__ import print_function
 
 # If you modify this file, please don't forget to increment version number.
-__version__ = "0.2.1"
+__version__ = "0.2.5"
 
 import sys
 
