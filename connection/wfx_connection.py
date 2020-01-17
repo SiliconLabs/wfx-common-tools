@@ -70,7 +70,7 @@ class Uart(AbstractConnection):
             #  self.max_response_ms may need to be adapted, depending on the RTOS response times
             # If it's too small some messages may be lost
             # If it's too high each 'read' is long
-            self.max_response_ms = 50
+            self.max_response_ms = 100
             timeout = 20/1000
         self.trace = trace
         self.debug = False
