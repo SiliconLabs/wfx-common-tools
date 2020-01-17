@@ -5,7 +5,7 @@
 # Created: 2019-08-06
 # Main authors:
 #     - Marc Dorval <marc.dorval@silabs.com>
-#
+#w
 # Copyright (c) 2019, Silicon Laboratories
 # See license terms contained in COPYING file
 #
@@ -101,7 +101,7 @@ class WfxPtaTarget(object):
     def send_pta(self, command, options, mode='quiet'):
         self.prepare_pta_data(command + ' ' + options, mode)
         if self.pta_data is not None:
-            send_result = self.link.run(r'wfx_exec wfx_hif_send_msg "' + self.pta_data + r'"')
+            send_result = self.link.run(r'wfx_hif send_msg "' + self.pta_data + r'"')
             if send_result == HI_STATUS_SUCCESS:
                 return 'HI_STATUS_SUCCESS'
             else:
