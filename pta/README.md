@@ -381,11 +381,10 @@ Typical pre-filled configurations (matching common use cases) can be selected us
 | '--priority_mode=<pre_filled_config>'| coex_prio_low | coex_prio_high | grant_coex | grant_wlan | protect_coex | protect_wlan_tx | protect_wlan_rx |
 |--------------------------------------|---------------|----------------|------------|------------|--------------|-----------------|-----------------|
 | coex_maximized                       | 2             | 6              | 1          | 0          | 1            | 0               | 0               |
-| coex_high                            | 1             | 6              | 0          | 0          | 1            | 0               | 0               |
+| coex_high                            | 2             | 6              | 0          | 0          | 1            | 0               | 0               |
 | balanced                             | 1             | 5              | 0          | 0          | 1            | 0               | 1               |
 | wlan_high                            | 1             | 5              | 0          | 0          | 0            | 1               | 1               |
 | wlan_maximized                       | 1             | 5              | 0          | 1          | 0            | 1               | 1               |
-
 
 ## Use case 1: from a Python3 interpreter
 
@@ -436,7 +435,7 @@ Select one of (with your own parameters for the SSH or UART cases)
 **Pre-filled configuration + user-selected values**
 
 ```python
->>> dut.settings('--priority_mode balanced --coex_prio_high 4')
+>>> dut.priority('--priority_mode balanced --coex_prio_high 4')
 ```
 
 ### PTA state
