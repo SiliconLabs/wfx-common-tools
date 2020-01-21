@@ -476,7 +476,7 @@ These are the functions which are primarily used by users to test the product.
 | `rx_stop`         |**none**                                                                      |`NB_FRAME`                                |
 | `rx_receive`      |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'<br>`frames`: Nb of frames to receive before stopping'<br>`sleep_ms`:[(750)]. Polling period. No need to poll too often, the FW updates the table only every second<br>`timeout_s`: max number of seconds to poll (useful if very few frames are received) |**none**|
 | `rx_logs`         |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'|**none**           |
-| `c_tune_xi_xo`    |`xi`: [0-255] `x0`: [0-255] XTAL capacitance                                  | `C_TUNE_XI` `C_TUNE_XO`                  |
+| `c_tune_xi_xo`    |`xi`: [0-255] `xo`: [0-255] XTAL capacitance                                  | `C_TUNE_XI` `C_TUNE_XO`                  |
 | `c_tune_fix`      |`fix`: [0-3] XTAL imbalance configuration                                     | `C_TUNE_FIX`                             |
 
 ## Printing the current test tree content
