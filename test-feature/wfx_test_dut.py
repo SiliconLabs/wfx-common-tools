@@ -84,6 +84,20 @@ class WfxTestDut(WfxTestTarget):
         else:
             return self.wfx_set_dict({'TEST_CHANNEL_FREQ': ch}, send_data=0)
 
+    def c_tune_xi_xo(self, xi=None, xo=None):
+        if xi is None:
+            return self.wfx_get_list({"CTUNE_XI"})  + " " + self.wfx_get_list({"CTUNE_XO"})
+        else:
+            if xo is None:
+                xo = xi
+            return self.wfx_set_dict({"CTUNE_XI": str(xi), "CTUNE_XO": str(xo)})
+
+    def c_tune_fix(self, fix=None):
+        if fix is None:
+            return self.wfx_get_list({"CTUNE_FIX"})
+        else:
+            return self.wfx_set_dict({"CTUNE_FIX": str(fix)})
+
     def test_ind_period(self, period=None):
         if period is None:
             return self.wfx_get_list({'TEST_IND'})

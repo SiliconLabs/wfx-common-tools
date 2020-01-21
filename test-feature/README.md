@@ -445,9 +445,11 @@ These are the functions which are primarily used by users to test the product.
 * `tx_power(dBm)`                    : set the maximum output power
 * `tx_rx_select(tx_ant, rx_ant)`     : select the Tx/Rx antennas
 * `tx_start(nb_frames)`              : start sending a selected number of frames. With 0 or 'continuous' = continuous
-* `tx_stop()`                        : send a burst of 100 frames to complete a previous continuous transmission 
+* `tx_stop()`                        : send a burst of 100 frames to complete a previous continuous transmission
 * `rx_start()`                       : start receiving frames (all modulations)
 * `rx_stop()`                        : call tx_stop() to stop receiving
+* `c_tune_xi_xo(xi, xo)`             : set XTAL capacitance (see UG404 for details)
+* `c_tune_fix(fix)`                  : configure XTAL imbalance (see UG404 for details)
 
 ## [wfx_test_dut API](#API)
 
@@ -474,6 +476,8 @@ These are the functions which are primarily used by users to test the product.
 | `rx_stop`         |**none**                                                                      |`NB_FRAME`                                |
 | `rx_receive`      |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'<br>`frames`: Nb of frames to receive before stopping'<br>`sleep_ms`:[(750)]. Polling period. No need to poll too often, the FW updates the table only every second<br>`timeout_s`: max number of seconds to poll (useful if very few frames are received) |**none**|
 | `rx_logs`         |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'|**none**           |
+| `c_tune_xi_xo`    |`xi`: [0-255] `x0`: [0-255] XTAL capacitance                                  | `C_TUNE_XI` `C_TUNE_XO`                  |
+| `c_tune_fix`      |`fix`: [0-3] XTAL imbalance configuration                                     | `C_TUNE_FIX`                             |
 
 ## Printing the current test tree content
 
@@ -930,12 +934,14 @@ SSH pi@10.5.124.186:22 agent_reply: 1.0.0
 Links:
 
 * [wfx-linux-tools repository 'test-feature' folder][LIN_REPO_RF]
+* [wfx-fullMAC-tools repository 'RF_test_agent' folder][FMAC_REPO_RF]
 * [wfx-common-tools repository][COM_REPO]
   * [wfx-common-tools repository 'connection' folder][COM_REPO_CONN]
     * [connection README][CONN_DOC]
   * [wfx-common-tools repository 'test-feature' folder][COM_REPO_RF]
 
 [LIN_REPO_RF]: https://github.com/SiliconLabs/wfx-linux-tools/tree/master/test-feature
+[FMAC_REPO_RF]: https://github.com/SiliconLabs/wfx-fullMAC-tools/tree/master/Tools/RF_test_agent
 [COM_REPO]: https://github.com/SiliconLabs/wfx-common-tools
 [COM_REPO_CONN]: https://github.com/SiliconLabs/wfx-common-tools/tree/master/connection
 [CONN_DOC]: https://github.com/SiliconLabs/wfx-common-tools/blob/master/connection/README.md
