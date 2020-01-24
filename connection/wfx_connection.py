@@ -207,7 +207,7 @@ class Uart(AbstractConnection):
                     line = self.read_raw_line()
                     if len(line):
                         # return when receiving the prompt
-                        if line.rstrip() == self.prompt:
+                        if self.prompt in line.rstrip():
                             if self.debug:
                                 print("  DEBUG   " + self.nickname + self.debug_color + " prompt received after " + str((time.time_ns()-start)/1E6) + self.reset_color)
                                 ...
