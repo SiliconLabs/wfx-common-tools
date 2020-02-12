@@ -119,7 +119,7 @@ class WfxPtaData(object):
         """set_args() is used to provide the settings as a string (space separator)
             as it would be done through command-line arguments"""
         if args is not None:
-            self.sysargs = args.split(' ')
+            self.sysargs = args.split()
         else:
             self.sysargs = []
 
@@ -196,7 +196,7 @@ class WfxPtaData(object):
             periodic_tx_rx_sampling_time   0          \x00\x00
             coex_quota                     0          \x00\x00
             wlan_quota                     0          \x00\x00
-            Local    D>>|  wfx_exec wfx_hif_send_msg "\\x18\\x00\\x2b\\x00\\x03\\x01\\x01\\x00\\x00\\x00\\x01\\x00\\x0a\\x00\\x00\\x48\\x8c\\x00\\x00\\x00\\x00\\x00\\x00\\x00"
+            Local    D>>|  wfx_hif send_msg "\\x18\\x00\\x2b\\x00\\x03\\x01\\x01\\x00\\x00\\x00\\x01\\x00\\x0a\\x00\\x00\\x48\\x8c\\x00\\x00\\x00\\x00\\x00\\x00\\x00"
             Local    D<<|  0
 
         Command line using 'wfx_pta_data.py': retrieving the PTA bytes (no byte sent to HW):

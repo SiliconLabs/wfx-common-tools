@@ -284,7 +284,7 @@ state:
             periodic_tx_rx_sampling_time   0
             coex_quota                     0
             wlan_quota                     0
-            Local    D>>|  wfx_exec wfx_hif_send_msg "\x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x0a\x00\x00\x48\x8c\x00\x00\x00\x00\x00\x00\x00"
+            Local    D>>|  wfx_hif send_msg "\x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x0a\x00\x00\x48\x8c\x00\x00\x00\x00\x00\x00\x00"
             Local    D<<|  0
 
         Command line using 'wfx_pta_data.py': retrieving the PTA bytes (no byte sent to HW):
@@ -521,7 +521,7 @@ It is also possible to track the connection layer communication with the DUT, us
 
 ```python
 >>> dut.settings('--config 3w_example')
-pi       D>>|  wfx_exec wfx_hif_send_msg "\x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x0a\x00\x00\x48\x8c\x00\x00\x00\x00\x00\x00\x00"
+pi       D>>|  wfx_hif send_msg "\x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x0a\x00\x00\x48\x8c\x00\x00\x00\x00\x00\x00\x00"
 <<D       pi|  0
 'HI_STATUS_SUCCESS'
 ```
