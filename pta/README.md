@@ -266,20 +266,20 @@ state:
             priority_sampling_time                0 =>       10
             grant_valid_time                      0 =>       72
             fem_control_time                      0 =>      140
-            pta_mode                       3w         
-            request_signal_active_level    high       
-            priority_signal_active_level   high       
+            pta_mode                       3w
+            request_signal_active_level    high
+            priority_signal_active_level   high
             freq_signal_active_level       low
             grant_signal_active_level      low
             coex_type                      generic
-            default_grant_state            grant      
+            default_grant_state            grant
             simultaneous_rx_accesses       false
             priority_sampling_time         10
 
             tx_rx_sampling_time            0
             freq_sampling_time             0
             grant_valid_time               72         H
-            fem_control_time               140        
+            fem_control_time               140
             first_slot_time                0
             periodic_tx_rx_sampling_time   0
             coex_quota                     0
@@ -293,9 +293,7 @@ state:
           python wfx_pta_data.py settings --config 3w_example --grant_valid_time 40 --priority_sampling_time 8
             \x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x00\x08\x00\x00\x28\x8c\x00\x00\x00\x00\x00\x00\x00
           python wfx_pta_data.py priority --priority_mode balanced
-             , a
           python wfx_pta_data.py priority --coex_prio_low 1 --coex_prio_high 5 --grant_wlan 1 --protect_wlan_tx 1 --protect_wlan_rx 1
-             , Q
           python wfx_pta_data.py state --state on
             \x08\x00\x2d\x00\x01\x00\x00\x00
           python wfx_pta_data.py state --state off
