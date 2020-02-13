@@ -10,7 +10,7 @@
 # See license terms contained in COPYING file
 #
 
-# Use wfx_pta_data to prepare PTA bytes from input parameters
+# Use wfx_pta to prepare PTA bytes from input parameters
 #  then send them to the target
 #
 #

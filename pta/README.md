@@ -529,35 +529,7 @@ pi       D>>|  wfx_hif send_msg "\x18\x00\x2b\x00\x03\x01\x01\x00\x00\x00\x01\x0
 ### settings
 
 ```bash
-python wfx_pta.py settings --config 3w_example
-```
-
-### priority
-
-```bash
-python wfx_pta.py priority --priority_mode balanced
-```
-
-### state
-
-```bash
-python wfx_pta.py state --state on
-```
-
-### tracing
-
-add 'verbose' to the command to trace PTA data filling
-
-```bash
-python wfx_pta.py settings --config 3w_example verbose
-```
-
-## Use case 3: command line to directly send PTA data
-
-### settings
-
-```bash
-python wfx_pta_data.py settings --config 3w_example --grant_valid_time 40 --priority_sampling_time 8
+python wfx_pta_data.py settings --config 3w_example
 ```
 
 ### priority
@@ -570,6 +542,34 @@ python wfx_pta_data.py priority --priority_mode balanced
 
 ```bash
 python wfx_pta_data.py state --state on
+```
+
+### tracing
+
+add 'verbose' to the command to trace PTA data filling
+
+```bash
+python wfx_pta_data.py settings --config 3w_example verbose
+```
+
+## Use case 3: command line to directly send PTA data
+
+### settings
+
+```bash
+python wfx_pta.py settings --config 3w_example --grant_valid_time 40 --priority_sampling_time 8
+```
+
+### priority
+
+```bash
+python wfx_pta.py priority --priority_mode balanced
+```
+
+### state
+
+```bash
+python wfx_pta.py state --state on
 ```
 
 # Self test
