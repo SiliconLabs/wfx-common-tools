@@ -24,7 +24,7 @@ To manage PTA, sending configuration data is required to
 
 ## Python version
 
-The scripts have been written for and tested for Python3 
+The scripts have been written for and tested for Python3
 
 ## Installation
 
@@ -49,6 +49,49 @@ The connection layer is available in
 Refer to
 <https://github.com/SiliconLabs/wfx-common-tools/blob/master/connection/README.md>
  for details on the connection layer and its installation.
+
+#### DUT wfx_hif installation
+
+The **wfx_hif** script/option needs to be installed on the DUT
+
+Installation differs depending on the platform
+
+##### Linux wfx_hif
+
+Download from the wfx-linux-tools repository 'hif' folder the Linux **wfx_hif** script
+
+The Linux **wfx_hif** script is directly usable on Linux platforms
+
+make sure it has execution rights and is in the path (create a link as /usr/local/bin/wfx_hif)
+
+```bash
+chmod a+x   /home/pi/siliconlabs/wfx-linux-tools/hif/wfx_hif
+sudo ln -sf /home/pi/siliconlabs/wfx-linux-tools/hif/wfx_hif /usr/local/bin/wfx_hif
+```
+
+##### RTOS/Bare Metal wfx_test_agent
+
+The RTOS and Bare Metal agents need to be adapted and be compiled for your platform
+
+##### wfx_hif validation
+
+The wfx_hif script/option can be tested & validated stand-alone before being used for PTA 
+testing:
+
+On Linux platforms, call `wfx_hif <option>` to test all options.
+
+NB: When testing the `send_hif_msg` option under Linux, it may be useful to enable hif_send traces and filter on 'msg_id == 0X2b', to see the PTA bytes being sent on the HIF interface.
+
+```bash
+sudo su
+echo 1 | tee /sys/kernel/debug/tracing/events/wfx/hif_send/enable
+echo 'msg_id == 0X2b' | tee /sys/kernel/debug/tracing/events/wfx/hif_send/filter
+cat /sys/kernel/debug/tracing/trace_pipe &
+```
+
+On platforms accessible via SSH, open a SSH session and call `wfx_hif <option>` to test all options
+
+On platforms accessible via UART, open a terminal and call `wfx_hif <option>` to test all options
 
 ----------------
 
@@ -433,11 +476,7 @@ Select one of (with your own parameters for the SSH or UART cases)
 **Pre-filled configuration + user-selected values**
 
 ```python
-<<<<<<< HEAD
->>> dut.settings('--priority_mode balanced --coex_prio_high 4')
-=======
 >>> dut.priority('--priority_mode balanced --coex_prio_high 4')
->>>>>>> origin/master
 ```
 
 ### PTA state
