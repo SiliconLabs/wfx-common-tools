@@ -104,14 +104,15 @@ class WfxTestDut(WfxTestTarget):
         return self.wfx_set_dict({"PA_USED": yes_no}, send_data=1)
 
     def fem_pa_table(self, vdet_vs_pout=None):
+        def list_from_text(txt):
+            (clean_text, length) = re.subn('[\[\]\s]', '', txt)
+            return clean_text.split(',')
+        def text_from_list(v_list):
+            return "[" + ','.join(v_list) + "]"
         if vdet_vs_pout is 'text':
             vdet_text = self.wfx_get_list({"VDET_VAL"}, mode='quiet')
             pout_text = self.wfx_get_list({"POUT_VAL"}, mode='quiet')
             return vdet_text + "\n" + pout_text
-        def list_from_text(txt):
-            (clean_text, length) = re.subn('[\[\]\s]', '', txt)
-            return clean_text.split(',')
-
         if vdet_vs_pout is None:
             vdet_list = list_from_text(self.wfx_get_list({"VDET_VAL"}, mode='quiet'))
             pout_list = list_from_text(self.wfx_get_list({"POUT_VAL"}, mode='quiet'))
@@ -126,12 +127,13 @@ class WfxTestDut(WfxTestTarget):
         for t in vdet_vs_pout:
             vdet_list.append(str(t[0]))
             pout_list.append(str(t[1]))
-        vdet_res = self.wfx_set_dict({"VDET_VAL": "[" + ','.join(vdet_list) + "]"}, send_data=0)
-        pout_res = self.wfx_set_dict({"POUT_VAL": "[" + ','.join(pout_list) + "]"}, send_data=0)
+        nb_res   = self.wfx_set_dict({"NB_OF_POINTS": length}, send_data=0)
+        vdet_res = self.wfx_set_dict({"VDET_VAL": text_from_list(vdet_list)}, send_data=0)
+        pout_res = self.wfx_set_dict({"POUT_VAL": text_from_list(pout_list)}, send_data=0)
         return vdet_res + "\n" + pout_res
 
     def fem_get_vdet_val(self):
-        return self.run('wfx_test_agent read_fem_vdet').strip()
+        return self.run('wfx_test_agent read_vdet').strip()
 
     def test_ind_period(self, period=None):
         if period is None:
