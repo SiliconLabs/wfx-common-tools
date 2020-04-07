@@ -64,9 +64,8 @@ class WfxTestTarget(object):
                         raise Exception(port + ' is detected but is not available. Check for other applications using ' + port)
 
         if not self.link:
-            if not kwargs:
-                print('%s: Configuring a Direct connection' % nickname)
-                self.link = Direct(nickname)
+            print('%s: Configuring a Direct connection' % nickname)
+            self.link = Direct(nickname)
 
         if 'fw_version' in kwargs:
             fw_version = kwargs['fw_version']
