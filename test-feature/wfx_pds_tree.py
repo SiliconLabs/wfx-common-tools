@@ -21,12 +21,12 @@ from copy import deepcopy
 from distutils.version import StrictVersion
 
 wfx_pds = [
-  #  ITEM                            | VERSION | DEFAULT              | PATH                            | VALUES                    | DOC
-    ('RF_PORT'                       ,  '2.0'  , 'RF_PORT_BOTH'       , 'RF_POWER_CFG'                  , "RF_PORT_1, RF_PORT_2, RF_PORT_BOTH(default)", "RF port affected by the RF_POWER_CFG parameters"),
-    ('MAX_OUTPUT_POWER_QDBM'         ,  '2.0'  ,  80                  , 'RF_POWER_CFG'                  , "[-128, 127]", "Max Tx power value, in 1/4 of dBm. Resultant covered range in dBm: [-32; 31.75]"),
-    ('FRONT_END_LOSS_TX_QDB'         ,  '2.0'  ,  0                   , 'RF_POWER_CFG'                  , "[-128, 127]", "Front-end loss (loss between the chip and the antenna) in 1/4 of dB. Resultant covered range in dB: [-32; 31.75]"),
-    ('CHANNEL_NUMBER'                ,  '2.0'  , '[1, 14]'            , 'RF_POWER_CFG.BACKOFF_QDB[]'    , "[1, 14]", "Backoff CHANNEL_NUMBER : channel number (an integer) or range of channel numbers (an array) to which the backoff values apply"),
-    ('BACKOFF_VAL'                   ,  '2.0'  , '[0, 0, 0, 0, 0 ,0]' , 'RF_POWER_CFG.BACKOFF_QDB[]'    , "[0, 255] possible values", "BACKOFF_VAL is given in 1/4 of dB. Covered range in dB: [0; 63.75].\
+  #  ITEM                            | VERSION | DEFAULT                 | PATH                            | VALUES                    | DOC
+    ('RF_PORT'                       ,  '2.0'  , 'RF_PORT_BOTH'          , 'RF_POWER_CFG'                  , "RF_PORT_1, RF_PORT_2, RF_PORT_BOTH(default)", "RF port affected by the RF_POWER_CFG parameters"),
+    ('MAX_OUTPUT_POWER_QDBM'         ,  '2.0'  ,  80                     , 'RF_POWER_CFG'                  , "[-128, 127]"             , "Max Tx power value, in 1/4 of dBm. Resultant covered range in dBm: [-32; 31.75]"),
+    ('FRONT_END_LOSS_TX_QDB'         ,  '2.0'  ,  0                      , 'RF_POWER_CFG'                  , "[-128, 127]"             , "Front-end loss (loss between the chip and the antenna) in 1/4 of dB. Resultant covered range in dB: [-32; 31.75]"),
+    ('CHANNEL_NUMBER'                ,  '2.0'  , '[1, 14]'               , 'RF_POWER_CFG.BACKOFF_QDB[]'    , "[1, 14]"                 , "Backoff CHANNEL_NUMBER : channel number (an integer) or range of channel numbers (an array) to which the backoff values apply"),
+    ('BACKOFF_VAL'                   ,  '2.0'  , '[0, 0, 0, 0, 0 ,0]'    , 'RF_POWER_CFG.BACKOFF_QDB[]'    , "[0, 255] possible values", "BACKOFF_VAL is given in 1/4 of dB. Covered range in dB: [0; 63.75].\
                                                                                                                                       Each value sets a backoff for a group of modulation.\
                                                                                                                                       A modulation group designates a subset of modulations :\
                                                                                                                                       # MOD_GROUP_0 : B_1Mbps, B_2Mbps, B_5.5Mbps, B_11Mbps\
@@ -35,31 +35,31 @@ wfx_pds = [
                                                                                                                                       # MOD_GROUP_3 : G_36Mbps, G_48Mbps, N_MCS4, N_MCS5\
                                                                                                                                       # MOD_GROUP_4 : G_54Mbps, N_MCS6\
                                                                                                                                       # MOD_GROUP_5 : N_MCS7"),
-    ('FRONT_END_LOSS_RX_QDB'         ,  '2.2.2', 0                       , 'RF_POWER_CFG'                  , "[0, 255]"               , "Backoff CHANNEL_NUMBER : channel number (an integer) or range of channel numbers (an array) to which the backoff values apply"),
+    ('FRONT_END_LOSS_RX_QDB'         ,  '2.2.2',  0                      , 'RF_POWER_CFG'                  , "[0, 255]"                , "Front-end loss (loss between the antenna and the chip) in quarters of dB"),
     ('RF_PORTS'                      ,  '2.0'  , 'TX1_RX1'               , 'RF_ANTENNA_SEL_DIV_CFG'        , "TX1_RX1, TX2_RX2, TX1_RX2, TX2_RX1, TX12_RX12", "Antenna selection"),
-    ('TEST_CHANNEL_FREQ'             ,  '2.0'  ,  11                     , 'TEST_FEATURE_CFG'              , "[1, 14]"                , "Wi-Fi channel to use for TEST_FEATURE"),
-    ('TEST_MODE'                     ,  '2.0'  , 'tx_packet'             , 'TEST_FEATURE_CFG'              , "rx, tx_packet, tx_cw"   , "TEST_FEATURE selection"),
-    ('TEST_IND'                      ,  '2.0'  ,  1000                   , 'TEST_FEATURE_CFG'              , "[0, TBD(65535?]"        , "Tx: TEST_IND period in ms at which an indication message is sent. Rx: returns the measurement results (PER)"),
-    ('CW_MODE'                       ,  '2.0'  , 'single'                , 'TEST_FEATURE_CFG.CFG_TX_CW'    , "single, dual"           , "TEST_FEATURE on one or 2 channels"),
-    ('FREQ1'                         ,  '2.0'  ,  0                      , 'TEST_FEATURE_CFG.CFG_TX_CW'    , "[-31, 31]"              , "Channel 1 frequency offset in 312.5 kHz steps. Covered range: [-9687.5 to 9687.5] kHz"),
-    ('FREQ2'                         ,  '2.0'  ,  0                      , 'TEST_FEATURE_CFG.CFG_TX_CW'    , "[-31, 31]"              , "Channel 2 frequency offset in 312.5 kHz steps. Covered range: [-9687.5 to 9687.5] kHz"),
-    ('MAX_OUTPUT_POWER'              ,  '2.0'  ,  68                     , 'TEST_FEATURE_CFG.CFG_TX_CW'    , "TBD"                    , "Max Tx power value in quarters of dBm"),
-    ('FRAME_SIZE_BYTE'               ,  '2.0'  ,  3000                   , 'TEST_FEATURE_CFG.CFG_TX_PACKET', "[25, 4091]"             , "frame size in byte (without CRC)"),
-    ('IFS_US'                        ,  '2.0'  ,  0                      , 'TEST_FEATURE_CFG.CFG_TX_PACKET', "[0, 255]"               , "interframe spacing in us"),
-    ('HT_PARAM'                      ,  '2.0'  , 'MM'                    , 'TEST_FEATURE_CFG.CFG_TX_PACKET', "MM, GF"                 , "HT format (MM: mixed mode or GF: greenfield)"),
+    ('TEST_CHANNEL_FREQ'             ,  '2.0'  ,  11                     , 'TEST_FEATURE_CFG'              , "[1, 14]"                 , "Wi-Fi channel to use for TEST_FEATURE"),
+    ('TEST_MODE'                     ,  '2.0'  , 'tx_packet'             , 'TEST_FEATURE_CFG'              , "rx, tx_packet, tx_cw"    , "TEST_FEATURE selection"),
+    ('TEST_IND'                      ,  '2.0'  ,  1000                   , 'TEST_FEATURE_CFG'              , "[0, TBD(65535?]"         , "Tx: TEST_IND period in ms at which an indication message is sent. Rx: returns the measurement results (PER)"),
+    ('CW_MODE'                       ,  '2.0'  , 'single'                , 'TEST_FEATURE_CFG.CFG_TX_CW'    , "single, dual"            , "TEST_FEATURE on one or 2 channels"),
+    ('FREQ1'                         ,  '2.0'  ,  0                      , 'TEST_FEATURE_CFG.CFG_TX_CW'    , "[-31, 31]"               , "Channel 1 frequency offset in 312.5 kHz steps. Covered range: [-9687.5 to 9687.5] kHz"),
+    ('FREQ2'                         ,  '2.0'  ,  0                      , 'TEST_FEATURE_CFG.CFG_TX_CW'    , "[-31, 31]"               , "Channel 2 frequency offset in 312.5 kHz steps. Covered range: [-9687.5 to 9687.5] kHz"),
+    ('MAX_OUTPUT_POWER'              ,  '2.0'  ,  68                     , 'TEST_FEATURE_CFG.CFG_TX_CW'    , "TBD"                     , "Max Tx power value in quarters of dBm"),
+    ('FRAME_SIZE_BYTE'               ,  '2.0'  ,  3000                   , 'TEST_FEATURE_CFG.CFG_TX_PACKET', "[25, 4091]"              , "frame size in byte (without CRC)"),
+    ('IFS_US'                        ,  '2.0'  ,  0                      , 'TEST_FEATURE_CFG.CFG_TX_PACKET', "[0, 255]"                , "interframe spacing in us"),
+    ('HT_PARAM'                      ,  '2.0'  , 'MM'                    , 'TEST_FEATURE_CFG.CFG_TX_PACKET', "MM, GF"                  , "HT format (MM: mixed mode or GF: greenfield)"),
     ('RATE'                          ,  '2.0'  , 'N_MCS7'                , 'TEST_FEATURE_CFG.CFG_TX_PACKET', "B_1Mbps, B_2Mbps, B_5_5Mbps, B_11Mbps, G_6Mbps, G_9Mbps, G_12Mbps, G_18Mbps, G_24Mbps, G_36Mbps, G_48Mbps, G_54Mbps, N_MCS0, N_MCS1, N_MCS2, N_MCS3, N_MCS4, N_MCS5, N_MCS6, N_MCS7",
-                                                                                                                                     "rate selection."),
-    ('NB_FRAME'                      ,  '2.0'  ,  0                      , 'TEST_FEATURE_CFG.CFG_TX_PACKET', "[0, 65535]"             , "number of frames to send before stopping. 0 means continuous"),
+                                                                                                                                         "rate selection."),
+    ('NB_FRAME'                      ,  '2.0'  ,  0                      , 'TEST_FEATURE_CFG.CFG_TX_PACKET', "[0, 65535]"              , "number of frames to send before stopping. 0 means continuous"),
     ('REG_MODE'                      ,  '2.2'  , 'CERTIFIED_Unrestricted', 'TEST_FEATURE_CFG.CFG_TX_PACKET', "CERTIFIED_All, CERTIFIED_FCC, CERTIFIED_ETSI, CERTIFIED_JAPAN, CERTIFIED_Unrestricted",
                                                                                                                                         "Regulatory mode"),
-    ('RX'                            ,  '2.0'  , ''                      , 'TEST_FEATURE_CFG'              , "TBD (default empty)"    , "additional configuration for rx mode"),
-    ('CTUNE_FIX'                     ,  '2.0'  , '3'                     , 'HF_CLK.XTAL_CFG'               , "[0, 3]"                 , "set a high value capacitance on both XTAL_I and XTAL_O"),
-    ('CTUNE_XI'                      ,  '2.0'  , '140'                   , 'HF_CLK.XTAL_CFG'               , "[0, 255]"               , "fine tune the capacitor on pin XTAL_I"),
-    ('CTUNE_XO'                      ,  '2.0'  , '140'                   , 'HF_CLK.XTAL_CFG'               , "[0, 255]"               , "fine tune the capacitor on pin XTAL_O"),
-    ('PA_USED'                       ,  '3.2'  , 'no'                    , 'EXT_PA_CFG'                    , "no, yes"                , "PA_USED indicates if external PA is used, which triggers the use of the internal Low Power PA (default: no)"),
-    ('MAX_GAIN'                      ,  '3.2'  ,  112                    , 'EXT_PA_CFG'                    , "[0, 256]"               , "MAX GAIN (in quarters of dB) corresponds to maximum external gain added, rounded to a quarter of dB above"),
-    ('NB_OF_POINTS'                  ,  '3.2'  ,  16                     , 'EXT_PA_CFG.CFG_POUT_VS_VDET[]'   , "[0, 16]"                , "NB_OF_POINTS allows to set the number of points used to calibrate the curve (max 16). When !=0 it triggers the closed loop control of TX output power"),
-    ('VDET_VAL'                      ,  '3.2'  , '[1080, 925, 818, 752, 682, 624, 570, 518, 478, 438, 377, 328, 289, 259, 234, 216]', 'EXT_PA_CFG.CFG_POUT_VS_VDET[]'   , "[0, 1024]", "Vdet value (in milliVolt) measured by the chip on FEM_PDET pin, ranging from highest to lowest value"),
+    ('RX'                            ,  '2.0'  , ''                      , 'TEST_FEATURE_CFG'              , "TBD (default empty)"     , "additional configuration for rx mode"),
+    ('CTUNE_FIX'                     ,  '2.0'  , '3'                     , 'HF_CLK.XTAL_CFG'               , "[0, 3]"                  , "set a high value capacitance on both XTAL_I and XTAL_O"),
+    ('CTUNE_XI'                      ,  '2.0'  , '140'                   , 'HF_CLK.XTAL_CFG'               , "[0, 255]"                , "fine tune the capacitor on pin XTAL_I"),
+    ('CTUNE_XO'                      ,  '2.0'  , '140'                   , 'HF_CLK.XTAL_CFG'               , "[0, 255]"                , "fine tune the capacitor on pin XTAL_O"),
+    ('PA_USED'                       ,  '3.2'  , 'no'                    , 'EXT_PA_CFG'                    , "no, yes"                 , "indicates if external PA is used, which triggers the use of the internal Low Power PA (default: no)"),
+    ('MAX_GAIN'                      ,  '3.2'  ,  112                    , 'EXT_PA_CFG'                    , "[0, 256]"                , "maximum external gain added (in quarters of dB), rounded to a quarter of dB above"),
+    ('NB_OF_POINTS'                  ,  '3.2'  ,  16                     , 'EXT_PA_CFG.CFG_POUT_VS_VDET[]' , "[0, 16]"                 , "number of points used to calibrate the curve (max 16). When !=0 it triggers the closed loop control of TX output power"),
+    ('VDET_VAL'                      ,  '3.2'  , '[1080, 925, 818, 752, 682, 624, 570, 518, 478, 438, 377, 328, 289, 259, 234, 216]', 'EXT_PA_CFG.CFG_POUT_VS_VDET[]'   , "[0, 1024]", "Vdet value (in mV) measured by the chip on FEM_PDET pin, ranging from highest to lowest value"),
     ('POUT_VAL'                      ,  '3.2'  , '[  96,  92,  88,  84,  80,  76,  72,  68,  64,  60,  52,  44,  36,  28,  20,  12]', 'EXT_PA_CFG.CFG_POUT_VS_VDET[]'   , "[0, 130 ]", "Output power level (in 1/4dBm) measured at FEM output port"),
 ]
 
