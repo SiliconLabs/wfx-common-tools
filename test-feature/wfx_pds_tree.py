@@ -24,7 +24,7 @@ wfx_pds = [
   #  ITEM                            | VERSION | DEFAULT              | PATH                            | VALUES                    | DOC
     ('RF_PORT'                       ,  '2.0'  , 'RF_PORT_BOTH'       , 'RF_POWER_CFG'                  , "RF_PORT_1, RF_PORT_2, RF_PORT_BOTH(default)", "RF port affected by the RF_POWER_CFG parameters"),
     ('MAX_OUTPUT_POWER_QDBM'         ,  '2.0'  ,  80                  , 'RF_POWER_CFG'                  , "[-128, 127]", "Max Tx power value, in 1/4 of dBm. Resultant covered range in dBm: [-32; 31.75]"),
-    ('FRONT_END_LOSS_CORRECTION_QDB' ,  '2.0'  ,  0                   , 'RF_POWER_CFG'                  , "[-128, 127]", "Front-end loss (loss between the chip and the antenna) in 1/4 of dB. Resultant covered range in dB: [-32; 31.75]"),
+    ('FRONT_END_LOSS_TX_QDB'         ,  '2.0'  ,  0                   , 'RF_POWER_CFG'                  , "[-128, 127]", "Front-end loss (loss between the chip and the antenna) in 1/4 of dB. Resultant covered range in dB: [-32; 31.75]"),
     ('CHANNEL_NUMBER'                ,  '2.0'  , '[1, 14]'            , 'RF_POWER_CFG.BACKOFF_QDB[]'    , "[1, 14]", "Backoff CHANNEL_NUMBER : channel number (an integer) or range of channel numbers (an array) to which the backoff values apply"),
     ('BACKOFF_VAL'                   ,  '2.0'  , '[0, 0, 0, 0, 0 ,0]' , 'RF_POWER_CFG.BACKOFF_QDB[]'    , "[0, 255] possible values", "BACKOFF_VAL is given in 1/4 of dB. Covered range in dB: [0; 63.75].\
                                                                                                                                       Each value sets a backoff for a group of modulation.\
@@ -35,7 +35,7 @@ wfx_pds = [
                                                                                                                                       # MOD_GROUP_3 : G_36Mbps, G_48Mbps, N_MCS4, N_MCS5\
                                                                                                                                       # MOD_GROUP_4 : G_54Mbps, N_MCS6\
                                                                                                                                       # MOD_GROUP_5 : N_MCS7"),
-    ('RSSI_CORRECTION'               ,  '2.2.2', 0                       , 'RF_POWER_CFG'                  , "[0, 255]"               , "Backoff CHANNEL_NUMBER : channel number (an integer) or range of channel numbers (an array) to which the backoff values apply"),
+    ('FRONT_END_LOSS_RX_QDB'         ,  '2.2.2', 0                       , 'RF_POWER_CFG'                  , "[0, 255]"               , "Backoff CHANNEL_NUMBER : channel number (an integer) or range of channel numbers (an array) to which the backoff values apply"),
     ('RF_PORTS'                      ,  '2.0'  , 'TX1_RX1'               , 'RF_ANTENNA_SEL_DIV_CFG'        , "TX1_RX1, TX2_RX2, TX1_RX2, TX2_RX1, TX12_RX12", "Antenna selection"),
     ('TEST_CHANNEL_FREQ'             ,  '2.0'  ,  11                     , 'TEST_FEATURE_CFG'              , "[1, 14]"                , "Wi-Fi channel to use for TEST_FEATURE"),
     ('TEST_MODE'                     ,  '2.0'  , 'tx_packet'             , 'TEST_FEATURE_CFG'              , "rx, tx_packet, tx_cw"   , "TEST_FEATURE selection"),
@@ -58,7 +58,7 @@ wfx_pds = [
     ('CTUNE_XO'                      ,  '2.0'  , '140'                   , 'HF_CLK.XTAL_CFG'               , "[0, 255]"               , "fine tune the capacitor on pin XTAL_O"),
     ('PA_USED'                       ,  '3.2'  , 'no'                    , 'EXT_PA_CFG'                    , "no, yes"                , "PA_USED indicates if external PA is used, which triggers the use of the internal Low Power PA (default: no)"),
     ('MAX_GAIN'                      ,  '3.2'  ,  112                    , 'EXT_PA_CFG'                    , "[0, 256]"               , "MAX GAIN (in quarters of dB) corresponds to maximum external gain added, rounded to a quarter of dB above"),
-    ('NB_OF_POINTS'                  ,  '3.2'  ,  16                     , 'EXT_PA_CFG.CFG_POUT_VS_VDET'   , "[0, 16]"                , "NB_OF_POINTS allows to set the number of points used to calibrate the curve (max 16). When !=0 it triggers the closed loop control of TX output power"),
+    ('NB_OF_POINTS'                  ,  '3.2'  ,  16                     , 'EXT_PA_CFG.CFG_POUT_VS_VDET[]'   , "[0, 16]"                , "NB_OF_POINTS allows to set the number of points used to calibrate the curve (max 16). When !=0 it triggers the closed loop control of TX output power"),
     ('VDET_VAL'                      ,  '3.2'  , '[1080, 925, 818, 752, 682, 624, 570, 518, 478, 438, 377, 328, 289, 259, 234, 216]', 'EXT_PA_CFG.CFG_POUT_VS_VDET[]'   , "[0, 1024]", "Vdet value (in milliVolt) measured by the chip on FEM_PDET pin, ranging from highest to lowest value"),
     ('POUT_VAL'                      ,  '3.2'  , '[  96,  92,  88,  84,  80,  76,  72,  68,  64,  60,  52,  44,  36,  28,  20,  12]', 'EXT_PA_CFG.CFG_POUT_VS_VDET[]'   , "[0, 130 ]", "Output power level (in 1/4dBm) measured at FEM output port"),
 ]
