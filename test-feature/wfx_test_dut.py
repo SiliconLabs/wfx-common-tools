@@ -132,8 +132,42 @@ class WfxTestDut(WfxTestTarget):
         pout_res = self.wfx_set_dict({"POUT_VAL": text_from_list(pout_list)}, send_data=0)
         return vdet_res + "\n" + pout_res
 
-    def fem_get_vdet_val(self):
-        return self.run('wfx_test_agent read_vdet').strip()
+    def fem_read_tx_info(self, match=None):
+        res = self.run('wfx_test_agent read_tx_info').strip()
+        if match is None:
+            return res
+        re_match = re.compile(match)
+        for line in res.split('\n'):
+            matching = re_match.match(line)
+            if matching is not None:
+                if self.trace:
+                    print(f"matching {match}: {matching}")
+                    print(f"matching groups: {matching.groups()}")
+                return str(matching.group(1)).strip()
+        return ''
+
+    def fem_read_digital_gain(self):
+        return self.fem_read_tx_info(match='Tx gain digital:(.*)')
+
+    def fem_read_pa_gain(self):
+        return self.fem_read_tx_info(match='Tx gain PA:(.*)')
+
+    def fem_read_target_pout(self):
+        return self.fem_read_tx_info(match='Target Pout:(.*) dBm')
+
+    def fem_read_fem_pout(self):
+        return self.fem_read_tx_info(match='FEM Pout:(.*) dBm')
+
+    def fem_read_vpdet(self):
+        return self.fem_read_tx_info(match='Vpdet:(.*) mV')
+
+    def fem_read_measure_index(self):
+        re_match = re.compile('Measure index:(.*)')
+        match = re_match.match(self.fem_read_tx_info())
+        if match is not None:
+            return int(match.group(1))
+        else:
+            return 0
 
     def test_ind_period(self, period=None):
         if period is None:
