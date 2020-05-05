@@ -483,6 +483,13 @@ These are the functions which are primarily used by users to test the product.
 | `fem_pa_used`     |`yes_no`: ['yes', 'no']. Activates the FEM Power Amplifier                    | `PA_USED`                                |
 | `fem_pa_max_gain` |`gain`: [0-256]. Max FEM Power Amplifier Gain                                 | `MAX_GAIN`                               |
 | `fem_get_vdet_val`|**none**. Returns value measured on VDET pin                                  |**none**                                  |
+| `fem_read_tx_info`      |`match`. Returns FEM tx info. If `match` is provided, filter on `match` |**none**                                  |
+| `fem_read_digital_gain` |**none**. Returns digital gain in dB                                    |**none**                                  |
+| `fem_read_pa_gain`      |**none**. Returns Power Amplifier gain in dB                            |**none**                                  |
+| `fem_read_target_pout`  |**none**. Returns part output power in dBm                              |**none**                                  |
+| `fem_read_fem_pout`     |**none**. Returns FEM output power in dBm                               |**none**                                  |
+| `fem_read_vpdet`        |**none**. Returns voltage measured on VPDET in mV                       |**none**                                  |
+| `fem_read_measure_index`|**none**. Returns measure index                                         |**none**                                  |
 
 ## Printing the current test tree content
 
