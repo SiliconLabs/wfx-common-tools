@@ -14,7 +14,7 @@ The RF test architecture is now a Test Server/DUT configuration
   * `read_agent_version` (optional, used for logging test conditions)
   * `read_driver_version` (optional, used for logging test conditions)
   * `read_fw_version` (optional, used for logging test conditions)
-  * `read_vdet` (optional, used with a FEM)
+  * `read_tx_info` (optional, used with a FEM)
 
 ## Prerequisites
 
@@ -106,6 +106,18 @@ Others are only useful to log test conditions:
 * `read_agent_version` (returns '1.0.0' at the time of writing)
 * `read_driver_version` (returns '2.0.3' at the time of writing)
 * `read_fw_version` (returns '2.2.1' at the time of writing)
+
+Others are use with a FEM:
+* `read_tx_info`
+
+```text
+Tx gain digital: 0
+Tx gain PA: 0
+Target Pout: 0.00 dBm
+FEM Pout: 0.00 dBm
+Vpdet: 0 mV
+Measure index: 0
+```
 
 ## DUT with SSH connection
 
@@ -432,6 +444,13 @@ These are the functions which are primarily used by users to test the product.
 * `rx_start()`                       : start Rx test in the DUT
 * `rx_stop()`                        : stop Rx test in the DUT and Python3 polling thread
 * `read_agent_version()`             : returns Agent version
+* `fem_read_tx_info(match)`          : Returns FEM tx info. If `match` is provided, filter on `match`
+* `fem_read_digital_gain()`          : Returns digital gain in dB
+* `fem_read_pa_gain()`               : Returns Power Amplifier gain in dB
+* `fem_read_target_pout()`           : Returns part output power in dBm
+* `fem_read_fem_pout()`              : Returns FEM output power in dBm
+* `fem_read_vpdet()`                 : Returns voltage measured on VPDET in mV
+* `fem_read_measure_index()`         : Returns measure index
 * `read_driver_version()`            : returns driver version
 * `read_fw_version()`                : returns FW version
 * `test_conditions()`                : returns DUT/Driver/FW/Tools/Agent versions and DUT connection info
