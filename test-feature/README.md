@@ -14,6 +14,7 @@ The RF test architecture is now a Test Server/DUT configuration
   * `read_agent_version` (optional, used for logging test conditions)
   * `read_driver_version` (optional, used for logging test conditions)
   * `read_fw_version` (optional, used for logging test conditions)
+  * `read_vdet` (optional, used with a FEM)
 
 ## Prerequisites
 
@@ -85,7 +86,7 @@ Some DUT wfx_test_agent features are mandatory for RF Testing:
 * `read_rx_stats` (required only for Rx testing)
   * Return the payload of a HI_GENERIC_INDICATION_ID_RX_STATS indication message formatted as follows (abstract):
 
-```text
+```text**
 Timestamp: 43158786us
 Low power clock: frequency 32759Hz, external yes
 Num. of frames: 73, PER (x10e4): 1780, Throughput: 63Kbps/s
@@ -478,6 +479,10 @@ These are the functions which are primarily used by users to test the product.
 | `rx_logs`         |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'|**none**           |
 | `c_tune_xi_xo`    |`xi`: [0-255] `xo`: [0-255] XTAL capacitance                                  | `C_TUNE_XI` `C_TUNE_XO`                  |
 | `c_tune_fix`      |`fix`: [0-3] XTAL imbalance configuration                                     | `C_TUNE_FIX`                             |
+| `fem_pa_table`    |`vdet_vs_pout`: '[(\<vdet\>,\<pout\>),...]'. Up to 16 (vdet,pout) pairs       | `VDET_VAL` `POUT_VAL` `NB_OF_POINTS`     |
+| `fem_pa_used`     |`yes_no`: ['yes', 'no']. Activates the FEM Power Amplifier                    | `PA_USED`                                |
+| `fem_pa_max_gain` |`gain`: [0-256]. Max FEM Power Amplifier Gain                                 | `MAX_GAIN`                               |
+| `fem_get_vdet_val`|**none**. Returns value measured on VDET pin                                  |**none**                                  |
 
 ## Printing the current test tree content
 
@@ -583,16 +588,16 @@ These can be disabled using `dut.link.trace = False`. They are useful to check/d
 
 ```python
 Local: fw_version retrieved from HW (2.2.1)
-  Info: 'RSSI_CORRECTION' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
+  Info: 'FRONT_END_LOSS_RX_QDB' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
 ```
 
 *The above information tells us that the current FW is 2.2.1. 
-In wfx_pds{} the VERSION value for 'RSSI_CORRECTION' is 2.2.2.
-This means that the current FW doesn't support 'RSSI_CORRECTION', so it's not added to the test_data we will use here, to avoid FW exceptions*
+In wfx_pds{} the VERSION value for 'FRONT_END_LOSS_RX_QDB' is 2.2.2.
+This means that the current FW doesn't support 'FRONT_END_LOSS_RX_QDB', so it's not added to the test_data we will use here, to avoid FW exceptions*
 
 ```python
 fill_tree has messages:
-  Info: 'RSSI_CORRECTION' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
+  Info: 'FRONT_END_LOSS_RX_QDB' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
 ```
 
 *After filling the test_data tree, the code checks for any test data processing message (using `check_pds_warning()`),
@@ -859,10 +864,10 @@ INFO:root:SSH           I'm connected to 10.5.124.186:22 as root
 SSH      S>>|  wfx_test_agent read_fw_version
 <<S      SSH|  2.2.1
 SSH: fw_version retrieved from HW (2.2.1)
-  Info: 'RSSI_CORRECTION' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
+  Info: 'FRONT_END_LOSS_RX_QDB' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
 
 fill_tree has messages:
-  Info: 'RSSI_CORRECTION' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
+  Info: 'FRONT_END_LOSS_RX_QDB' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
 
 SSH: tree filled for FW2.2.1
 SSH      S>>|  wfx_test_agent read_agent_version
