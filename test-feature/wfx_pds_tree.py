@@ -58,9 +58,9 @@ wfx_pds = [
     ('CTUNE_XO'                      ,  '2.0'  , '140'                   , 'HF_CLK.XTAL_CFG'               , "[0, 255]"                , "fine tune the capacitor on pin XTAL_O"),
     ('PA_USED'                       ,  '3.2'  , 'no'                    , 'EXT_PA_CFG'                    , "no, yes"                 , "indicates if external PA is used, which triggers the use of the internal Low Power PA (default: no)"),
     ('MAX_GAIN'                      ,  '3.2'  ,  112                    , 'EXT_PA_CFG'                    , "[0, 256]"                , "maximum external gain added (in quarters of dB), rounded to a quarter of dB above"),
-    ('NB_OF_POINTS'                  ,  '3.2'  ,  16                     , 'EXT_PA_CFG.CFG_POUT_VS_VDET[]' , "[0, 16]"                 , "number of points used to calibrate the curve (max 16). When !=0 it triggers the closed loop control of TX output power"),
-    ('VDET_VAL'                      ,  '3.2'  , '[1080, 925, 818, 752, 682, 624, 570, 518, 478, 438, 377, 328, 289, 259, 234, 216]', 'EXT_PA_CFG.CFG_POUT_VS_VDET[]'   , "[0, 1024]", "Vdet value (in mV) measured by the chip on FEM_PDET pin, ranging from highest to lowest value"),
-    ('POUT_VAL'                      ,  '3.2'  , '[  96,  92,  88,  84,  80,  76,  72,  68,  64,  60,  52,  44,  36,  28,  20,  12]', 'EXT_PA_CFG.CFG_POUT_VS_VDET[]'   , "[0, 130 ]", "Output power level (in 1/4dBm) measured at FEM output port"),
+    ('NB_OF_POINTS'                  ,  '3.2'  ,  16                     , 'EXT_PA_CFG.CFG_POUT_VS_VDET'   , "[0, 16]"                 , "number of points used to calibrate the curve (max 16). When !=0 it triggers the closed loop control of TX output power"),
+    ('VDET_VAL'                      ,  '3.2'  , '[1080, 925, 818, 752, 682, 624, 570, 518, 478, 438, 377, 328, 289, 259, 234, 216]', 'EXT_PA_CFG.CFG_POUT_VS_VDET'   , "[0, 1024]", "Vdet value (in mV) measured by the chip on FEM_PDET pin, ranging from highest to lowest value"),
+    ('POUT_VAL'                      ,  '3.2'  , '[  96,  92,  88,  84,  80,  76,  72,  68,  64,  60,  52,  44,  36,  28,  20,  12]', 'EXT_PA_CFG.CFG_POUT_VS_VDET'   , "[0, 130 ]", "Output power level (in 1/4dBm) measured at FEM output port"),
 ]
 
 pds_order = []
