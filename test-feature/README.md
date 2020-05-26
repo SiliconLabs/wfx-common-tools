@@ -446,7 +446,6 @@ These are the functions which are primarily used by users to test the product.
 * `read_agent_version()`             : returns Agent version
 * `fem_read_tx_info(match)`          : Returns FEM tx info. If `match` is provided, filter on `match`
 * `fem_read_digital_gain()`          : Returns digital gain in dB
-* `fem_read_pa_gain()`               : Returns Power Amplifier gain in dB
 * `fem_read_target_pout()`           : Returns part output power in dBm
 * `fem_read_fem_pout()`              : Returns FEM output power in dBm
 * `fem_read_vpdet()`                 : Returns voltage measured on VPDET in mV
@@ -498,13 +497,13 @@ These are the functions which are primarily used by users to test the product.
 | `rx_logs`         |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'|**none**           |
 | `c_tune_xi_xo`    |`xi`: [0-255] `xo`: [0-255] XTAL capacitance                                  | `C_TUNE_XI` `C_TUNE_XO`                  |
 | `c_tune_fix`      |`fix`: [0-3] XTAL imbalance configuration                                     | `C_TUNE_FIX`                             |
-| `fem_pa_table`    |`vdet_vs_pout`: '[(\<vdet\>,\<pout\>),...]'. Up to 16 (vdet,pout) pairs       | `VDET_VAL` `POUT_VAL` `NB_OF_POINTS`     |
+| `fem_pa_table`    |`vdet_vs_pout`: '[[\<vdet\>, \<pout\>], ...]'. Up to 16 [vdet, pout] pairs<br>'open_loop'<br>'closed_loop'| `VDET_VAL` `POUT_VAL` `NB_OF_POINTS`     |
 | `fem_pa_used`     |`yes_no`: ['yes', 'no']. Activates the FEM Power Amplifier                    | `PA_USED`                                |
-| `fem_pa_max_gain` |`gain`: [0-256]. Max FEM Power Amplifier Gain                                 | `MAX_GAIN`                               |
+| `fem_pa_max_gain` |`gain_db`: [0-256]. Max FEM Power Amplifier Gain in dB                        | `MAX_GAIN` (in 1/4 dB)                   |
 | `fem_get_vdet_val`|**none**. Returns value measured on VDET pin                                  |**none**                                  |
 | `fem_read_tx_info`      |`match`. Returns FEM tx info. If `match` is provided, filter on `match` |**none**                                  |
-| `fem_read_digital_gain` |**none**. Returns digital gain in dB                                    |**none**                                  |
-| `fem_read_pa_gain`      |**none**. Returns Power Amplifier gain in dB                            |**none**                                  |
+| `fem_read_digital_gain` |**none**. Returns digital gain info                                     |**none**                                  |
+| `fem_read_pa_slice`     |**none**. Returns Power Amplifier gain info                             |**none**                                  |
 | `fem_read_target_pout`  |**none**. Returns part output power in dBm                              |**none**                                  |
 | `fem_read_fem_pout`     |**none**. Returns FEM output power in dBm                               |**none**                                  |
 | `fem_read_vpdet`        |**none**. Returns voltage measured on VPDET in mV                       |**none**                                  |
@@ -915,6 +914,15 @@ SSH pi@10.5.124.186:22 agent_reply: 1.0.0
 
 *We can access the uart DUT using `uart_dut.<>` and the SSH DUT using `ssh_dut.<>`. Many DUTs can be part of our test. 
  If we rely on scripts using `dut.<>`, we can use `dut = uart_dut` or `dut = ssh_dut` to switch between DUTs*
+
+## FEM table controls
+
+```python
+>>> dut.fem_pa_table([[1080,  96], [925, 92], [818, 88], [752, 84], [682, 80], [624, 76], [570, 72], [518, 68], [478, 64], [438, 60], [377, 52], [328, 44], [289, 36], [259, 28], [234, 20], [216, 12]])
+>>> dut.fem_pa_used('yes')
+>>> dut.fem_pa_table('open_loop')
+>>> dut.fem_pa_table('closed_loop')
+```
 
 ## [RF Test Hierarchy](#hierarchy)
 
