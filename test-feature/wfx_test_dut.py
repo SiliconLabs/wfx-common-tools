@@ -509,14 +509,14 @@ if __name__ == '__main__':
 
     #print(uarts())
     # Select one of the following lines to connect
-    #dut = WfxTestDut('Local')
+    dut = WfxTestDut('Local')
     #dut = WfxTestDut('Pi_ssh', host='10.5.124.186', user='pi', port=22, password='default_password')
     #dut = WfxTestDut('Pi_uart',   port='COM19', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='pi', password='default_password')
-    dut = WfxTestDut('iMX6_uart', port='COM26', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='root', password='')
+    #dut = WfxTestDut('iMX6_uart', port='COM26', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='root', password='')
     #dut = WfxTestDut('RTOS_uart', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1)
 
     # enable traces if needed
-    dut.link.trace = False
+    dut.link.trace = True
     dut.link.debug = False
     dut.trace = True
 
@@ -542,6 +542,7 @@ if __name__ == '__main__':
     dut.tx_rx_select(2, 2)
     dut.tx_power(11.25)
     dut.tx_start('continuous')
+    time.sleep(5)
     dut.tx_stop()
 
     # Rx test (endless)
@@ -569,3 +570,20 @@ if __name__ == '__main__':
     time.sleep(1)
     dut.run('wfx_test_agent log_message "tone_stop"')
     dut.tone_stop()
+
+    dut.fem_pa_table([[1080,  96], [925, 92], [818, 88], [752, 84], [682, 80], [624, 76], [570, 72], [518, 68], [478, 64], [438, 60], [377, 52], [328, 44], [289, 36], [259, 28], [234, 20], [216, 12]])
+    dut.fem_pa_used('yes')
+    dut.tx_start('continuous')
+    time.sleep(2)
+    print(dut.fem_read_pa_slice())
+    dut.fem_pa_table('open_loop')
+    dut.tx_start('continuous')
+    time.sleep(2)
+    print(dut.fem_read_pa_slice())
+    dut.fem_pa_table('closed_loop')
+    dut.tx_start('continuous')
+    time.sleep(2)
+    print(dut.fem_read_pa_slice())
+    dut.fem_pa_used('no')
+    dut.tx_start('continuous')
+    time.sleep(2)
