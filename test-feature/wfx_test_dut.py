@@ -161,8 +161,9 @@ class WfxTestDut(WfxTestTarget):
     def fem_read_digital_gain(self):
         return self.fem_read_tx_info(match='Tx gain digital:(.*)')
 
-    def fem_read_pa_gain(self):
-        return self.fem_read_tx_info(match='Tx gain PA:(.*)')
+    def fem_read_pa_slice(self):
+        pa_gain_info = int(self.fem_read_tx_info(match='Tx gain PA:(.*)'))
+        return str(pa_gain_info % 128)
 
     def fem_read_target_pout(self):
         return self.fem_read_tx_info(match='Target Pout:(.*) dBm')
