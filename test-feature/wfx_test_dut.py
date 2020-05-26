@@ -126,13 +126,20 @@ class WfxTestDut(WfxTestTarget):
             for i in range(length):
                 vdet_vs_pout.append((vdet_list[i], pout_list[i]))
             return vdet_vs_pout
-        length = len(vdet_vs_pout)
+        if vdet_vs_pout is 'open_loop':
+            return self.wfx_set_dict({"NB_OF_POINTS": 0}, send_data=1)
+        if vdet_vs_pout is 'closed_loop':
+            pout = self.wfx_get_list("POUT_VAL", mode='silent')
+            print(f"pout {pout}")
+            nb_points = len(self.wfx_get_list("POUT_VAL", mode='silent').split(','))
+            return self.wfx_set_dict({"NB_OF_POINTS": nb_points}, send_data=1)
+        nb_points = len(vdet_vs_pout)
         vdet_list = []
         pout_list = []
-        for t in vdet_vs_pout:
-            vdet_list.append(str(t[0]))
-            pout_list.append(str(t[1]))
-        nb_res   = self.wfx_set_dict({"NB_OF_POINTS": length}, send_data=0)
+        for point in vdet_vs_pout:
+            vdet_list.append(str(point[0]))
+            pout_list.append(str(point[1]))
+        nb_res   = self.wfx_set_dict({"NB_OF_POINTS": nb_points}, send_data=0)
         vdet_res = self.wfx_set_dict({"VDET_VAL": text_from_list(vdet_list)}, send_data=0)
         pout_res = self.wfx_set_dict({"POUT_VAL": text_from_list(pout_list)}, send_data=0)
         return vdet_res + "\n" + pout_res
