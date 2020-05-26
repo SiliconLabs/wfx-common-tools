@@ -175,12 +175,7 @@ class WfxTestDut(WfxTestTarget):
         return self.fem_read_tx_info(match='Vpdet:(.*) mV')
 
     def fem_read_measure_index(self):
-        re_match = re.compile('Measure index:(.*)')
-        match = re_match.match(self.fem_read_tx_info())
-        if match is not None:
-            return int(match.group(1))
-        else:
-            return 0
+        return self.fem_read_tx_info(match='Measure index:(.*)')
 
     def test_ind_period(self, period=None):
         if period is None:
