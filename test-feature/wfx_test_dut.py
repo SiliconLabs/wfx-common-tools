@@ -103,6 +103,11 @@ class WfxTestDut(WfxTestTarget):
             return self.wfx_get_list({"PA_USED"}, mode='quiet')
         return self.wfx_set_dict({"PA_USED": yes_no}, send_data=1)
 
+    def fem_pa_max_gain(self, gain_db=None):
+        if gain_db is None:
+            return self.wfx_get_list({"MAX_GAIN"}, mode='quiet')
+        return self.wfx_set_dict({"MAX_GAIN": int(gain_db*4)}, send_data=1)
+
     def fem_pa_table(self, vdet_vs_pout=None):
         def list_from_text(txt):
             (clean_text, length) = re.subn('[\[\]\s]', '', txt)
