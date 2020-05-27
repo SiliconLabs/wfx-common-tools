@@ -111,7 +111,7 @@ class WfxTestDut(WfxTestTarget):
     def fem_pa_table(self, vdet_vs_pout=None):
         def list_from_text(txt):
             (clean_text, length) = re.subn('[\[\]\s]', '', txt)
-            return clean_text.split(',')
+            return list(clean_text.split(','))
         def text_from_list(v_list):
             return "[" + ','.join(v_list) + "]"
         if vdet_vs_pout is 'text':
@@ -124,13 +124,12 @@ class WfxTestDut(WfxTestTarget):
             length = len(vdet_list)
             vdet_vs_pout = []
             for i in range(length):
-                vdet_vs_pout.append((vdet_list[i], pout_list[i]))
+                vdet_vs_pout.append([int(vdet_list[i]), int(pout_list[i])])
             return vdet_vs_pout
         if vdet_vs_pout is 'open_loop':
             return self.wfx_set_dict({"NB_OF_POINTS": 0}, send_data=1)
         if vdet_vs_pout is 'closed_loop':
             pout = self.wfx_get_list("POUT_VAL", mode='silent')
-            print(f"pout {pout}")
             nb_points = len(self.wfx_get_list("POUT_VAL", mode='silent').split(','))
             return self.wfx_set_dict({"NB_OF_POINTS": nb_points}, send_data=1)
         nb_points = len(vdet_vs_pout)
@@ -587,3 +586,5 @@ if __name__ == '__main__':
     dut.fem_pa_used('no')
     dut.tx_start('continuous')
     time.sleep(2)
+    print(dut.fem_pa_table('text'))
+    print(dut.fem_pa_table())
