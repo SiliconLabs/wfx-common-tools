@@ -16,6 +16,17 @@ class WfxTestDut(WfxTestTarget):
     set_color   = "\033[93m"
     reset_color = "\033[0;0m"
 
+    # Defining expressions to search for in Tx info and required transformations if needed
+    tx_info_dict = {
+        'digital_gain' : ['Tx gain digital:(.*)'],
+        'gain_info'    : ['Tx gain PA:(.*)'],
+        'pa_slice'     : ['gain_info', '%128'],
+        'target_pout'  : ['Target Pout:(.*) dBm'],
+        'fem_pout'     : ['FEM Pout:(.*) dBm'],
+        'vpdet'        : ['Vpdet:(.*) mV'],
+        'measure_index': ['Measure index:(.*)'],
+    }
+
     def __init__(self, nickname, **kwargs):
         critical_message = ''
         super().__init__(nickname, **kwargs)
@@ -144,37 +155,60 @@ class WfxTestDut(WfxTestTarget):
         return vdet_res + "\n" + pout_res
 
     def fem_read_tx_info(self, match=None):
-        res = self.run('wfx_test_agent read_tx_info').strip()
+        def read_tx_info_from_dict(name):
+            if len(self.tx_info_dict[name]) > 1:
+                match_name = self.tx_info_dict[name][0]
+                match = self.tx_info_dict[match_name][0]
+                transform = self.tx_info_dict[name][1]
+            else:
+                match = self.tx_info_dict[name][0]
+                transform = None
+            re_match = re.compile(match)
+            for line in agent_res.split('\n'):
+                matching = re_match.match(line)
+                if matching is not None:
+                    val = str(matching.group(1)).strip()
+                    if transform:
+                        val = eval(f"{float(val)}{transform}")
+                    return str(val)
+        agent_res = self.run('wfx_test_agent read_tx_info').strip()
         if match is None:
-            return res
+            return agent_res
+        if match in self.tx_info_dict.keys():
+            return read_tx_info_from_dict(match)
+        # Allow returning all values as <name> <value> pairs
+        if 'values' in [match]:
+            res_text = ''
+            for name in self.tx_info_dict.keys():
+                val = read_tx_info_from_dict(name)
+                res_text += f"{name} {val} "
+            return res_text
+        # generic look for a match in the tx info lines (should rarely be used)
         re_match = re.compile(match)
-        for line in res.split('\n'):
+        for line in agent_res.split('\n'):
             matching = re_match.match(line)
             if matching is not None:
-                if self.trace:
-                    print(f"matching {match}: {matching}")
-                    print(f"matching groups: {matching.groups()}")
                 return str(matching.group(1)).strip()
         return ''
 
     def fem_read_digital_gain(self):
-        return self.fem_read_tx_info(match='Tx gain digital:(.*)')
+        return self.fem_read_tx_info(match='digital_gain')
 
     def fem_read_pa_slice(self):
-        pa_gain_info = int(self.fem_read_tx_info(match='Tx gain PA:(.*)'))
-        return str(pa_gain_info % 128)
+        pa_gain_info = self.fem_read_tx_info(match='gain_info')
+        return str(float(pa_gain_info) % 128)
 
     def fem_read_target_pout(self):
-        return self.fem_read_tx_info(match='Target Pout:(.*) dBm')
+        return self.fem_read_tx_info(match='target_pout')
 
     def fem_read_fem_pout(self):
-        return self.fem_read_tx_info(match='FEM Pout:(.*) dBm')
+        return self.fem_read_tx_info(match='fem_pout')
 
     def fem_read_vpdet(self):
-        return self.fem_read_tx_info(match='Vpdet:(.*) mV')
+        return self.fem_read_tx_info(match='vpdet')
 
     def fem_read_measure_index(self):
-        return self.fem_read_tx_info(match='Measure index:(.*)')
+        return self.fem_read_tx_info(match='measure_index')
 
     def test_ind_period(self, period=None):
         if period is None:
