@@ -482,7 +482,7 @@ def networks():
     all_adapters = ifaddr.get_adapters()
     for adapter in all_adapters:
         for ip in adapter.ips:
-            if '::' not in str(ip.ip) and '169.' not in str(ip.ip):
+            if ':' not in str(ip.ip) and '169.' not in str(ip.ip):
                 ip_add = ip.ip + "/" + str(ip.network_prefix)
                 adapters += str.format("%-20s %s\n" % (ip_add, adapter.nice_name))
     return adapters
