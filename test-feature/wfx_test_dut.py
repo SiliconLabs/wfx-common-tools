@@ -128,7 +128,12 @@ class WfxTestDut(WfxTestTarget):
         if vdet_vs_pout is 'text':
             vdet_text = self.wfx_get_list({"VDET_VAL"}, mode='quiet')
             pout_text = self.wfx_get_list({"POUT_VAL"}, mode='quiet')
-            return vdet_text + "\n" + pout_text
+            points = int(self.wfx_get_list({'NB_OF_POINTS'}).split()[1])
+            if points == 0:
+                nb_text = f"{points} points: open_loop"
+            else:
+                nb_text = f"{points} points: closed_loop"
+            return vdet_text + "\n" + pout_text + "\n" + nb_text
         if vdet_vs_pout is None:
             vdet_list = list_from_text(self.wfx_get_list({"VDET_VAL"}, mode='quiet'))
             pout_list = list_from_text(self.wfx_get_list({"POUT_VAL"}, mode='quiet'))
