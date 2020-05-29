@@ -106,7 +106,7 @@ class WfxTestDut(WfxTestTarget):
     def fem_pa_max_gain(self, gain_db=None):
         if gain_db is None:
             return self.wfx_get_list({"MAX_GAIN"}, mode='quiet')
-        return self.wfx_set_dict({"MAX_GAIN": int(gain_db*4)}, send_data=1)
+        return self.wfx_set_dict({"MAX_GAIN": int(4 * float(gain_db))}, send_data=1)
 
     def fem_pa_table(self, vdet_vs_pout=None):
         def list_from_text(txt):
@@ -192,7 +192,7 @@ class WfxTestDut(WfxTestTarget):
             power = int(self.wfx_get_list({"MAX_OUTPUT_POWER"}, mode='quiet'))
             return "MAX_OUTPUT_POWER  " + str(power) + "  " + "     tone_power  " + str(power / 4.0) + " dBm"
         else:
-            return self.wfx_set_dict({"MAX_OUTPUT_POWER": int(4 * dbm)}, send_data=1)
+            return self.wfx_set_dict({"MAX_OUTPUT_POWER": int(4 * float(dbm))}, send_data=1)
 
     def tone_start(self, offset=None):
         if offset is None:
@@ -209,7 +209,7 @@ class WfxTestDut(WfxTestTarget):
             return "MAX_OUTPUT_POWER_QDBM" + "  " + str(power) + \
                    "     tx_power  " + str(power / 4.0) + " dBm"
         else:
-            return self.wfx_set_dict({"MAX_OUTPUT_POWER_QDBM": int(4 * dbm),
+            return self.wfx_set_dict({"MAX_OUTPUT_POWER_QDBM": int(4 * float(dbm)),
                                       "TEST_MODE": "tx_packet",
                                       "NB_FRAME": 0}, send_data=1)
 
@@ -258,7 +258,7 @@ class WfxTestDut(WfxTestTarget):
                 add_pds_warning(warning_msg)
                 return warning_msg
             value = [0, 0, 0, 0, 0, 0]
-            value[index] = int(4 * backoff_level)
+            value[index] = int(4 * float(backoff_level))
             self.wfx_set_dict({"BACKOFF_VAL": str(value), "TEST_MODE": "tx_packet", "NB_FRAME": 0}, send_data=1)
 
     def regulatory_mode(self, reg_mode=None):
