@@ -457,14 +457,14 @@ These are the functions which are primarily used by users to test the product.
 | `regulatory_mode(reg_mode)`        | applies TX power backoff for the selected region   |`reg_mode`:<br>'[All, FCC, ETSI, JAPAN, Unrestricted]'
 | `rx_logs(mode=None)`               | retrieve accumulated python content of Rx stats polling.<br><br>Full table if no 'mode', otherwise only the row matching the 'mode' (logs are available until next `tx_receive()` call) |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'
 | `rx_receive(mode, frames, sleep_ms, timeout)` | Clear Rx logs and polls Rx stats until it has received the required number of frames(default 1000).|`mode`:<br>'endless': run continuously<br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'<br>`frames`: Nb of frames to receive before stopping'<br>`sleep_ms`:[(750)]. Polling period. No need to poll too often, the FW updates the table only every second<br>`timeout_s`: max number of seconds to poll (useful if very few frames are received)
-| `rx_start()`                       | start Rx test in the DUT
-| `rx_stop()`                        | stop Rx test in the DUT and Python3 polling thread
-| `test_conditions()`                | returns DUT/Driver/FW/Tools/Agent versions and DUT connection info
-| `test_ind_period()`                | set the delay between indication messages in Tx and Rx_stats in Rx
+| `rx_start()`                       | start Rx test in the DUT                           |**none**
+| `rx_stop()`                        | stop Rx test in the DUT and Python3 polling thread |**none**
+| `test_conditions()`                | returns DUT/Driver/FW/Tools/Agent versions and DUT connection info |**none**
+| `test_ind_period()`                | set the delay between indication messages in Tx and Rx_stats in |`period`: period in ms before 2 status indications
 | `tone_freq(offset=None)`           | set CW tone offset                                 |`offset`: offset([-31,31], default 0) in 312.5 kHz steps
 | `tone_power(dBm)`                  | set tone power                                     |`dbm`: [TBD]  
 | `tone_start(offset=None)`          | start CW tone on current channel                   |`offset`: offset([-31,31], default 0) in 312.5 kHz steps
-| `tone_stop()`                      | stop CW tone
+| `tone_stop()`                      | stop CW tone                                       |**none**
 | `tx_backoff(mod, backoff_level)`   | set power backoff for one group of modulations. All other backoff 0. |`mode_802_11`:<br>  '[B, CCK, DSS]\_[1, 2, 5_5, 11]Mbps'<br>'[G, LEG]\_[6, 9, 12, 18, 24, 36, 48, 54]Mbps'<br>'[MM, GF]\_MCS[0-7]'<br><br>**Examples**: 'B_1Mbps', 'LEG_54Mbps', 'GF_MCS5'<br>`backoff_level`: [0:63.75] dB
 | `tx_framing(pkt_len, ifs_us)`      | control the frame size (in bytes) and IFS (InterFrame Spacing) |<br>`packet_length_bytes`:[25-4091] Frame size in bytes\(without CRC\)<br>`ifs_us`:[0-255] Interframe spacing in us
 | `tx_mode(mode)`                    | select between MM (mixed mode) & GF (Greenfield) and sets the rate|`mode_802_11`:<br>'[B, CCK, DSS]\_[1, 2, 5_5, 11]Mbps'<br>'[G, LEG]\_[6, 9, 12, 18, 24, 36, 48, 54]Mbps'<br>'[MM, GF]\_MCS[0-7]'<br>**Examples**: 'B_1Mbps', 'LEG_54Mbps', 'GF_MCS5'
