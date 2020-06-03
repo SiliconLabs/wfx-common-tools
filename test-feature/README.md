@@ -440,7 +440,7 @@ These are the functions which are primarily used by users to test the product.
 | `c_tune_xi_xo(xi, xo)`             | set XTAL capacitance (see UG404 for details)       |`xi`: [0-255]<br>`xo`: [0-255] XTAL capacitance
 | `c_tune_fix(fix)`                  | configure XTAL imbalance (see UG404 for details)   |`fix`: [0-3] XTAL imbalance configuration
 | `channel(ch)`                      | set the test channel                               |`ch`: [1-14]\(channel\) or [2300-2530] MHz
-| `fem_pa_max_gain(gain_db)`         | set the FEM Power Amplifier max gain               |`gain_db`: [0-256]. Max FEM Power Amplifier Gain in dB
+| `fem_pa_max_gain(gain_db)`         | set FEM Power Amplifier max gain in closed loop<br>set FEM Power Amplifier typical gain in open loop |`gain_db`: [0-256]. Max FEM Power Amplifier Gain in dB
 | `fem_pa_table(vdet_vs_pout)`       | set or check the FEM PA table                      |`vdet_vs_pout`:<br>'[[\<vdet\>, \<pout\>], ...]': Up to 16 [vdet, pout] pairs<br><br>'open_loop': start open loop mode<br>'closed_loop' start closed loop mode<br>'text': returns series of vdet and pout values, number of points and indicates the current loop mode
 | `fem_pa_used(yes_no)`              | activates/de-activates the FEM Power Amplifier     |`yes_no`: ['yes', 'no']<br>**none**: check the current FEM Amplifier state
 | `fem_read_digital_gain()`          | Returns digital gain info                          |**none**
