@@ -881,12 +881,78 @@ SSH pi@10.5.124.186:22 agent_reply: 1.0.0
 
 ## FEM table controls
 
+Any modification of FEM test conditions shall begin with dut.tx_stop() and end with dut.tx_start('continuous') as shown in the following open loop and closed loop tests of a (26dB typ/28dB max) FEM achieving 23dBm output power in DSSS 1Mbps
+
+### FEM open loop sequence
 ```python
->>> dut.fem_pa_table([[1080,  96], [925, 92], [818, 88], [752, 84], [682, 80], [624, 76], [570, 72], [518, 68], [478, 64], [438, 60], [377, 52], [328, 44], [289, 36], [259, 28], [234, 20], [216, 12]])
+>>> dut.tx_stop()
+'TEST_MODE  tx_packet     NB_FRAME  100'
+>>> dut.tx_mode('DSSS_1')
+'HT_PARAM  MM     RATE  B_1Mbps'
 >>> dut.fem_pa_used('yes')
+'PA_USED  yes'
 >>> dut.fem_pa_table('open_loop')
->>> dut.fem_pa_table('closed_loop')
+'NB_OF_POINTS  0'
+>>> dut.fem_pa_max_gain(26)
+'MAX_GAIN  104'
+
+>>> dut.tx_power(24)
+'MAX_OUTPUT_POWER_QDBM  96     TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.tx_start('continuous')
+'TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.fem_read_vpdet()
+'1080'
+
+>>> dut.tx_stop()
+'TEST_MODE  tx_packet     NB_FRAME  100'
+>>> dut.tx_power(23)
+'MAX_OUTPUT_POWER_QDBM  92     TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.tx_start('continuous')
+'TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.fem_read_vpdet()
+'925'
+
 ```
+
+> Note that value of dut.fem_pa_max_gain() should be adjusted (1/4 dB resolution) to ensure that dut.tx_power(value in dBm) expected is indeed measured by Wi-Fi tester at DUT RF output. 
+
+Once table of interpolation points has been measured in open loop, FEM can be controlled in closed loop:
+
+### FEM closed loop sequence
+```python
+>>> dut.tx_stop()
+'TEST_MODE  tx_packet     NB_FRAME  100'
+>>> dut.fem_pa_used('yes')
+'PA_USED  yes'
+>>> dut.fem_pa_table([[1080, 96], [925, 92], [818, 88], [752, 84], [682, 80], [624, 76], [570, 72], [518, 68], [478, 64], [438, 60], [377, 52], [328, 44], [289, 36], [259, 28], [234, 20], [216, 12]])
+'VDET_VAL  [1080,925,818,752,682,624,570,518,478,438,377,328,289,259,234,216]\nPOUT_VAL  [96,92,88,84,80,76,72,68,64,60,52,44,36,28,20,12]'
+>>> dut.fem_pa_table('closed_loop')
+'NB_OF_POINTS  16'
+>>> dut.fem_pa_max_gain(28)
+'MAX_GAIN  112'
+
+>>> dut.tx_power(24)
+'MAX_OUTPUT_POWER_QDBM  96     TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.tx_start('continuous')
+'TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.fem_read_vpdet()
+'1094'
+>>> dut.fem_read_fem_pout()
+'24.00'
+
+>>> dut.tx_stop()
+'TEST_MODE  tx_packet     NB_FRAME  100'
+>>> dut.tx_power(23)
+'MAX_OUTPUT_POWER_QDBM  92     TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.tx_start('continuous')
+'TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.fem_read_vpdet()
+'932'
+>>> dut.fem_read_fem_pout()
+'23.00'
+
+```
+
 
 ## [RF Test Hierarchy](#hierarchy)
 
