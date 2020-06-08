@@ -85,12 +85,12 @@ class WfxPtaData(object):
 
     priority_parameters = [
         #  Parameter, type, bytes,  choices, default, help
-        ('priority_mode'      , str, 4, {'coex_maximized': 0x00000562, 'coex_high':0x00000462, 'balanced':0x00001461, 'wlan_high':0x00001851, 'wlan_maximized': 0x00001A51}, None, """
-            coex_maximized = 0x00000562 : Maximizes priority to COEX, WLAN connection is not ensured.  
+        ('priority_mode'      , str, 4, {'coex_maximized': 0x00000562, 'coex_high':0x00000462, 'balanced':0x00000061, 'wlan_high':0x00001851, 'wlan_maximized': 0x00001A51}, None, """
+            coex_maximized = 0x00000562 : Maximizes priority to COEX.  
             coex_high      = 0x00000462 : High priority to COEX, targets low-latency to COEX. 
-            balanced       = 0x00001461 : Balanced PTA arbitration, WLAN acknowledge receptions are protected. 
+            balanced       = 0x00000061 : Balanced PTA arbitration. 
             wlan_high      = 0x00001851 : High priority to WLAN, protects WLAN transmissions. 
-            wlan_maximized = 0x00001A51 : Maximizes priority to WLAN"""),
+            wlan_maximized = 0x00001A51 : Maximizes priority to WLAN."""),
         ('coex_prio_low'      , int, 0.3, None, 0, """Priority given to Coex for low-priority requests"""),
         ('reserved1'          , int, 0.1, None, 0, """Reserved for future use"""),
         ('coex_prio_high'     , int, 0.3, None, 0, """Priority given to Coex for high-priority requests"""),
@@ -205,7 +205,7 @@ class WfxPtaData(object):
           python wfx_pta_data.py settings --config 3w_example --grant_valid_time 40 --priority_sampling_time 8
             \\x18\\x00\\x2b\\x00\\x03\\x01\\x01\\x00\\x00\\x00\\x01\\x00\\x08\\x00\\x00\\x28\\x8c\\x00\\x00\\x00\\x00\\x00\\x00\\x00
           python wfx_pta_data.py priority --priority_mode balanced
-            \x04\x00\x2c\x00\x61\x14\x00\x00
+            \x04\x00\x2c\x00\x61\x00\x00\x00
           python wfx_pta_data.py priority --coex_prio_low 1 --coex_prio_high 5 --grant_wlan 1 --protect_wlan_tx 1 --protect_wlan_rx 1
             \x04\x00\x2c\x00\x51\x1a\x00\x00
           python wfx_pta_data.py state --state on
@@ -335,16 +335,16 @@ class WfxPtaData(object):
             self.g_settings.protect_wlan_tx = 0
             self.g_settings.protect_wlan_rx = 0
 
-       #'priority_mode'  'balanced':0x00001461
+       #'priority_mode'  'balanced':0x00000061
         if priority_mode == 'balanced':
             self.print_if_verbose('configuring for %s' % priority_mode)
             self.g_settings.coex_prio_low  = 1
             self.g_settings.coex_prio_high = 6
             self.g_settings.grant_coex = 0
             self.g_settings.grant_wlan = 0
-            self.g_settings.protect_coex = 1
+            self.g_settings.protect_coex = 0
             self.g_settings.protect_wlan_tx = 0
-            self.g_settings.protect_wlan_rx = 1
+            self.g_settings.protect_wlan_rx = 0
 
        #'priority_mode'  'wlan_high':0x00001851
         if priority_mode == 'wlan_high':
