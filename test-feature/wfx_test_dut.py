@@ -16,6 +16,17 @@ class WfxTestDut(WfxTestTarget):
     set_color   = "\033[93m"
     reset_color = "\033[0;0m"
 
+    # Defining expressions to search for in Tx info and required transformations if needed
+    tx_info_dict = {
+        'digital_gain' : ['Tx gain digital:(.*)'],
+        'gain_info'    : ['Tx gain PA:(.*)'],
+        'pa_slice'     : ['gain_info', '%128'],
+        'target_pout'  : ['Target Pout:(.*) dBm'],
+        'fem_pout'     : ['FEM Pout:(.*) dBm'],
+        'vpdet'        : ['Vpdet:(.*) mV'],
+        'measure_index': ['Measure index:(.*)'],
+    }
+
     def __init__(self, nickname, **kwargs):
         critical_message = ''
         super().__init__(nickname, **kwargs)
@@ -98,6 +109,112 @@ class WfxTestDut(WfxTestTarget):
         else:
             return self.wfx_set_dict({"CTUNE_FIX": str(fix)})
 
+    def fem_pa_used(self, yes_no=None):
+        if yes_no is None:
+            return self.wfx_get_list({"PA_USED"}, mode='quiet')
+        return self.wfx_set_dict({"PA_USED": yes_no}, send_data=1)
+
+    def fem_pa_max_gain(self, gain_db=None):
+        if gain_db is None:
+            return self.wfx_get_list({"MAX_GAIN"}, mode='quiet')
+        return self.wfx_set_dict({"MAX_GAIN": int(4 * float(gain_db))}, send_data=1)
+
+    def fem_pa_table(self, vdet_vs_pout=None):
+        def list_from_text(txt):
+            (clean_text, length) = re.subn('[\[\]\s]', '', txt)
+            return list(clean_text.split(','))
+        def text_from_list(v_list):
+            return "[" + ','.join(v_list) + "]"
+        if vdet_vs_pout is 'text':
+            vdet_text = self.wfx_get_list({"VDET_VAL"}, mode='quiet')
+            pout_text = self.wfx_get_list({"POUT_VAL"}, mode='quiet')
+            points = int(self.wfx_get_list({'NB_OF_POINTS'}).split()[1])
+            if points == 0:
+                nb_text = f"{points} points: open_loop"
+            else:
+                nb_text = f"{points} points: closed_loop"
+            return vdet_text + "\n" + pout_text + "\n" + nb_text
+        if vdet_vs_pout is None:
+            vdet_list = list_from_text(self.wfx_get_list({"VDET_VAL"}, mode='quiet'))
+            pout_list = list_from_text(self.wfx_get_list({"POUT_VAL"}, mode='quiet'))
+            length = len(vdet_list)
+            vdet_vs_pout = []
+            for i in range(length):
+                vdet_vs_pout.append([int(vdet_list[i]), int(pout_list[i])])
+            return vdet_vs_pout
+        if vdet_vs_pout is 'open_loop':
+            return self.wfx_set_dict({"NB_OF_POINTS": 0}, send_data=1)
+        if vdet_vs_pout is 'closed_loop':
+            pout = self.wfx_get_list("POUT_VAL", mode='silent')
+            nb_points = len(self.wfx_get_list("POUT_VAL", mode='silent').split(','))
+            return self.wfx_set_dict({"NB_OF_POINTS": nb_points}, send_data=1)
+        nb_points = len(vdet_vs_pout)
+        vdet_list = []
+        pout_list = []
+        for point in vdet_vs_pout:
+            vdet_list.append(str(point[0]))
+            pout_list.append(str(point[1]))
+        nb_res   = self.wfx_set_dict({"NB_OF_POINTS": nb_points}, send_data=0)
+        vdet_res = self.wfx_set_dict({"VDET_VAL": text_from_list(vdet_list)}, send_data=0)
+        pout_res = self.wfx_set_dict({"POUT_VAL": text_from_list(pout_list)}, send_data=0)
+        return vdet_res + "\n" + pout_res
+
+    def fem_read_tx_info(self, match=None):
+        def read_tx_info_from_dict(name):
+            if len(self.tx_info_dict[name]) > 1:
+                match_name = self.tx_info_dict[name][0]
+                match = self.tx_info_dict[match_name][0]
+                transform = self.tx_info_dict[name][1]
+            else:
+                match = self.tx_info_dict[name][0]
+                transform = None
+            re_match = re.compile(match)
+            for line in agent_res.split('\n'):
+                matching = re_match.match(line)
+                if matching is not None:
+                    val = str(matching.group(1)).strip()
+                    if transform:
+                        val = eval(f"{float(val)}{transform}")
+                    return str(val)
+        agent_res = self.run('wfx_test_agent read_tx_info').strip()
+        if match is None:
+            return agent_res
+        if match in self.tx_info_dict.keys():
+            return read_tx_info_from_dict(match)
+        # Allow returning all values as <name> <value> pairs
+        if 'values' in [match]:
+            res_text = ''
+            for name in self.tx_info_dict.keys():
+                val = read_tx_info_from_dict(name)
+                res_text += f"{name} {val} "
+            return res_text
+        # generic look for a match in the tx info lines (should rarely be used)
+        re_match = re.compile(match)
+        for line in agent_res.split('\n'):
+            matching = re_match.match(line)
+            if matching is not None:
+                return str(matching.group(1)).strip()
+        return ''
+
+    def fem_read_digital_gain(self):
+        return self.fem_read_tx_info(match='digital_gain')
+
+    def fem_read_pa_slice(self):
+        pa_gain_info = self.fem_read_tx_info(match='gain_info')
+        return str(float(pa_gain_info) % 128)
+
+    def fem_read_target_pout(self):
+        return self.fem_read_tx_info(match='target_pout')
+
+    def fem_read_fem_pout(self):
+        return self.fem_read_tx_info(match='fem_pout')
+
+    def fem_read_vpdet(self):
+        return self.fem_read_tx_info(match='vpdet')
+
+    def fem_read_measure_index(self):
+        return self.fem_read_tx_info(match='measure_index')
+
     def test_ind_period(self, period=None):
         if period is None:
             return self.wfx_get_list({'TEST_IND'})
@@ -114,7 +231,7 @@ class WfxTestDut(WfxTestTarget):
             power = int(self.wfx_get_list({"MAX_OUTPUT_POWER"}, mode='quiet'))
             return "MAX_OUTPUT_POWER  " + str(power) + "  " + "     tone_power  " + str(power / 4.0) + " dBm"
         else:
-            return self.wfx_set_dict({"MAX_OUTPUT_POWER": int(4 * dbm)}, send_data=1)
+            return self.wfx_set_dict({"MAX_OUTPUT_POWER": int(4 * float(dbm))}, send_data=1)
 
     def tone_start(self, offset=None):
         if offset is None:
@@ -131,7 +248,7 @@ class WfxTestDut(WfxTestTarget):
             return "MAX_OUTPUT_POWER_QDBM" + "  " + str(power) + \
                    "     tx_power  " + str(power / 4.0) + " dBm"
         else:
-            return self.wfx_set_dict({"MAX_OUTPUT_POWER_QDBM": int(4 * dbm),
+            return self.wfx_set_dict({"MAX_OUTPUT_POWER_QDBM": int(4 * float(dbm)),
                                       "TEST_MODE": "tx_packet",
                                       "NB_FRAME": 0}, send_data=1)
 
@@ -180,7 +297,7 @@ class WfxTestDut(WfxTestTarget):
                 add_pds_warning(warning_msg)
                 return warning_msg
             value = [0, 0, 0, 0, 0, 0]
-            value[index] = int(4 * backoff_level)
+            value[index] = int(4 * float(backoff_level))
             self.wfx_set_dict({"BACKOFF_VAL": str(value), "TEST_MODE": "tx_packet", "NB_FRAME": 0}, send_data=1)
 
     def regulatory_mode(self, reg_mode=None):
@@ -430,14 +547,14 @@ if __name__ == '__main__':
 
     #print(uarts())
     # Select one of the following lines to connect
-    #dut = WfxTestDut('Local')
+    dut = WfxTestDut('Local')
     #dut = WfxTestDut('Pi_ssh', host='10.5.124.186', user='pi', port=22, password='default_password')
     #dut = WfxTestDut('Pi_uart',   port='COM19', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='pi', password='default_password')
-    dut = WfxTestDut('iMX6_uart', port='COM26', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='root', password='')
+    #dut = WfxTestDut('iMX6_uart', port='COM26', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='root', password='')
     #dut = WfxTestDut('RTOS_uart', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1)
 
     # enable traces if needed
-    dut.link.trace = False
+    dut.link.trace = True
     dut.link.debug = False
     dut.trace = True
 
@@ -463,6 +580,7 @@ if __name__ == '__main__':
     dut.tx_rx_select(2, 2)
     dut.tx_power(11.25)
     dut.tx_start('continuous')
+    time.sleep(5)
     dut.tx_stop()
 
     # Rx test (endless)
@@ -490,3 +608,22 @@ if __name__ == '__main__':
     time.sleep(1)
     dut.run('wfx_test_agent log_message "tone_stop"')
     dut.tone_stop()
+
+    dut.fem_pa_table([[1080,  96], [925, 92], [818, 88], [752, 84], [682, 80], [624, 76], [570, 72], [518, 68], [478, 64], [438, 60], [377, 52], [328, 44], [289, 36], [259, 28], [234, 20], [216, 12]])
+    dut.fem_pa_used('yes')
+    dut.tx_start('continuous')
+    time.sleep(2)
+    print(dut.fem_read_pa_slice())
+    dut.fem_pa_table('open_loop')
+    dut.tx_start('continuous')
+    time.sleep(2)
+    print(dut.fem_read_pa_slice())
+    dut.fem_pa_table('closed_loop')
+    dut.tx_start('continuous')
+    time.sleep(2)
+    print(dut.fem_read_pa_slice())
+    dut.fem_pa_used('no')
+    dut.tx_start('continuous')
+    time.sleep(2)
+    print(dut.fem_pa_table('text'))
+    print(dut.fem_pa_table())

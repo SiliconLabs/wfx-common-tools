@@ -14,6 +14,7 @@ The RF test architecture is now a Test Server/DUT configuration
   * `read_agent_version` (optional, used for logging test conditions)
   * `read_driver_version` (optional, used for logging test conditions)
   * `read_fw_version` (optional, used for logging test conditions)
+  * `read_tx_info` (optional, used with a FEM)
 
 ## Prerequisites
 
@@ -85,7 +86,7 @@ Some DUT wfx_test_agent features are mandatory for RF Testing:
 * `read_rx_stats` (required only for Rx testing)
   * Return the payload of a HI_GENERIC_INDICATION_ID_RX_STATS indication message formatted as follows (abstract):
 
-```text
+```text**
 Timestamp: 43158786us
 Low power clock: frequency 32759Hz, external yes
 Num. of frames: 73, PER (x10e4): 1780, Throughput: 63Kbps/s
@@ -105,6 +106,18 @@ Others are only useful to log test conditions:
 * `read_agent_version` (returns '1.0.0' at the time of writing)
 * `read_driver_version` (returns '2.0.3' at the time of writing)
 * `read_fw_version` (returns '2.2.1' at the time of writing)
+
+Others are use with a FEM:
+* `read_tx_info`
+
+```text
+Tx gain digital: 0
+Tx gain PA: 0
+Target Pout: 0.00 dBm
+FEM Pout: 0.00 dBm
+Vpdet: 0 mV
+Measure index: 0
+```
 
 ## DUT with SSH connection
 
@@ -419,65 +432,46 @@ These are the functions which are primarily used by users to test the product.
 
 * **wfx_test_target.py** to handle the test data and communicate with the DUT
 
-### class WfXTestDut(WfxTestTarget)
+### WfXTestDut API functions
 
-* `channel(ch)`                      : set the test channel
-* `read_rx_stats()`                  : call `run('wfx_test_agent read_rx_start')` to retrieve the Rx stats
-* `regulatory_mode(reg_mode)`        : applies TX power backoff for the selected region
-* `rx_logs(mode=None)`               : retrieve accumulated python content of Rx stats polling. Full table if no 'mode',
- otherwise only the row matching the 'mode' (logs are available until next `tx_receive()` call)
-* `rx_receive(mode, frames, sleep_ms, timeout)` : Clear Rx logs and polls Rx stats until it has received
- the required number of frames(default 1000). When mode == `endless`, run continuously
-* `rx_start()`                       : start Rx test in the DUT
-* `rx_stop()`                        : stop Rx test in the DUT and Python3 polling thread
-* `read_agent_version()`             : returns Agent version
-* `read_driver_version()`            : returns driver version
-* `read_fw_version()`                : returns FW version
-* `test_conditions()`                : returns DUT/Driver/FW/Tools/Agent versions and DUT connection info
-* `test_ind_period()`                : set the delay between indication messages in Tx and Rx_stats in Rx
-* `tone_freq(offset=None)`           : set CW tone offset at 312.5kHz*offset([-31,31], default 0)
-* `tone_power(dBm)`                  : set tone power
-* `tone_start(offset=None)`          : start CW tone on current channel, offset by 312.5kHz*offset([-31,31], default 0)
-* `tone_stop()`                      : stop CW tone
-* `tx_backoff(mod, backoff_level)`   : set power backoff for one group of modulations. All other backoff 0.
-* `tx_framing(pkt_len, ifs_us)`      : control the frame size (in bytes) and IFS (InterFrame Spacing)
-* `tx_mode(mode)`                    : select between MM (mixed mode) & GF (Greenfield) and sets the rate
-* `tx_power(dBm)`                    : set the maximum output power
-* `tx_rx_select(tx_ant, rx_ant)`     : select the Tx/Rx antennas
-* `tx_start(nb_frames)`              : start sending a selected number of frames. With 0 or 'continuous' = continuous
-* `tx_stop()`                        : send a burst of 100 frames to complete a previous continuous transmission
-* `rx_start()`                       : start receiving frames (all modulations)
-* `rx_stop()`                        : call tx_stop() to stop receiving
-* `c_tune_xi_xo(xi, xo)`             : set XTAL capacitance (see UG404 for details)
-* `c_tune_fix(fix)`                  : configure XTAL imbalance (see UG404 for details)
-
-## [wfx_test_dut API](#API)
-
-### wfx_test_dut parameters vs Test parameters
-
-| function          | function parameters                                                          | Test parameters                          |
-|-------------------|------------------------------------------------------------------------------|------------------------------------------|
-| `channel`         |`ch`: [1-14]\(channel\) or [2300-2530] MHz                                    |`TEST_CHANNEL_FREQ`                       |
-| `tone_freq`       |`offset`: offset in 312.5 kHz steps                                           |`FREQ1`                                   |
-| `tone_power`      |`dbm`: [TBD]                                                                  |`MAX_OUTPUT_POWER`                        |
-| `tone_start`      |`offset`: offset in 312.5 kHz steps                                           |`TEST_MODE`<br>`NB_FRAME`<br>`FREQ1`      |
-| `tone_stop`       |**none**                                                                      |`TEST_MODE`<br>`NB_FRAME`                 |
-| `tx_backoff`      |`mode_802_11`:<br>'[B, CCK, DSS]\_[1, 2, 5_5, 11]Mbps'<br>'[G, LEG]\_[6, 9, 12, 18, 24, 36, 48, 54]Mbps'<br>'[MM, GF]\_MCS[0-7]'<br>**Examples**: 'B_1Mbps', 'LEG_54Mbps', 'GF_MCS5'<br>`backoff_level`: [0:63.75] dB|`BACKOFF_VAL`|
-| `tx_framing`      |`packet_length_bytes`:[25-4091] Frame size in bytes\(without CRC\)<br>`ifs_us`:[0-255] Interframe spacing in us|`FRAME_SIZE_BYTE`<br>`IFS_US` |
-| `tx_mode`         |`mode_802_11`:<br>'[B, CCK, DSS]\_[1, 2, 5_5, 11]Mbps'<br>'[G, LEG]\_[6, 9, 12, 18, 24, 36, 48, 54]Mbps'<br>'[MM, GF]\_MCS[0-7]'<br>**Examples**: 'B_1Mbps', 'LEG_54Mbps', 'GF_MCS5'|`HT_PARAM`<br>`RATE`|
-| `tx_power`        |`dbm`: [TBD]                                                                  |`MAX_OUTPUT_POWER_QDBM`                   |
-| `tx_rx_select`    |`tx_ant`: [1-2] Tx antenna<br>`rx_ant`: [1-2] Rx antenna                      |`RF_PORTS`                                |
-| `tx_start`        |`nb_frames`: [0-65535] or 'continuous'. Nb of frames to send before stopping. |`NB_FRAME`                                |
-| `tx_stop`         |**none**                                                                      |`NB_FRAME`                                |
-| `regulatory_mode` |`reg_mode`:<br>'[All, FCC, ETSI, JAPAN, Unrestricted]'                        | `REG_MODE`                               |
-| `add_tmp_param`   |`version`: min FW, `path`: position in tree, `key`: name, `default`:value     | `key` (as entered)                       |
-| `test_ind_period` |`period`:[0-TBD/65535?] delay in ms between messages                          |`TEST_IND`                                |
-| `rx_start`        |**none**                                                                      |`TEST_MODE`                               |
-| `rx_stop`         |**none**                                                                      |`NB_FRAME`                                |
-| `rx_receive`      |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'<br>`frames`: Nb of frames to receive before stopping'<br>`sleep_ms`:[(750)]. Polling period. No need to poll too often, the FW updates the table only every second<br>`timeout_s`: max number of seconds to poll (useful if very few frames are received) |**none**|
-| `rx_logs`         |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'|**none**           |
-| `c_tune_xi_xo`    |`xi`: [0-255] `xo`: [0-255] XTAL capacitance                                  | `C_TUNE_XI` `C_TUNE_XO`                  |
-| `c_tune_fix`      |`fix`: [0-3] XTAL imbalance configuration                                     | `C_TUNE_FIX`                             |
+| function                           | usage                                              | function parameters      
+|------------------------------------|----------------------------------------------------|--------------------------
+| `add_tmp_param`                    | adds a temporary parameter to the tree (for debug purposes) |`version`: min FW<br>`path`: position in tree<br>`key`: name<br>`default`:value|
+| `c_tune_xi_xo(xi, xo)`             | set XTAL capacitance (see UG404 for details)       |`xi`: [0-255]<br>`xo`: [0-255] XTAL capacitance
+| `c_tune_fix(fix)`                  | configure XTAL imbalance (see UG404 for details)   |`fix`: [0-3] XTAL imbalance configuration
+| `channel(ch)`                      | set the test channel                               |`ch`: [1-14]\(channel\) or [2300-2530] MHz
+| `fem_pa_max_gain(gain_db)`         | set FEM Power Amplifier max gain in closed loop<br>set FEM Power Amplifier typical gain in open loop |`gain_db`: [0-256]. Max FEM Power Amplifier Gain in dB
+| `fem_pa_table(vdet_vs_pout)`       | set or check the FEM PA table                      |`vdet_vs_pout`:<br>'[[\<vdet\>, \<pout\>], ...]': Up to 16 [vdet, pout] pairs<br><br>'open_loop': start open loop mode<br>'closed_loop' start closed loop mode<br>'text': returns series of vdet and pout values, number of points and indicates the current loop mode
+| `fem_pa_used(yes_no)`              | activates/de-activates the FEM Power Amplifier     |`yes_no`: ['yes', 'no']<br>**none**: check the current FEM Amplifier state
+| `fem_read_digital_gain()`          | Returns WFx digital gain info                      |**none**
+| `fem_read_fem_pout()`              | Returns FEM output power estimated by firmware using FEM PA table and Vpdet measured, in dBm                    |**none**
+| `fem_read_measure_index()`         | Returns 8 bit counter of Vpdet measurements, refreshed every second|**none**
+| `fem_read_pa_slice()`              | Returns WFx PA slice                               |**none**
+| `fem_read_target_pout()`           | Returns requested target output power, in dBm      |**none**
+| `fem_read_tx_info(match)`          | Returns FEM tx info<br>* WFx digital gain info and PA slice<br>* FEM target output power<br>* voltage measured at WFx VPDET pin<br>* output power estimated by firmware<br>* 8 bit counter of Vpdet measurements refreshed every second|if no parameter, returns the entire text as formatted by the driver<br><br>if `match` is provided, filter on `match`. If match is 'values', return a series of name/value pairs
+| `fem_read_vpdet()`                 | Returns voltage measured on VPDET in mV            |**none**
+| `read_agent_version()`             | returns Agent version                              |**none**
+| `read_driver_version()`            | returns driver version                             |**none**
+| `read_fw_version()`                | returns FW version                                 |**none**
+| `read_rx_stats()`                  | call `run('wfx_test_agent read_rx_start')` to retrieve the Rx stats |**none**
+| `regulatory_mode(reg_mode)`        | applies TX power backoff for the selected region   |`reg_mode`:<br>'[All, FCC, ETSI, JAPAN, Unrestricted]'
+| `rx_logs(mode=None)`               | retrieve accumulated python content of Rx stats polling.<br><br>Full table if no 'mode', otherwise only the row matching the 'mode' (logs are available until next `tx_receive()` call) |`mode`: <br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'
+| `rx_receive(mode, frames, sleep_ms, timeout)` | Clear Rx logs and polls Rx stats until it has received the required number of frames(default 1000).|`mode`:<br>'endless': run continuously<br>'global'(default if '')<br>'[1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54]M'<br>'MCS[0-7]'<br>`frames`: Nb of frames to receive before stopping'<br>`sleep_ms`:[(750)]. Polling period. No need to poll too often, the FW updates the table only every second<br>`timeout_s`: max number of seconds to poll (useful if very few frames are received)
+| `rx_start()`                       | start Rx test in the DUT                           |**none**
+| `rx_stop()`                        | stop Rx test in the DUT and Python3 polling thread |**none**
+| `test_conditions()`                | returns DUT/Driver/FW/Tools/Agent versions and DUT connection info |**none**
+| `test_ind_period()`                | set the delay between indication messages in Tx and Rx_stats in |`period`: period in ms before 2 status indications
+| `tone_freq(offset=None)`           | set CW tone offset                                 |`offset`: offset([-31,31], default 0) in 312.5 kHz steps
+| `tone_power(dBm)`                  | set tone power                                     |`dbm`: [TBD]  
+| `tone_start(offset=None)`          | start CW tone on current channel                   |`offset`: offset([-31,31], default 0) in 312.5 kHz steps
+| `tone_stop()`                      | stop CW tone                                       |**none**
+| `tx_backoff(mod, backoff_level)`   | set power backoff for one group of modulations. All other backoff 0. |`mode_802_11`:<br>  '[B, CCK, DSS]\_[1, 2, 5_5, 11]Mbps'<br>'[G, LEG]\_[6, 9, 12, 18, 24, 36, 48, 54]Mbps'<br>'[MM, GF]\_MCS[0-7]'<br><br>**Examples**: 'B_1Mbps', 'LEG_54Mbps', 'GF_MCS5'<br>`backoff_level`: [0:63.75] dB
+| `tx_framing(pkt_len, ifs_us)`      | control the frame size (in bytes) and IFS (InterFrame Spacing) |<br>`packet_length_bytes`:[25-4091] Frame size in bytes\(without CRC\)<br>`ifs_us`:[0-255] Interframe spacing in us
+| `tx_mode(mode)`                    | select between MM (mixed mode) & GF (Greenfield) and sets the rate|`mode_802_11`:<br>'[B, CCK, DSS]\_[1, 2, 5_5, 11]Mbps'<br>'[G, LEG]\_[6, 9, 12, 18, 24, 36, 48, 54]Mbps'<br>'[MM, GF]\_MCS[0-7]'<br>**Examples**: 'B_1Mbps', 'LEG_54Mbps', 'GF_MCS5'
+| `tx_power(dBm)`                    | set the maximum output power                       |`dbm`: [TBD]
+| `tx_rx_select(tx_ant, rx_ant)`     | select the Tx/Rx antennas                          |`tx_ant`: [1-2] Tx antenna<br>`rx_ant`: [1-2] Rx antenna
+| `tx_start(nb_frames)`              | start sending a selected number of frames          |`nb_frames`: [0-65535] or 'continuous'. Nb of frames to send before stopping. 0 = 'continuous'
+| `tx_stop()`                        | send a burst of 100 frames to complete a previous continuous transmission|**none**
 
 ## Printing the current test tree content
 
@@ -583,16 +577,16 @@ These can be disabled using `dut.link.trace = False`. They are useful to check/d
 
 ```python
 Local: fw_version retrieved from HW (2.2.1)
-  Info: 'RSSI_CORRECTION' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
+  Info: 'FRONT_END_LOSS_RX_QDB' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
 ```
 
 *The above information tells us that the current FW is 2.2.1. 
-In wfx_pds{} the VERSION value for 'RSSI_CORRECTION' is 2.2.2.
-This means that the current FW doesn't support 'RSSI_CORRECTION', so it's not added to the test_data we will use here, to avoid FW exceptions*
+In wfx_pds{} the VERSION value for 'FRONT_END_LOSS_RX_QDB' is 2.2.2.
+This means that the current FW doesn't support 'FRONT_END_LOSS_RX_QDB', so it's not added to the test_data we will use here, to avoid FW exceptions*
 
 ```python
 fill_tree has messages:
-  Info: 'RSSI_CORRECTION' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
+  Info: 'FRONT_END_LOSS_RX_QDB' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
 ```
 
 *After filling the test_data tree, the code checks for any test data processing message (using `check_pds_warning()`),
@@ -859,10 +853,10 @@ INFO:root:SSH           I'm connected to 10.5.124.186:22 as root
 SSH      S>>|  wfx_test_agent read_fw_version
 <<S      SSH|  2.2.1
 SSH: fw_version retrieved from HW (2.2.1)
-  Info: 'RSSI_CORRECTION' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
+  Info: 'FRONT_END_LOSS_RX_QDB' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
 
 fill_tree has messages:
-  Info: 'RSSI_CORRECTION' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
+  Info: 'FRONT_END_LOSS_RX_QDB' cannot be supported with FW2.2.1, it has been added in FW2.2.2 (skipped)
 
 SSH: tree filled for FW2.2.1
 SSH      S>>|  wfx_test_agent read_agent_version
@@ -884,6 +878,81 @@ SSH pi@10.5.124.186:22 agent_reply: 1.0.0
 
 *We can access the uart DUT using `uart_dut.<>` and the SSH DUT using `ssh_dut.<>`. Many DUTs can be part of our test. 
  If we rely on scripts using `dut.<>`, we can use `dut = uart_dut` or `dut = ssh_dut` to switch between DUTs*
+
+## FEM table controls
+
+Any modification of FEM test conditions shall begin with dut.tx_stop() and end with dut.tx_start('continuous') as shown in the following open loop and closed loop tests of a (26dB typ/28dB max) FEM achieving 23dBm output power in DSSS 1Mbps
+
+### FEM open loop sequence
+```python
+>>> dut.tx_stop()
+'TEST_MODE  tx_packet     NB_FRAME  100'
+>>> dut.tx_mode('DSSS_1')
+'HT_PARAM  MM     RATE  B_1Mbps'
+>>> dut.fem_pa_used('yes')
+'PA_USED  yes'
+>>> dut.fem_pa_table('open_loop')
+'NB_OF_POINTS  0'
+>>> dut.fem_pa_max_gain(26)
+'MAX_GAIN  104'
+
+>>> dut.tx_power(24)
+'MAX_OUTPUT_POWER_QDBM  96     TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.tx_start('continuous')
+'TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.fem_read_vpdet()
+'1080'
+
+>>> dut.tx_stop()
+'TEST_MODE  tx_packet     NB_FRAME  100'
+>>> dut.tx_power(23)
+'MAX_OUTPUT_POWER_QDBM  92     TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.tx_start('continuous')
+'TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.fem_read_vpdet()
+'925'
+
+```
+
+> Note that value of dut.fem_pa_max_gain() should be adjusted (1/4 dB resolution) to ensure that dut.tx_power(value in dBm) expected is indeed measured by Wi-Fi tester at DUT RF output. 
+
+Once table of interpolation points has been measured in open loop, FEM can be controlled in closed loop:
+
+### FEM closed loop sequence
+```python
+>>> dut.tx_stop()
+'TEST_MODE  tx_packet     NB_FRAME  100'
+>>> dut.fem_pa_used('yes')
+'PA_USED  yes'
+>>> dut.fem_pa_table([[1080, 96], [925, 92], [818, 88], [752, 84], [682, 80], [624, 76], [570, 72], [518, 68], [478, 64], [438, 60], [377, 52], [328, 44], [289, 36], [259, 28], [234, 20], [216, 12]])
+'VDET_VAL  [1080,925,818,752,682,624,570,518,478,438,377,328,289,259,234,216]\nPOUT_VAL  [96,92,88,84,80,76,72,68,64,60,52,44,36,28,20,12]'
+>>> dut.fem_pa_table('closed_loop')
+'NB_OF_POINTS  16'
+>>> dut.fem_pa_max_gain(28)
+'MAX_GAIN  112'
+
+>>> dut.tx_power(24)
+'MAX_OUTPUT_POWER_QDBM  96     TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.tx_start('continuous')
+'TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.fem_read_vpdet()
+'1094'
+>>> dut.fem_read_fem_pout()
+'24.00'
+
+>>> dut.tx_stop()
+'TEST_MODE  tx_packet     NB_FRAME  100'
+>>> dut.tx_power(23)
+'MAX_OUTPUT_POWER_QDBM  92     TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.tx_start('continuous')
+'TEST_MODE  tx_packet     NB_FRAME  0'
+>>> dut.fem_read_vpdet()
+'932'
+>>> dut.fem_read_fem_pout()
+'23.00'
+
+```
+
 
 ## [RF Test Hierarchy](#hierarchy)
 
