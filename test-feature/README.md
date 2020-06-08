@@ -86,7 +86,7 @@ Some DUT wfx_test_agent features are mandatory for RF Testing:
 * `read_rx_stats` (required only for Rx testing)
   * Return the payload of a HI_GENERIC_INDICATION_ID_RX_STATS indication message formatted as follows (abstract):
 
-```text**
+```text
 Timestamp: 43158786us
 Low power clock: frequency 32759Hz, external yes
 Num. of frames: 73, PER (x10e4): 1780, Throughput: 63Kbps/s
@@ -107,7 +107,7 @@ Others are only useful to log test conditions:
 * `read_driver_version` (returns '2.0.3' at the time of writing)
 * `read_fw_version` (returns '2.2.1' at the time of writing)
 
-Others are use with a FEM:
+Others are used with a FEM:
 * `read_tx_info`
 
 ```text

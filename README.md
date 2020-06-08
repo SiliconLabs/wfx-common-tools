@@ -1,3 +1,34 @@
+<p align="center">
+    <img src="silabs_logo.png" height=100px>
+    <img src="wi-fi-blue-circle-icon.jpg" height=100px>
+</P>
+
+---
+
+# Silicon Laboratories WFx Wi-Fi tools for all supported platforms
+
+## Related Parts
+
+* [WF200](https://www.silabs.com/products/wireless/wi-fi/wf200-series-2-wi-fi-transceiver-socs/device.wf200)
+* [WF200S](https://www.silabs.com/products/wireless/wi-fi/wf200-series-2-wi-fi-transceiver-socs/device.wf200s)
+* [WFM200](https://www.silabs.com/products/wireless/wi-fi/wf200-series-2-wi-fi-transceiver-modules)
+* [WGM160P](https://www.silabs.com/products/wireless/wi-fi/wgm160-series-1-wi-fi-modules)
+
+Select the proper Wi-Fi product for your application from [here](https://www.silabs.com/products/wireless/wi-fi).
+
+Read the documentation on [docs.silabs.com](https://docs.silabs.com/wifi/wf200/content-source/getting-started/linux/getting-started#raspberry-pi--raspbian-wifi-lower-mac-driver-example)
+
+---
+
+## Support
+
+Please use the [Silicon Labs Support Portal](https://www.silabs.com/support/)
+for all support requests.
+
+[WF200]: https://www.silabs.com/products/wireless/wi-fi/wf200-series-2-wi-fi-transceiver-socs/device.wf200
+
+---
+
 # wfx-common-tools
 
 This repository contains WFX tools which are not platform-specific,
