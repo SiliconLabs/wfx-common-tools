@@ -443,12 +443,12 @@ These are the functions which are primarily used by users to test the product.
 | `fem_pa_max_gain(gain_db)`         | set FEM Power Amplifier max gain in closed loop<br>set FEM Power Amplifier typical gain in open loop |`gain_db`: [0-256]. Max FEM Power Amplifier Gain in dB
 | `fem_pa_table(vdet_vs_pout)`       | set or check the FEM PA table                      |`vdet_vs_pout`:<br>'[[\<vdet\>, \<pout\>], ...]': Up to 16 [vdet, pout] pairs<br><br>'open_loop': start open loop mode<br>'closed_loop' start closed loop mode<br>'text': returns series of vdet and pout values, number of points and indicates the current loop mode
 | `fem_pa_used(yes_no)`              | activates/de-activates the FEM Power Amplifier     |`yes_no`: ['yes', 'no']<br>**none**: check the current FEM Amplifier state
-| `fem_read_digital_gain()`          | Returns digital gain info                          |**none**
-| `fem_read_fem_pout()`              | Returns FEM output power in dBm                    |**none**
-| `fem_read_measure_index()`         | Returns measure index                              |**none**
-| `fem_read_pa_slice()`              | Returns PA slice                                   |**none**
-| `fem_read_target_pout()`           | Returns part output power in dBm                   |**none**
-| `fem_read_tx_info(match)`          | Returns FEM tx info.                               |if no parameter, returns the entire text as formatted by the driver<br><br>if `match` is provided, filter on `match`. If match is 'values', return a series of name/value pairs
+| `fem_read_digital_gain()`          | Returns WFx digital gain info                      |**none**
+| `fem_read_fem_pout()`              | Returns FEM output power estimated by firmware using FEM PA table and Vpdet measured, in dBm                    |**none**
+| `fem_read_measure_index()`         | Returns 8 bit counter of Vpdet measurements, refreshed every second|**none**
+| `fem_read_pa_slice()`              | Returns WFx PA slice                               |**none**
+| `fem_read_target_pout()`           | Returns requested target output power, in dBm      |**none**
+| `fem_read_tx_info(match)`          | Returns FEM tx info<br>* WFx digital gain info and PA slice<br>* FEM target output power<br>* voltage measured at WFx VPDET pin<br>* output power estimated by firmware<br>* 8 bit counter of Vpdet measurements refreshed every second|if no parameter, returns the entire text as formatted by the driver<br><br>if `match` is provided, filter on `match`. If match is 'values', return a series of name/value pairs
 | `fem_read_vpdet()`                 | Returns voltage measured on VPDET in mV            |**none**
 | `read_agent_version()`             | returns Agent version                              |**none**
 | `read_driver_version()`            | returns driver version                             |**none**
