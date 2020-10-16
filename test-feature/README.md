@@ -467,7 +467,7 @@ These are the functions which are primarily used by users to test the product.
 | `tone_stop()`                      | stop CW tone                                       |**none**
 | `tx_backoff(mod, backoff_level)`   | set power backoff for one group of modulations. All other backoff 0. |`mode_802_11`:<br>  '[B, CCK, DSS]\_[1, 2, 5_5, 11]Mbps'<br>'[G, LEG]\_[6, 9, 12, 18, 24, 36, 48, 54]Mbps'<br>'[MM, GF]\_MCS[0-7]'<br><br>**Examples**: 'B_1Mbps', 'LEG_54Mbps', 'GF_MCS5'<br>`backoff_level`: [0:63.75] dB
 | `tx_framing(pkt_len, ifs_us)`      | control the frame size (in bytes) and IFS (InterFrame Spacing) |<br>`packet_length_bytes`:[25-4091] Frame size in bytes\(without CRC\)<br>`ifs_us`:[0-255] Interframe spacing in us
-| `tx_mode(mode)`                    | select between B (11b), G (11g), MM (11n mixed mode) & GF (11n Greenfield) and sets the rate|`mode_802_11`:<br>'[B]\_[1, 2, 5_5, 11]Mbps'<br>'[G]\_[6, 9, 12, 18, 24, 36, 48, 54]Mbps'<br>'[MM, GF]\_MCS[0-7]'<br>**Examples**: 'B_1Mbps', 'G_54Mbps', 'GF_MCS5'
+| `tx_mode(mode)`                    | select between B (11b), G (11g), MM (11n mixed mode) & GF (11n Greenfield) and set the rate|`mode_802_11`:<br>'[B]\_[1, 2, 5_5, 11]Mbps'<br>'[G]\_[6, 9, 12, 18, 24, 36, 48, 54]Mbps'<br>'[MM, GF]\_MCS[0-7]'<br>**Examples**: 'B_1Mbps', 'G_54Mbps', 'GF_MCS5'
 | `tx_power(dBm)`                    | set the maximum output power                       |`dbm`: [TBD]
 | `tx_rx_select(tx_ant, rx_ant)`     | select the Tx/Rx antennas                          |`tx_ant`: [1-2] Tx antenna<br>`rx_ant`: [1-2] Rx antenna
 | `tx_start(nb_frames)`              | start sending a selected number of frames          |`nb_frames`: [0-65535] or 'continuous'. Nb of frames to send before stopping. 0 = 'continuous'
