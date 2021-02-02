@@ -470,7 +470,7 @@ These are the functions which are primarily used by users to test the product.
 | `tx_mode(mode)`                    | select between B (11b), G (11g), MM (11n mixed mode) & GF (11n Greenfield) and set the rate|`mode_802_11`:<br>'[B]\_[1, 2, 5_5, 11]Mbps'<br>'[G]\_[6, 9, 12, 18, 24, 36, 48, 54]Mbps'<br>'[MM, GF]\_MCS[0-7]'<br>**Examples**: 'B_1Mbps', 'G_54Mbps', 'GF_MCS5'
 | `tx_power(dBm)`                    | set the maximum output power.<br>NB: use tx_backoff() for certification testing|`dbm`: [TBD]
 | `tx_rx_select(tx_ant, rx_ant)`     | select the Tx/Rx antennas                          |`tx_ant`: [1-2] Tx antenna<br>`rx_ant`: [1-2] Rx antenna
-| `tx_start(nb_frames)`              | start sending a selected number of frames          |`nb_frames`: [0-65535] or 'continuous'. Nb of frames to send before stopping. 0 = 'continuous'
+| `tx_start(nb_frames)`              | start sending a selected number of frames          |`nb_frames`: [0-65535] or 'continuous'. Nb of frames to send before stopping.<br>0 = 'continuous'
 | `tx_stop()`                        | send a burst of 100 frames to complete a previous continuous transmission|**none**
 
 ## Printing the current test tree content
