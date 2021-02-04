@@ -481,6 +481,13 @@ These are the functions which are primarily used by users to test the product.
 
 _Nb: the above is only possible if using `dut = WfxTestDut(...)`._
 
+## Certification Testing
+
+RF Tx certification testing of a Wi-Fi product consists in checking that Tx signals are compliant with regulatory
+ requirements (power, spurious,..) without using an AP in WLAN mode.
+
+Refer to [Certification Testing](certification.md) for details and an example.
+
 ## Advanced features
 
 ### Traces
