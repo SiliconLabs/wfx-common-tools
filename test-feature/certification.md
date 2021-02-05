@@ -21,8 +21,12 @@ from wfx_test_dut import *
 dut = WfxTestDut('Local')
 dut.tx_rx_select(1,1)      # Select antenna 1 in TX/RX
 dut.tx_framing(1500,0)     # Frame size of 1500 bytes with the lowest inter frame space (IFS)
-regulatory_mode('FCC')     # set regulatory mode to ETSI or FCC or JAPAN
+dut.regulatory_mode('FCC') # set regulatory mode to ETSI or FCC or JAPAN
 ```
+
+> NB: if the regulatory mode is not set, the default value in 
+> [the wfx_pds dictionary](https://github.com/SiliconLabs/wfx-common-tools/blob/master/test-feature/wfx_pds_tree.py#L53)
+> is used (`CERTIFIED_Unrestricted`)
 
 ## Channel and Tx Backoff testing
 
