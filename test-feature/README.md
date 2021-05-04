@@ -16,6 +16,8 @@ The RF test architecture is now a Test Server/DUT configuration
   * `read_fw_version` (optional, used for logging test conditions)
   * `read_tx_info` (optional, used with a FEM)
 
+> NB: Prior to running RF testing, make sure you stop any WLAN use of your product.
+
 ## Prerequisites
 
 First, install the  **WXF connection layer**

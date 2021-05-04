@@ -43,7 +43,7 @@ Typically, Python resources can be used to run tests on WFX devices, and such to
 |--------------|-------------------------------------------------------------------------------------------------------------|---------------|
 | connection   | Python communication resources imported from other tools, accessed using `sys.path.append('../connection')` | [README][3]   |
 | pta          | Python scripts for PTA (Packet Traffic Arbitration), when several radio standards use shared RF resources   | [README][4]   |
-| test-feature | Pythons scripts used to test the RF performance                                                             | [README][5]   |
+| test-feature | Pythons scripts used to test the RF performance<br><br>NB: Prior to running RF testing, make sure you stop any WLAN use of your product.                                                            | [README][5]   |
 
 Please refer to the corresponding README files for details on using the tools.
 
