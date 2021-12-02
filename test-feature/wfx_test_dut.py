@@ -501,7 +501,7 @@ class WfxTestDut(WfxTestTarget):
     def __rx_stats(self):
         re_fr_per_th = re.compile('Num. of frames: (.*), PER \(x10e4\): (.*), Throughput: (.*)Kbps/s*')
         re_timestamp = re.compile('Timestamp: (.*)us')
-        re_modulation = re.compile('\s*(\d+\w|\w+\d)\s*([-]*\d*)\s*([-]*\d*)\s*([-]*\d*)\s*([-]*\d*)\s*([-]*\d*)')
+        re_modulation = re.compile('\s*(\d\.\d\w|\d+\w|\w+\d)\s*([-]*\d*)\s*([-]*\d*)\s*([-]*\d*)\s*([-]*\d*)\s*([-]*\d*)')
         lines = self.read_rx_stats()
         return_val = 0
         for line in lines.split('\n'):
