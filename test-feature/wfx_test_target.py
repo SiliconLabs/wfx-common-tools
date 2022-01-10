@@ -43,6 +43,7 @@ class WfxTestTarget(object):
         self.link = None
         self.required_options = pds_env['required_options']
         self.useful_options = pds_env['useful_options']
+        self.fmac_cli = False
 
         if 'host' in kwargs:
             host = kwargs['host']
@@ -66,6 +67,15 @@ class WfxTestTarget(object):
         if not self.link:
             print('%s: Configuring a Direct connection' % nickname)
             self.link = Direct(nickname)
+
+        agent_version = self.run('wfx_test_agent read_agent_version')
+        if 'no command found' in agent_version.lower():
+            self.fmac_cli = True # 'wfx_test_agent' will be replaced by 'wifi test' in all commands
+            agent_version = self.run('wfx_test_agent read_agent_version')
+            if not 'no command found' in agent_version.lower():
+                print(f"The dut is a FMAC CLI target... (agent_version == {agent_version})")
+        else:
+            self.fmac_cli = False
 
         if 'fw_version' in kwargs:
             fw_version = kwargs['fw_version']
@@ -96,7 +106,9 @@ class WfxTestTarget(object):
 
     def run(self, cmd, wait_ms=0):
         if self.link is not None:
-            return self.link.run(cmd, wait_ms)
+            if self.fmac_cli:
+                cmd = cmd.replace('wfx_test_agent', 'wifi test')
+            return self.link.run(cmd, wait_ms).replace('\n>', '')
         else:
             return ''
 
