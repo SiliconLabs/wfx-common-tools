@@ -1019,7 +1019,7 @@ Links:
   * [wfx-common-tools repository 'test-feature' folder][COM_REPO_RF]
 
 [LIN_REPO_RF]: https://github.com/SiliconLabs/wfx-linux-tools/tree/master/test-feature
-[FMAC_REPO_RF]: https://github.com/SiliconLabs/wfx-fullMAC-tools/tree/master/Tools/RF_test_agent
+[FMAC_REPO_RF]: https://github.com/SiliconLabs/wfx-fullMAC-tools/tree/main/wifi_cli_micriumos/rf_test_agent
 [COM_REPO]: https://github.com/SiliconLabs/wfx-common-tools
 [COM_REPO_CONN]: https://github.com/SiliconLabs/wfx-common-tools/tree/master/connection
 [CONN_DOC]: https://github.com/SiliconLabs/wfx-common-tools/blob/master/connection/README.md
