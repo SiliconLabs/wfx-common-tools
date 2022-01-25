@@ -1013,6 +1013,7 @@ Links:
 
 * [wfx-linux-tools repository 'test-feature' folder][LIN_REPO_RF]
 * [wfx-fullMAC-tools repository 'RF_test_agent' folder][FMAC_REPO_RF]
+* [wfx-fullMAC-tools repository 'RF_test_agent' folder (for Simplicity Studio v4)][FMAC_REPO_RF_SSv4]
 * [wfx-common-tools repository][COM_REPO]
   * [wfx-common-tools repository 'connection' folder][COM_REPO_CONN]
     * [connection README][CONN_DOC]
@@ -1020,6 +1021,7 @@ Links:
 
 [LIN_REPO_RF]: https://github.com/SiliconLabs/wfx-linux-tools/tree/master/test-feature
 [FMAC_REPO_RF]: https://github.com/SiliconLabs/wfx-fullMAC-tools/tree/main/wifi_cli_micriumos/rf_test_agent
+[FMAC_REPO_RF_SSv4]: https://github.com/SiliconLabs/wfx-fullMAC-tools/tree/wifi_examples_ssv4/Tools/RF_test_agent
 [COM_REPO]: https://github.com/SiliconLabs/wfx-common-tools
 [COM_REPO_CONN]: https://github.com/SiliconLabs/wfx-common-tools/tree/master/connection
 [CONN_DOC]: https://github.com/SiliconLabs/wfx-common-tools/blob/master/connection/README.md
