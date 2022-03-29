@@ -125,7 +125,7 @@ class WfxTestDut(WfxTestTarget):
             return list(clean_text.split(','))
         def text_from_list(v_list):
             return "[" + ','.join(v_list) + "]"
-        if vdet_vs_pout is 'text':
+        if vdet_vs_pout == 'text':
             vdet_text = self.wfx_get_list({"VDET_VAL"}, mode='quiet')
             pout_text = self.wfx_get_list({"POUT_VAL"}, mode='quiet')
             points = int(self.wfx_get_list({'NB_OF_POINTS'}).split()[1])
@@ -142,9 +142,9 @@ class WfxTestDut(WfxTestTarget):
             for i in range(length):
                 vdet_vs_pout.append([int(vdet_list[i]), int(pout_list[i])])
             return vdet_vs_pout
-        if vdet_vs_pout is 'open_loop':
+        if vdet_vs_pout == 'open_loop':
             return self.wfx_set_dict({"NB_OF_POINTS": 0}, send_data=1)
-        if vdet_vs_pout is 'closed_loop':
+        if vdet_vs_pout == 'closed_loop':
             pout = self.wfx_get_list("POUT_VAL", mode='silent')
             nb_points = len(self.wfx_get_list("POUT_VAL", mode='silent').split(','))
             return self.wfx_set_dict({"NB_OF_POINTS": nb_points}, send_data=1)
