@@ -18,12 +18,13 @@ import paramiko
 
 
 class SshTarget(paramiko.client.SSHClient):
-    def __init__(self, host, name=None, wait=False, user="root", port=22, password=""):
+    def __init__(self, host, name=None, wait=False, user="root", port=22, password=None, pkey=None):
         super().__init__()
         self.user = user
         self.host = host
         self.port = port
         self.password = password
+        self.pkey = pkey
         self.name = name if name else host
         self.stdin = None
         self.stdout = None
@@ -43,7 +44,7 @@ class SshTarget(paramiko.client.SSHClient):
         while start + 10 > now:
             try:
                 self.connect(self.host, username=self.user, port=self.port, timeout=1, banner_timeout=1,
-                             auth_timeout=1, password=self.password)
+                             auth_timeout=1, password=self.password, pkey=self.pkey)
                 peer = self.get_transport().getpeername()
                 logging.info("%-13s I'm connected to %s:%d as %s" % (cmd_name, peer[0], peer[1], self.user))
                 return

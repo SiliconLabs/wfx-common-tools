@@ -49,9 +49,10 @@ class WfxTestTarget(object):
             host = kwargs['host']
             port = kwargs['port'] if 'port' in kwargs else 22
             user = kwargs['user'] if 'user' in kwargs else 'root'
+            pkey = kwargs['pkey'] if 'pkey' in kwargs else None
             print('%s: Configuring a SSH connection to host %s for user %s' % (nickname, host, user))
             password = kwargs['password'] if 'password' in kwargs else None
-            self.link = Ssh(nickname, host=host, user=user, port=port, password=password)
+            self.link = Ssh(nickname, host=host, user=user, port=port, password=password, pkey=pkey)
 
         if not self.link:
             if 'port' in kwargs:
