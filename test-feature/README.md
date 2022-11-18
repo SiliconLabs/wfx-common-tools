@@ -25,7 +25,7 @@ First, install the  **WXF connection layer**
 The connection layer is common to RF testing, allowing connection in the following modes:
 
 * Local
-* SSH
+* SSH (with password of public key)
 * UART
 
 (The connection layer is available in [wfx-common-tools repository 'connection' folder][COM_REPO_CONN], so from the RF Test scripts perspective they are under `../connection`)
@@ -136,6 +136,8 @@ The Raspberry Pi does not allow a root user to be accessed using a password, so 
 Following this, access to Raspberry PIs with root privileges will be possible using user='root, host = '<pi_address>'
 when connecting the DUT (with no password)
 
+> Thanks to a contribution from [@gsalvatella](https://github.com/gsalvatella), it is now possible to provide the path to a SSH public key (as the 'pkey' parameters) when using SSH. Use this when running the tools on your target.
+
 ## [Typical Use Case](#typical-use-case)
 
 ### DUT initialization
@@ -163,6 +165,12 @@ python3
 
 _NB: for SSH connection: user, port and password values are optional, values used above are the default values
  (The user account needs to have root privileges)_
+
+SSH providing public key:
+
+```python
+>>>  dut = WfxTestDut('Pi_186', host='10.5.124.186', user='root', port=22, pkey=<path_to_SSH_public_key>)
+```
 
 #### UART DUT connection (Linux, OS with login/password)
 
