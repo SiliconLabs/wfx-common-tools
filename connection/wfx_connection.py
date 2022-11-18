@@ -302,16 +302,16 @@ class Telnet(AbstractConnection):
 
 class Ssh(AbstractConnection):
 
-    def __init__(self, name=None, user="pi", host="10.5.124.249", port=22, password=""):
+    def __init__(self, name=None, user="pi", host="10.5.124.249", port=22, password="", pkey=None):
         self.nickname = name if name else 'ssh'
         self.conn = 'SSH ' + user + '@' + host + ':' + str(port)
         super().__init__()
         if host:
-            self.configure(user=user, host=host, port=port, password=password)
+            self.configure(user=user, host=host, port=port, password=password, pkey=pkey)
 
-    def configure(self, user="pi", host="10.5.124.249", port=22, password="default_password"):
+    def configure(self, user="pi", host="10.5.124.249", port=22, password="default_password", pkey=None):
         import SshTarget
-        self.link = SshTarget.SshTarget(user=user, host=host, name=self.nickname, port=port, password=password)
+        self.link = SshTarget.SshTarget(user=user, host=host, name=self.nickname, port=port, password=password, pkey=pkey)
 
     def write(self, text):
         if self.link is not None:
