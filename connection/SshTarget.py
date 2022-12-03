@@ -87,7 +87,8 @@ class SshTarget(paramiko.client.SSHClient):
 
     def write(self, text):
         if self is not None:
-            self.stdin, self.stdout, self.stderr = self.exec_command(text, environment={'ENV': '/etc/profile'})
+            cmd = b"/bin/sh --login -c " + text  # Provide a login shell to set the environment and locate scripts
+            self.stdin, self.stdout, self.stderr = self.exec_command(cmd, environment={'ENV': '/etc/profile'})
 
     def read(self):
         self.result = str(self.stdout.read(), "utf-8").strip()

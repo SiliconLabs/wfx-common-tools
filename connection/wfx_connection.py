@@ -8,6 +8,7 @@
 # Standard library imports
 import logging
 import os
+import shlex
 import sys
 import time
 
@@ -319,7 +320,7 @@ class Ssh(AbstractConnection):
                 for line in text.rstrip().split('\n'):
                     print(str.format("%-8s S>>|  " % self.nickname), end='')
                     print(line)
-            self.link.write(bytes(text.rstrip() + '\n', 'utf-8'))
+            self.link.write(bytes(shlex.quote(text).rstrip() + '\n', 'utf-8'))
 
     def read(self):
         if self.link is not None:
