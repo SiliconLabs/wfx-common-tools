@@ -311,8 +311,8 @@ class Ssh(AbstractConnection):
             self.configure(user=user, host=host, port=port, password=password, pkey=pkey)
 
     def configure(self, user="pi", host="10.5.124.249", port=22, password="default_password", pkey=None):
-        import SshTarget
-        self.link = SshTarget.SshTarget(user=user, host=host, name=self.nickname, port=port, password=password, pkey=pkey)
+        from .SshTarget import SshTarget
+        self.link = SshTarget(user=user, host=host, name=self.nickname, port=port, password=password, pkey=pkey)
 
     def write(self, text):
         if self.link is not None:

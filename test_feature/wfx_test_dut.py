@@ -3,8 +3,8 @@
 """wfx_test_dut.py
 """
 
-from wfx_test_target import *
-from job import *
+from .wfx_test_target import *
+from .job import *
 
 
 class WfxTestDut(WfxTestTarget):
