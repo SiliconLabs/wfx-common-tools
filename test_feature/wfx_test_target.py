@@ -7,12 +7,9 @@ import re
 import sys
 import time
 
-sys.path.append('../connection')
-sys.path.append('connection')
-
-from wfx_connection import *
-from pds_compress import compress_string
-from wfx_pds_tree import *
+from ..connection.wfx_connection import *
+from .pds_compress import compress_string
+from .wfx_pds_tree import *
 
 pds_env = dict()
 pds_env['TEST_FEATURE_ROOT'] = "/home/pi/siliconlabs/wfx-linux-tools/test-feature/"

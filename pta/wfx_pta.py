@@ -22,10 +22,8 @@ __version__ = "0.2.5"
 
 import sys
 
-sys.path.append('../connection')
-
-from wfx_connection import *
-from wfx_pta_data import *
+from ..connection.wfx_connection import *
+from .wfx_pta_data import *
 
 HI_STATUS_SUCCESS = '0'
 HI_STATUS_FAILURE = '1'
