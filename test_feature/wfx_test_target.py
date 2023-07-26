@@ -6,18 +6,22 @@
 import re
 import sys
 import time
+import importlib.resources
+from pathlib import Path
 
 from ..connection.wfx_connection import *
 from .pds_compress import compress_string
 from .wfx_pds_tree import *
+from .. import test_feature
 
 pds_env = dict()
 pds_env['TEST_FEATURE_ROOT'] = "/home/pi/siliconlabs/wfx-linux-tools/test-feature/"
 pds_env['PDS_ROOT'] = pds_env['TEST_FEATURE_ROOT'] + "PDS/"
 pds_env['PDS_CURRENT_FILE'] = "/tmp/current_pds_data.in"
 pds_env['SEND_PDS_FILE'] = "/sys/kernel/debug/ieee80211/phy0/wfx/send_pds"
-pds_env['PDS_DEFINITION_ROOT'] = ""
-pds_env['PDS_DEFINITION_FILE'] = "definitions.in"
+# Retrieve the PDS defintion file from the package resources. Use a OS-agnostic path
+definition_file = Path(importlib.resources.files(test_feature), Path('definitions.in'))
+pds_env['PDS_DEFINITION_FILE'] = str(definition_file)
 pds_env['required_options'] = []
 pds_env['useful_options'] = []
 # If using mainstream driver, set pds_output_format to "tlv"
@@ -116,8 +120,7 @@ class WfxTestTarget(object):
     def _prepare_test_data(self, parameters):
         _subtree = self.test_data.sub_tree(parameters)
         pds_sections = _subtree.pretty()
-
-        pds_string = "#include \"" + pds_env['PDS_DEFINITION_ROOT'] + pds_env['PDS_DEFINITION_FILE']\
+        pds_string = "#include \"" + pds_env['PDS_DEFINITION_FILE']\
                      + "\"\n\n" + pds_compatibility_text + pds_sections
 
         compressed_string = compress_string(pds_string, format=self.pds_output_format)
