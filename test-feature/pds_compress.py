@@ -15,7 +15,8 @@
 # Differences between full PDS and compressed PDS are:
 #     1. Comments are stripped
 #     2. Symbolic names are replaced with their values
-#     3. Hexadecimal and binary numbers are replaced by their decimal values
+#     3. All numbers (decimal, hexadecimal and binary) are replaced by their
+#        hexadecimal values (without '0x' prefix)
 #     4. New lines and spaces are stripped
 #
 # In two words, output of this script is more or less same as:
@@ -31,18 +32,19 @@
 # Avoid syntax error with python 2.x
 from __future__ import print_function
 
-# If you modifiy this file, please don't forget to increment version number.
-__version__ = "1.1"
+# If you modify this file, please don't forget to increment version number.
+__version__ = "1.4"
 
 import io
 import os
 import sys
 import re
+import struct
 import textwrap
 import argparse
 
 class DebugInfo():
-    def __init__(self, path = "", line = 0):
+    def __init__(self, path="", line=0):
         self.path = path
         self.line = line
 
@@ -261,8 +263,8 @@ def check_syntax():
         '}': [ ',', ']', '}', 'E' ],
         ']': [ ',', ']', '}', 'E' ],
     }
-    brace_stack = [ ];
-    cur_state = AnnotOut(g_result[-1].loc, 'S');
+    brace_stack = [ ]
+    cur_state = AnnotOut(g_result[-1].loc, 'S')
 
     for annot_tok in token_iter():
         tok = annot_tok.val
@@ -276,20 +278,20 @@ def check_syntax():
                 pr_info(annot_tok.loc, "error: parsing error")
             return False
         else:
-           cur_state = annot_tok
-           if tok in [ '{', '[' ]:
-               brace_stack.append(tok)
-           if tok == '}':
-               if brace_stack.pop() != '{':
-                   pr_info(annot_tok.loc, "error: unexpected '}'");
-                   return False
-           if tok == ']':
-               if brace_stack.pop() != '[':
-                   pr_info(annot_tok.loc, "error: unexpected ']'");
-                   return False
-           if tok == 'E' and len(brace_stack) > 0:
-               pr_info(annot_tok.loc, "error: unbalanced %s" % brace_stack.pop());
-               return False
+            cur_state = annot_tok
+            if tok in [ '{', '[' ]:
+                brace_stack.append(tok)
+            if tok in [ '}' ]:
+                if brace_stack.pop() != '{':
+                    pr_info(annot_tok.loc, "error: unexpected '}'");
+                    return False
+            if tok in [ ']' ]:
+                if brace_stack.pop() != '[':
+                    pr_info(annot_tok.loc, "error: unexpected ']'");
+                    return False
+            if tok in [ 'E' ] and brace_stack:
+                pr_info(annot_tok.loc, "error: unbalanced %s" % brace_stack.pop());
+                return False
     return True
 
 def check_sizes(pds_str):
@@ -300,9 +302,9 @@ def check_sizes(pds_str):
     for c in pds_str:
         if c in ",:}]":
             num_token += 1
-        if c == '{' or c == '[':
+        if c in [ '{', '[' ]:
             brace_level += 1
-        if c == '}' or c == ']':
+        if c in [ '}', ']' ]:
             brace_level -= 1
             if brace_level == 1:
                 if num_token >= 256:
@@ -358,30 +360,97 @@ def formatc(f_out, pds):
     out = ""
     for c in pds:
         buf += c
+        if c in [ '{', '[' ]:
+            stack += 1
+        if c in [ '}', ']' ]:
+            stack -= 1
+        if c in [ '}', ']' ] and stack == 1:
+            out += '    "{%s}",\n' % buf[1:];
+            buf = ""
+    f_out.write(textwrap.dedent(tmpl_c) % out);
+
+tmpl_rust = """\
+    /* AUTOMATICALLY GENERATED -- DO NOT EDIT BY HAND */
+    /*
+     * Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *     http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     *
+     */
+
+    /// PDS (platform data set) is SiLab's solution to configuring the wifi chip.
+    /// Options such as GPIO, PA power, number of antennae are configured with PDS.
+    /// The data set here is "compiled" using a script (pds_compress) that
+    /// can be found in SiliconLabs github repository:
+    /// https://github.com/SiliconLabs/wfx-linux-tools/blob/master/pds_compress
+    ///
+    /// The output is meant to be redirected into a .rs file in the same crate as your
+    /// hal driver, and pulled in with the appropriate mod/use statements.
+
+    pub const PDS_DATA: [&[u8]; %d] = [
+    %s];
+"""
+
+def formatrust(f_out, pds):
+    stack = 0
+    lines = 0
+    buf = ""
+    out = ""
+    for c in pds:
+        buf += c
         if c == '{' or c == '[':
             stack += 1
         if c == '}' or c == ']':
             stack -= 1
         if (c == '}' or c == ']') and stack == 1:
-            out += '    "{%s}",\n' % buf[1:];
+            lines += 1
+            out += '    b"{%s}\\0", \n' % buf[1:];
             buf = ""
-    f_out.write(textwrap.dedent(tmpl_c) % out);
+    f_out.write(textwrap.dedent(tmpl_rust) % (lines, out));
 
 def formattiny(f_out, pds):
     stack = 0
     for c in pds:
-        if c == '}' or c == ']':
+        if c in [ '}', ']' ]:
             stack -= 1
             f_out.write("\n" + "    " * stack);
         f_out.write(c);
-        if c == ':':
+        if c in [ ':' ]:
             f_out.write(" ");
-        if c == '{' or c == '[':
+        if c in [ '{', '[' ]:
             stack += 1
             f_out.write("\n" + "    " * stack);
-        if c == ',':
+        if c in [ ',' ]:
             f_out.write("\n" + "    " * stack);
     f_out.write("\n");
+
+def formattlv(f_out, pds):
+    stack = 0
+    buf = ''
+    for c in pds:
+        if c in [ '{', '[' ]:
+            stack += 1
+        if c in [ '}', ']' ]:
+            stack -= 1
+        if c in [ ',' ] and stack == 1:
+            buf = '{'
+        elif c in [ '}', ']' ] and stack == 1:
+            buf += c
+            buf += '}'
+            f_out.write(struct.pack('<HH', 0x4450, len(buf) + 4).decode('charmap'));
+            f_out.write(buf);
+        elif stack > 0:
+            buf += c
 
 def parse_cmdline(args=sys.argv[1:]):
     parser = argparse.ArgumentParser(usage="%(prog)s [options] INPUT [OUTPUT]",
@@ -398,16 +467,20 @@ def parse_cmdline(args=sys.argv[1:]):
                   help="predefine DEF with value VAL")
     parser.add_argument("-f", "--force", action="store_true", dest="force",
                   help="try to produce (probably broken) output even if errors are detected")
-    parser.add_argument("--out", dest="out_format", default="pds", choices=['pds', 'tinypds', 'c', 'json'],
-                  help="specify output format. Accepted values: pds (compressed PDS), tinypds (indented PDS), c (C file), json. Default: pds")
+    parser.add_argument("--out", dest="out_format", default="pds", choices=['tlv', 'pds', 'tinypds', 'c', 'json'],
+                  help="specify output format. Accepted values: pds (compressed PDS), tlv (compressed PDS in TLV structs), tinypds (indented PDS), c (C file), json. Default: pds")
     parser.add_argument("-j", action="store_const", const="json", dest="out_format",
                   help="shortcut for --out=json")
     parser.add_argument("-c", action="store_const", const="c", dest="out_format",
                   help="shortcut for --out=c")
     parser.add_argument("-p", action="store_const", const="pds", dest="out_format",
                   help="shortcut for --out=pds")
+    parser.add_argument("-l", action="store_const", const="tlv", dest="out_format",
+                  help="shortcut for --out=tlv")
     parser.add_argument("-t", action="store_const", const="tinypds", dest="out_format",
                   help="shortcut for --out=tinypds")
+    parser.add_argument("-r", action="store_const", const="rust", dest="out_format",
+                  help="shortcut for --out=rust")
     return parser.parse_args(args)
 
 def main(options):
@@ -447,8 +520,15 @@ def main(options):
         formattiny(options.output, re.sub(r'([-A-Za-z0-9]+)', r'"\1"', str_result))
     elif options.out_format == "c":
         formatc(options.output, str_result)
+    elif options.out_format == "rust":
+        formatrust(options.output, str_result)
     elif options.out_format == "tinypds":
         formattiny(options.output, str_result)
+    elif options.out_format == "tlv":
+        # We may apply this encoding to all the other outputs. However, the TLV
+        # is the only one which generates binary data.
+        options.output.reconfigure(encoding='charmap', newline='')
+        formattlv(options.output, str_result)
     elif options.out_format == "pds":
         options.output.write(str_result)
     else:
@@ -456,7 +536,7 @@ def main(options):
     return g_ret_value
 
 # This function is only an help for third-party tools that import pds_compress
-# as a python module (also note it is necessary to add .py extension to this in
+# as a python module (also note it is necessary to add .py extention to this in
 # order to import it).
 def compress_string(str_in, extra_options=""):
     global g_defs, g_result, g_ret_value
