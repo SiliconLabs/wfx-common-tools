@@ -21,9 +21,10 @@ pds_env['PDS_CURRENT_FILE'] = "/tmp/current_pds_data.in"
 pds_env['SEND_PDS_FILE'] = "/sys/kernel/debug/ieee80211/phy0/wfx/send_pds"
 pds_env['PDS_DEFINITION_ROOT'] = ""
 pds_env['PDS_DEFINITION_FILE'] = "definitions.in"
-# If using the upstream wfx driver, set below `pds_env['required_options'] = "--out=tlv"`
 pds_env['required_options'] = []
 pds_env['useful_options'] = []
+# If using mainstream driver, set pds_output_format to "tlv"
+pds_env['pds_output_format'] = "pds"
 
 
 class WfxTestTarget(object):
@@ -44,6 +45,7 @@ class WfxTestTarget(object):
         self.link = None
         self.required_options = pds_env['required_options']
         self.useful_options = pds_env['useful_options']
+        self.pds_output_format = pds_env['pds_output_format']
         self.fmac_cli = False
 
         if 'host' in kwargs:
@@ -120,7 +122,13 @@ class WfxTestTarget(object):
 
         pds_string = "#include \"" + pds_env['PDS_DEFINITION_ROOT'] + pds_env['PDS_DEFINITION_FILE']\
                      + "\"\n\n" + pds_compatibility_text + pds_sections
-        compressed_string = compress_string(pds_string, self.required_options)
+
+        compressed_string = compress_string(pds_string, format=self.pds_output_format)
+
+        # The TLV format has some binary data that needs to be included
+        if self.pds_output_format == "tlv":
+            compressed_string = repr(compressed_string).strip("'")
+
         if self.human_trace:
             print('human readable: ' + pds_string)
         if self.compressed_trace:

@@ -527,7 +527,8 @@ def main(options):
     elif options.out_format == "tlv":
         # We may apply this encoding to all the other outputs. However, the TLV
         # is the only one which generates binary data.
-        options.output.reconfigure(encoding='charmap', newline='')
+        if __name__ == '__main__':
+            options.output.reconfigure(encoding='charmap', newline='')
         formattlv(options.output, str_result)
     elif options.out_format == "pds":
         options.output.write(str_result)
@@ -538,14 +539,20 @@ def main(options):
 # This function is only an help for third-party tools that import pds_compress
 # as a python module (also note it is necessary to add .py extention to this in
 # order to import it).
-def compress_string(str_in, extra_options=""):
+def compress_string(str_in, extra_options="", format="pds"):
     global g_defs, g_result, g_ret_value
     g_defs = {}
     g_result = []
     g_ret_value = 0
+    if format == "tlv":
+        extra_options += " --out=tlv"
     options = parse_cmdline([ "-" ] + extra_options.split())
     options.input = io.StringIO(str_in)
-    options.output = io.StringIO()
+    if format == "tlv":
+        options.output = io.StringIO(newline='')
+    else:
+        options.output = io.StringIO()
+
     main(options)
     return options.output.getvalue()
 
