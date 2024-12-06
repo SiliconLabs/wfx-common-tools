@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wfx_common_tools"
+version = "1.0.0"
+authors = [
+  { name="silabs-tuD", email="tu.dao@silabs.com" },
+]
+
+description = "Silicon Laboratories WFx Wi-Fi tools for all supported platforms"
+readme = "README.md"
+requires-python = ">=3.8"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/SiliconLabs/wfx-common-tools"
+Issues = "https://github.com/SiliconLabs/wfx-common-tools/issues"
