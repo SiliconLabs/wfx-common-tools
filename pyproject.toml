@@ -6,13 +6,20 @@ build-backend = "hatchling.build"
 exclude = [
   ".git",
   ".gitignore",
+  ".*",
 ]
 
 [project]
 name = "wfx_common_tools"
-version = "1.0.0"
+version = "0.0.0"
 authors = [
   { name = "silabs-Marc", email = "marc.dorval@silabs.com"},
+]
+
+dependencies = [
+  "paramiko>=2.7.1",
+  "pyserial>=3.4",
+  "ifaddr>=0.1.6",
 ]
 
 maintainers = [
@@ -21,7 +28,7 @@ maintainers = [
 
 description = "Silicon Laboratories WFx Wi-Fi tools for all supported platforms"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 classifiers = [
     "Programming Language :: Python :: 3",
