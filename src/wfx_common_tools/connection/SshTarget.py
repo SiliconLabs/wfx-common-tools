@@ -88,7 +88,7 @@ class SshTarget(paramiko.client.SSHClient):
     def write(self, text):
         if self is not None:
             # /bin/sh in raspberrypi symlink to dash shell; which does not support a long form option such as --login
-            cmd = b"/bin/sh --l -c " + text  # Provide a login shell to set the environment and locate scripts
+            cmd = b"/bin/sh -l -c " + text  # Provide a login shell to set the environment and locate scripts
             self.stdin, self.stdout, self.stderr = self.exec_command(cmd, environment={'ENV': '/etc/profile'})
 
     def read(self):

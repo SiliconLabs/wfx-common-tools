@@ -142,25 +142,20 @@ when connecting the DUT (with no password)
 
 ### DUT initialization
 
-```bash
-cd ~/siliconlabs/wfx-common-tools/test-feature
-python3
-```
-
 ```python
->>> from wfx_test_dut import *
+>>> from wfx_common_tools.test_feature import wfx_test_dut
 ```
 
 #### Local/Direct DUT connection
 
 ```python
->>>  dut = WfxTestDut('Local')
+>>>  dut = wfx_test_dut.WfxTestDut('Local')
 ```
 
 #### SSH DUT connection
 
 ```python
->>>  dut = WfxTestDut('Pi_186', host='10.5.124.186', user='root', port=22)
+>>>  dut = wfx_test_dut.WfxTestDut('Pi_186', host='10.5.124.186', user='root', port=22)
 ```
 
 _NB: for SSH connection: user, port and password values are optional, values used above are the default values
@@ -169,13 +164,13 @@ _NB: for SSH connection: user, port and password values are optional, values use
 SSH providing public key:
 
 ```python
->>>  dut = WfxTestDut('Pi_186', host='10.5.124.186', user='root', port=22, pkey=<path_to_SSH_public_key>)
+>>>  dut = wfx_test_dut.WfxTestDut('Pi_186', host='10.5.124.186', user='root', port=22, pkey=<path_to_SSH_public_key>)
 ```
 
 #### UART DUT connection (Linux, OS with login/password)
 
 ```python
->>>  dut = WfxTestDut('Serial', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='<user>', password='<password>' )
+>>>  dut = wfx_test_dut.WfxTestDut('Serial', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1, user='<user>', password='<password>' )
 ```
 
 _NB: for UART connection: baudrate, bytesize, parity and stopbits values are optional, values used above are the default values_
@@ -183,7 +178,7 @@ _NB: for UART connection: baudrate, bytesize, parity and stopbits values are opt
 #### UART DUT connection (RTOS/Bare metal)
 
 ```python
->>>  dut = WfxTestDut('Serial', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1)
+>>>  dut = wfx_test_dut.WfxTestDut('Serial', port='COM21', baudrate=115200, bytesize=8, parity='N', stopbits=1)
 ```
 
 _NB: for UART connection: baudrate, bytesize, parity and stopbits values are optional, values used above are the default values_

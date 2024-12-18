@@ -32,87 +32,40 @@ The **Test server** can be any python3-capable platform with network and/or UART
 
 ## Python version
 
-Connection scripts are written and tested for Python3.
+Connection scripts are written and tested for Python3.9
 
-## Installation
-
-### Dependencies
-
-Install Python3 with SSH and UART on the **Test server** to allow the connection layer to connect
-
-Python3 resources for SSH and UART need to be installed on the **Test server**, including the paramiko package which deals with encryption required by SSH (paramiko installation is the longest one).
-
-This part of the installation differs depending on the **Test server** OS:
-  
-### Installing Python3 with SSH and UART resources on Windows
-
-* Download Python3 from <https://www.python.org/downloads/windows/> for your platform
-* In the first installation window, tick 'Add Python 3.x to PATH' (otherwise you will need to add it to your PATH later)
-  * To check proper Python3 installation, open a terminal window and type 'python'. This should give you the Python `>>>` prompt
- with details on the version. use `quit()` to stop Python3
-* Installing Python3 will also have pip and pip3 installed. However, it is required to upgrade to their latest versions using
- `python -m pip install --upgrade pip`
-* Install paramiko (for SSH support), ifaddr (to be able to list available networks) and pyserial (to connect to UARTS) 
-
-```bash
-pip3 install paramiko
-pip3 install ifaddr
-pip3 install pyserial
-````
-
-### Installing Python3 with SSH and UART resources on Linux
-
-(run the `.install.sh` script on the **Test server**)
-NB: the `install` script for `wfx-common-tools/connection/` takes a while, since it install paramiko, the Python
-package for SSH connection. SSH requires cryptography resources, and installing these takes a while.
-
-```bash
-apt-get update
-apt-get install libffi-dev python3-pip
-apt-get install libssl-dev
-pip3 install pip==19.1
-pip3 install setuptools==41.0.1
-pip3 install pynacl
-pip3 install pygments==2.3.1
-pip3 install paramiko==2.4.2
-pip3 install ipython==6
-pip3 install ifaddr==0.1.6
-pip3 install pyserial==2.6
-```
-
-### Connection layer Installation
-
-Install the connection layer on the **Test server**
-
-```bash
-cd ~/siliconlabs/
-git clone https://github.com/SiliconLabs/wfx-common-tools.git
-```
-
-### Connection layer Update
-
-Update the connection layer on the **Test server**
-
-```bash
-cd ~/siliconlabs/wfx-common-tools/test-feature
-git fetch
-git checkout origin/master
-```
-
-## Connecting
+## Connection
 
 ### Direct
 
 ('name' only --> Direct)
 
 ```python
->>>  dut = WfxConnection('<name>')
+>>> from wfx_common_tools.connection import wfx_connection
+>>>  dut = wfx_connection.WfxConnection('<name>')
 ```
 
 ### SSH
 
+Connect to the DUT with username & password:
+
 ```python
->>>  dut = WfxConnection('<name>', host='<hostname or IP address>', user='<user>', password='<password>')
+>>> from wfx_common_tools.connection import wfx_connection
+>>>  dut = wfx_connection.WfxConnection('<name>', host='<hostname or IP address>', user='<user>', password='<password>')
+```
+
+If you don't want to put the DUT login's password in your src code, you can use the SSH keys authentication as the following guide [ here](https://www.linode.com/docs/guides/use-public-key-authentication-with-ssh/)
+
+```bash
+$ ssh-keygen -t ed25519 -C "user@example.com"
+$ ssh-copy-id [user]@[ip-address] # Input password once time
+$ ssh [user]@[ip-address] # No required password input anymore
+```
+
+Now, the Python script can use Paramiko library to SSH to the DUT without password
+
+```python
+>>>  dut = wfx_connection.WfxConnection('<name>', host='<hostname or IP address>', user='<user>')
 ```
 
 ### UART with user/password
@@ -120,7 +73,7 @@ git checkout origin/master
 (port + user --> UART with login)
 
 ```python
->>>  dut = WfxConnection('<name>', port='COM19', user='<user>', password='<password>', baudrate=115200, bytesize=8, parity='N', stopbits=1)
+>>>  dut = wfx_connection.WfxConnection('<name>', port='COM19', user='<user>', password='<password>', baudrate=115200, bytesize=8, parity='N', stopbits=1)
 ```
 
 _NB: baudrate, bytesize, parity and stopbits values are optional, values used above are the default values_
@@ -130,7 +83,7 @@ _NB: baudrate, bytesize, parity and stopbits values are optional, values used ab
 (port --> UART)
 
 ```python
->>>  dut = WfxConnection('<name>', port='COM19', baudrate=115200, bytesize=8, parity='N', stopbits=1)
+>>>  dut = wfx_connection.WfxConnection('<name>', port='COM19', baudrate=115200, bytesize=8, parity='N', stopbits=1)
 ```
 
 _NB: baudrate, bytesize, parity and stopbits values are optional, values used above are the default values_
@@ -140,7 +93,7 @@ _NB: baudrate, bytesize, parity and stopbits values are optional, values used ab
 (port ='telnet' + host + user --> TELNET)
 
 ```python
->>>  dut = WfxConnection('<name>', host='<hostname or IP address>', port='telnet', user='<user>', password='<password>')
+>>>  dut = wfx_connection.WfxConnection('<name>', host='<hostname or IP address>', port='telnet', user='<user>', password='<password>')
 ```
 
 ## Connection API
