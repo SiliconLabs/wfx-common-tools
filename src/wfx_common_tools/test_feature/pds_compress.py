@@ -129,7 +129,7 @@ def handle_define(dbg_info, line):
 
 def handle_include(dbg_info, line, inc_paths):
     if re.match(r'\s*#\s*include\s+', line, re.I):
-        m = re.match(r'^\s*#\s*include\s+"([\w\./-]+)"\s*$', line, re.I)
+        m = re.match(r'^\s*#\s*include\s+"([\w\.:\\/-]+)"\s*$', line, re.I)
         if not m:
             pr_info(dbg_info, 'error: bad #include directive')
             exit(g_ret_value)
