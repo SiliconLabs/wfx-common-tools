@@ -1,6 +1,6 @@
 <p align="center">
-    <img src="silabs_logo.PNG" height=100px>
-    <img src="wi-fi-blue-circle-icon.JPG" height=100px>
+    <img src="silabs_logo.png" height=100px>
+    <img src="wi-fi-blue-circle-icon.jpg" height=100px>
 </P>
 
 ---
