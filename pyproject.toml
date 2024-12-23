@@ -21,7 +21,7 @@ exclude = [
 
 [project]
 name = "wfx_common_tools"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
   { name = "silabs-Marc", email = "marc.dorval@silabs.com"},
 ]
