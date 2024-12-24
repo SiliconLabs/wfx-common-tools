@@ -3,3 +3,6 @@
 /internal/
 __pycache__
 *.pyc
+
+# Python package distribution
+dist

@@ -19,7 +19,7 @@ pds_env['TEST_FEATURE_ROOT'] = "/home/pi/siliconlabs/wfx-linux-tools/test-featur
 pds_env['PDS_ROOT'] = pds_env['TEST_FEATURE_ROOT'] + "PDS/"
 pds_env['PDS_CURRENT_FILE'] = "/tmp/current_pds_data.in"
 pds_env['SEND_PDS_FILE'] = "/sys/kernel/debug/ieee80211/phy0/wfx/send_pds"
-# Retrieve the PDS defintion file from the package resources. Use a OS-agnostic path
+# Retrieve the PDS definition file from the package resources. Use a OS-agnostic path
 definition_file = Path(importlib.resources.files(test_feature), Path('definitions.in'))
 pds_env['PDS_DEFINITION_FILE'] = str(definition_file)
 pds_env['required_options'] = []
