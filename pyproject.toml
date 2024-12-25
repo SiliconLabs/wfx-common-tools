@@ -21,7 +21,7 @@ exclude = [
 
 [project]
 name = "wfx_common_tools"
-version = "0.0.4"
+version = "5.5.0"
 authors = [
   { name = "silabs-Marc", email = "marc.dorval@silabs.com"},
 ]
@@ -35,6 +35,7 @@ dependencies = [
 maintainers = [
   { name="silabs-tuD", email="tu.dao@silabs.com" },
   { name="silabs-JulienT", email="julien.tiron@silabs.com" },
+  { name = "silabs-Marc", email = "marc.dorval@silabs.com"},
 ]
 
 description = "Silicon Laboratories WFx Wi-Fi tools for all supported platforms"
