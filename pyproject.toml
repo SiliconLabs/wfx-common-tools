@@ -21,7 +21,7 @@ exclude = [
 
 [project]
 name = "wfx_common_tools"
-version = "5.5.3"
+version = "5.5.4"
 authors = [
   { name = "silabs-Marc", email = "marc.dorval@silabs.com"},
 ]
@@ -34,7 +34,6 @@ dependencies = [
 ]
 
 maintainers = [
-  { name="silabs-tuD", email="tu.dao@silabs.com" },
   { name="silabs-JulienT", email="julien.tiron@silabs.com" },
   { name = "silabs-Marc", email = "marc.dorval@silabs.com"},
 ]
