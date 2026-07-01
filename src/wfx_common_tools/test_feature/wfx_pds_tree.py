@@ -18,7 +18,7 @@
 """
 
 from copy import deepcopy
-from distutils.version import StrictVersion
+from packaging.version import Version
 
 wfx_pds = [
   #  ITEM                            | VERSION | DEFAULT                 | PATH                            | VALUES                    | DOC
@@ -91,7 +91,7 @@ class PdsTree(dict):
         msg = ""
         for item in self.pds_structure:
             key, version, default, path, values, doc = item
-            if StrictVersion(version) > StrictVersion(self.current_fw_version):
+            if Version(version) > Version(self.current_fw_version):
                 msg += "  Info: '" + key + "' cannot be supported with FW" + self.current_fw_version + \
                        ", it has been added in FW" + version + " (skipped)\n"
                 print(msg)
@@ -114,7 +114,7 @@ class PdsTree(dict):
 
     def add_tmp_param(self, version, path, key, default, trace=0):
         msg = ""
-        if StrictVersion(version) > StrictVersion(self.current_fw_version):
+        if Version(version) > Version(self.current_fw_version):
             msg += "  Info: '" + key + "' cannot be supported with FW" + self.current_fw_version + \
                    ", it has been added in FW" + version + " (skipped)\n"
             add_pds_warning(msg)
@@ -145,7 +145,7 @@ class PdsTree(dict):
             key, version, default, path, values, doc = item
             section_root = path.split('.')[0]
             if key in keys_to_keep and section_root not in keys_to_keep:
-                if StrictVersion(version) > StrictVersion(self.current_fw_version):
+                if Version(version) > Version(self.current_fw_version):
                     msg = "  Info: '" + key + "' cannot be supported with FW" + self.current_fw_version + \
                            ", it has been added in FW" + version + " (skipped)\n"
                     print(msg)
@@ -192,7 +192,7 @@ class PdsTree(dict):
         for item in self.pds_structure:
             k, version, default, path, values, doc = item
             if k == key:
-                if StrictVersion(version) > StrictVersion(self.current_fw_version):
+                if Version(version) > Version(self.current_fw_version):
                     return "Warning: '" + key + "' cannot be supported with FW" + self.current_fw_version + \
                            ", it has been added in FW" + version + " (skipped)\n"
                 return self._set_node_value(path, key, value)
@@ -206,7 +206,7 @@ class PdsTree(dict):
         for item in self.pds_structure:
             k, version, default, path, values, doc = item
             if k == key:
-                if StrictVersion(version) > StrictVersion(self.current_fw_version):
+                if Version(version) > Version(self.current_fw_version):
                     return "Warning: '" + key + "' cannot be supported with FW" + self.current_fw_version + \
                            ", it has been added in FW" + version + " (skipped)\n"
                 return self._get_node_value(path, key)

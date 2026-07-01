@@ -21,7 +21,7 @@ exclude = [
 
 [project]
 name = "wfx_common_tools"
-version = "0.0.3"
+version = "5.5.3"
 authors = [
   { name = "silabs-Marc", email = "marc.dorval@silabs.com"},
 ]
@@ -29,12 +29,14 @@ authors = [
 dependencies = [
   "paramiko>=2.7.1",
   "pyserial>=3.4",
-  "ifaddr>=0.1.6",  
+  "ifaddr>=0.1.6",
+  "setuptools>=80.9.0",
 ]
 
 maintainers = [
   { name="silabs-tuD", email="tu.dao@silabs.com" },
   { name="silabs-JulienT", email="julien.tiron@silabs.com" },
+  { name = "silabs-Marc", email = "marc.dorval@silabs.com"},
 ]
 
 description = "Silicon Laboratories WFx Wi-Fi tools for all supported platforms"
