@@ -45,7 +45,7 @@ class AbstractConnection(object):
 
 class Uart(AbstractConnection):
 
-    def __init__(self, nickname="uart", port=None, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1, user='', password='', trace=False):
+    def __init__(self, nickname="uart", port=None, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1, user='', password='', trace=False, tx_frame_ending='\n', rx_frame_ending = '\n'):
         try:
             import serial
         except ImportError:
@@ -77,7 +77,7 @@ class Uart(AbstractConnection):
         self.debug = False
         self.last_write = ''
         if port:
-            self.configure(port, baudrate, bytesize, parity, stopbits, timeout)
+            self.configure(port, baudrate, bytesize, parity, stopbits, timeout, tx_frame_ending, rx_frame_ending)
             return
 
     def test_connectivity(self):
@@ -127,11 +127,14 @@ class Uart(AbstractConnection):
             self.prompt = split_res[res_len-1].rstrip()
             print(self.nickname + " prompt set to '" + self.prompt + "'")
 
-    def configure(self, port, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1):
+    def configure(self, port, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1, tx_frame_ending='\n', rx_frame_ending = '\n'):
         import serial
         self.connection = None
         self.link = None
         self.prompt = None
+        self.tx_frame_ending = tx_frame_ending
+        self.rx_frame_ending = rx_frame_ending
+        
         try:
             self.link = serial.serial_for_url(url=port, baudrate=baudrate, bytesize=bytesize, parity=parity,
                                       stopbits=stopbits, timeout=timeout, write_timeout=None)
@@ -163,7 +166,7 @@ class Uart(AbstractConnection):
             if self.trace:
                 print("UART sending  '"  + self.write_color + text.rstrip() + self.reset_color + "'")
             self.last_write = text
-            self.link.write(bytes(str(text).rstrip() + '\n', 'utf-8'))
+            self.link.write(bytes(str(text).rstrip() + self.tx_frame_ending, 'utf-8'))
             self.link.flush()
             time.sleep(5/1000)
 
@@ -175,7 +178,7 @@ class Uart(AbstractConnection):
             while time.time_ns() < stop_time:
                 res = self.link.read_all().decode("utf-8")
                 if len(res):
-                    for read_line in res.split('\n'):
+                    for read_line in res.split(self.rx_frame_ending):
                         if self.trace:
                             print("UART received <" + read_line.rstrip() + ">")
                     return res

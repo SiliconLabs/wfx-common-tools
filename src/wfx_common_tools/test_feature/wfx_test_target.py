@@ -63,8 +63,10 @@ class WfxTestTarget(object):
                 port = kwargs['port']
                 user = kwargs['user'] if 'user' in kwargs else ''
                 password = kwargs['password'] if 'password' in kwargs else ''
+                tx_frame_ending = kwargs['tx_frame_ending']
+                rx_frame_ending = kwargs['rx_frame_ending']
                 print('%s: Configuring a UART connection using %s/%s' % (nickname, port, user))
-                self.link = Uart(nickname, port=port, user=user, password=password)
+                self.link = Uart(nickname, port=port, user=user, password=password, tx_frame_ending=tx_frame_ending, rx_frame_ending=rx_frame_ending)
                 if self.link is None:
                     if port in uarts():
                         raise Exception(port + ' is detected but is not available. Check for other applications using ' + port)
